@@ -42,4 +42,7 @@ This project is the property of **BONFIRE BASE**.
 - **Commercial Use**: Strictly prohibited without a separate commercial agreement.
 
 ---
-Developed with ❤️ by the BONFIRE BASE Team.
+<p align="center">
+  Developed with ❤️ by the <b>BONFIRE BASE</b> Team. <br>
+  <img src="https://img.shields.io/badge/Developed%20by-BONFIRE%20BASE-orange?style=for-the-badge&color=ff8c00" alt="Developed by BONFIRE BASE">
+</p>
