@@ -1,4 +1,4 @@
-# Mama's Go (Tong-its)
+# Mama's Go (Tong-its) | UNDERDEVELOPMENT
 
 ![Mama's Go Banner](https://img.shields.io/badge/Status-Prototype-orange?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.12+-blue?style=for-the-badge&logo=python)
