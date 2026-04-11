@@ -1,7 +1,3 @@
-"""
-Animation system for Mama's Go.
-Provides tweening, easing, and managed animation state.
-"""
 import math
 import time
 
@@ -164,7 +160,7 @@ class Timer:
 # ─── Particle System (Simple) ───────────────────────────────────────
 
 class Particle:
-    def __init__(self, x, y, vx, vy, color, size, lifetime):
+    def __init__(self, x, y, vx, vy, color, size, lifetime, gravity=True):
         self.x = x
         self.y = y
         self.vx = vx
@@ -173,12 +169,14 @@ class Particle:
         self.size = size
         self.lifetime = lifetime
         self.age = 0.0
+        self.gravity = gravity
 
     def update(self, dt):
         self.age += dt
         self.x += self.vx * dt
         self.y += self.vy * dt
-        self.vy += 200 * dt  # Gravity
+        if self.gravity:
+            self.vy += 200 * dt  # Gravity
         return self.age < self.lifetime
 
     @property
@@ -191,7 +189,7 @@ class ParticleEmitter:
     def __init__(self):
         self.particles = []
 
-    def emit(self, x, y, count=10, colors=None, speed=150, lifetime=0.8, size=4):
+    def emit(self, x, y, count=10, colors=None, speed=150, lifetime=0.8, size=4, gravity=True):
         import random
         if colors is None:
             colors = [(255, 215, 0), (255, 180, 0), (255, 255, 100)]
@@ -199,11 +197,11 @@ class ParticleEmitter:
             angle = random.uniform(0, 2 * math.pi)
             spd = random.uniform(speed * 0.5, speed)
             vx = math.cos(angle) * spd
-            vy = math.sin(angle) * spd - 100  # Bias upward
+            vy = math.sin(angle) * spd - (100 if gravity else 0)
             color = random.choice(colors)
             sz = random.uniform(size * 0.5, size * 1.5)
             lt = random.uniform(lifetime * 0.6, lifetime)
-            self.particles.append(Particle(x, y, vx, vy, color, sz, lt))
+            self.particles.append(Particle(x, y, vx, vy, color, sz, lt, gravity))
 
     def update(self, dt):
         self.particles = [p for p in self.particles if p.update(dt)]
@@ -211,5 +209,10 @@ class ParticleEmitter:
     def draw(self, surface):
         import pygame
         for p in self.particles:
-            # Removed the buggy drawing code that produced yellow dots
-            pass
+            alpha = int(255 * p.alpha)
+            if alpha <= 0: continue
+            
+            # Draw a glowing circle
+            s = pygame.Surface((int(p.size*2), int(p.size*2)), pygame.SRCALPHA)
+            pygame.draw.circle(s, (*p.color, alpha), (p.size, p.size), p.size)
+            surface.blit(s, (int(p.x - p.size), int(p.y - p.size)))

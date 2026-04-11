@@ -1,7 +1,3 @@
-"""
-Reusable UI components for Mama's Go.
-Buttons, badges, panels, phase indicator — all rendered with Pygame.
-"""
 import pygame
 import math
 
@@ -194,7 +190,7 @@ class PlayerPanel:
         self.font_name = font_name
         self.font_stats = font_stats
 
-    def draw(self, surface, x, y, player, is_active=False, show_points=False, align='center', avatar_surf=None, show_burned=False, timer_progress=0.0):
+    def draw(self, surface, x, y, player, is_active=False, show_points=False, align='center', avatar_surf=None, show_burned=False, timer_progress=0.0, is_dealer=False, dealer_img=None):
         # Modern Layout Dimensions
         pw, ph = 240, 80
         if align == 'center': px = x - pw // 2
@@ -300,6 +296,15 @@ class FightResolutionOverlay:
             color=Colors.BTN_DANGER, hover_color=Colors.BTN_DANGER_HOVER
         )
 
+    def on_resize(self, width, height):
+        self.width = width
+        self.height = height
+        btn_w, btn_h = 240, 55
+        self.btn_fight.rect.x = width // 2 - btn_w - 20
+        self.btn_fight.rect.y = height // 2 + 100
+        self.btn_fold.rect.x = width // 2 + 20
+        self.btn_fold.rect.y = height // 2 + 100
+
     def update(self, dt, mouse_pos):
         self.alpha = min(self.alpha + self.fade_speed * dt, self.target_alpha)
         self.btn_fight.update(mouse_pos, dt)
@@ -355,15 +360,30 @@ class GameOverOverlay:
         self.fade_speed = 600
 
         self.play_again_btn = Button(
-            width // 2 - 120, height - 100, 240, 55,
+            width // 2 - 250, height - 100, 240, 55,
             "PLAY AGAIN", font_btn,
             color=Colors.BTN_SUCCESS,
             hover_color=Colors.BTN_SUCCESS_HOVER,
         )
+        self.lobby_btn = Button(
+            width // 2 + 10, height - 100, 240, 55,
+            "LOBBY", font_btn,
+            color=Colors.BTN_PRIMARY,
+            hover_color=Colors.BTN_PRIMARY_HOVER,
+        )
+
+    def reposition(self, width, height):
+        self.width = width
+        self.height = height
+        self.play_again_btn.rect.x = width // 2 - 250
+        self.play_again_btn.rect.y = height - 100
+        self.lobby_btn.rect.x = width // 2 + 10
+        self.lobby_btn.rect.y = height - 100
 
     def update(self, dt, mouse_pos):
         self.alpha = min(self.alpha + self.fade_speed * dt, self.target_alpha)
         self.play_again_btn.update(mouse_pos, dt)
+        self.lobby_btn.update(mouse_pos, dt)
 
     def draw(self, surface, winner, win_method, scores, engine, get_card_image, statuses=None):
         # 1. High-end Backdrop (Translucent for transparency)
@@ -469,6 +489,7 @@ class GameOverOverlay:
 
         # 4. Action
         self.play_again_btn.draw(surface)
+        self.lobby_btn.draw(surface)
 
 
 # ─── Meld Display ────────────────────────────────────────────────────

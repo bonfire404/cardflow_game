@@ -2,7 +2,7 @@ from .models import Deck, Player, Meld, TableMeld, TurnPhase, GamePhase
 
 
 class TongItsEngine:
-    def __init__(self, player_names):
+    def __init__(self, player_names, dealer_idx=0):
         self.deck = Deck()
         self.players = [
             Player(name, is_human=(i == 0))
@@ -10,7 +10,8 @@ class TongItsEngine:
         ]
         self.discard_pile = []
         self.table_melds = []           # All melds on the table
-        self.current_turn_index = 0     # Dealer = 0
+        self.dealer_idx = dealer_idx    # Added dealer_idx
+        self.current_turn_index = dealer_idx # Banker starts
         self.current_phase = TurnPhase.WAITING
         self.game_phase = GamePhase.SHUFFLING
         self.is_game_over = False
@@ -35,17 +36,22 @@ class TongItsEngine:
     def initialize_game(self):
         """
         Filipino Tong-its dealing:
-        - Dealer (player 0) gets 13 cards
+        - Dealer gets 13 cards
         - Others get 12 each
-        - Deal order: left of dealer first (player 1, then 2, then 0)
+        - Deal order: left of dealer first
         - Remaining cards = Closed Pile (draw pile)
         - NO initial discard from deck — dealer discards from hand first
         """
         self.deal_sequence = []
 
-        # Deal 12 rounds: one card to each player (left of dealer first)
+        # Determine deal order: left of dealer first
+        # For 3 players: (dealer+1)%3, (dealer+2)%3, dealer
+        others = [(self.dealer_idx + 1) % 3, (self.dealer_idx + 2) % 3]
+        deal_round_order = others + [self.dealer_idx]
+
+        # Deal 12 rounds
         for r in range(12):
-            for p_idx in [1, 2, 0]:
+            for p_idx in deal_round_order:
                 card = self.deck.draw()
                 if card:
                     self.players[p_idx].hand.append(card)
@@ -54,8 +60,8 @@ class TongItsEngine:
         # 13th card to dealer
         card = self.deck.draw()
         if card:
-            self.players[0].hand.append(card)
-            self.deal_sequence.append((0, card))
+            self.players[self.dealer_idx].hand.append(card)
+            self.deal_sequence.append((self.dealer_idx, card))
 
         # Sort bots' hands for consistency, but leave human unsorted initially
         # The human is assumed to be player 0
@@ -72,8 +78,8 @@ class TongItsEngine:
 
         # Dealer starts: can meld or sapaw before first discard
         self.is_dealer_initial_discard = True
-        self.current_turn_index = 0
-        self.players[0].has_drawn = True # Banker starting with 13 cards counts as having drawn
+        self.current_turn_index = self.dealer_idx
+        self.players[self.dealer_idx].has_drawn = True # Banker starting with 13 cards counts as having drawn
         self.current_phase = TurnPhase.MELD
         self.game_phase = GamePhase.DEALER_DISCARD
         self.active_fight = None

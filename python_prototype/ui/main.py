@@ -1,13 +1,16 @@
-import sys, os, math, pygame, random
+import sys, os, math, pygame, random, json
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from game.engine import TongItsEngine
 from game.ai_bot import RuleBasedAI
-from game.models import TurnPhase, GamePhase, Meld as MC
+from game.models import TurnPhase, GamePhase, Meld as MC, RANK_ORDER
 from ui.animation import (AnimationManager, Animation, Timer, ParticleEmitter,
                            ease_out_cubic, ease_out_back, ease_in_out_quad, linear)
 from ui.ui_components import (Colors, Button, PhaseIndicator, Badge, PlayerPanel,
                                GameOverOverlay, MeldDisplay, FightResolutionOverlay)
+from ui.lobby import Lobby
+from ui.profile import ProfileModal
+from ui.dealer import DealerManager
 
 # --- Gendered Identity Pools ---
 MALE_NAMES = ["Juan", "Rico", "Dingdong", "Vhong", "Isko", "Vico", "Bong", "Ping", "Manny", "Iloy", "Gardo", "Ador"]
@@ -42,9 +45,6 @@ def draw_hand_ribbon(surface, rects, text="", is_front=True):
     rw = (max_x - min_x)
     rh = 30
     rx = min_x
-    
-    # Standardize ry to the middle of the hand area to prevent jumping during select/hover
-    # layout['hand_y'] is approx HEIGHT - 170. Center is approx hand_y + 85.
     screen_h = surface.get_height()
     ry = (screen_h - 170) + 85 - rh // 2
     
@@ -53,22 +53,21 @@ def draw_hand_ribbon(surface, rects, text="", is_front=True):
     gold_trim = Colors.RIBBON_GOLD
     
     if not is_front:
-        # Back part of ribbon (slightly wider, darker)
+      
         back_surf = pygame.Surface((rw + 12, rh + 4), pygame.SRCALPHA)
         pygame.draw.rect(back_surf, shadow_color, (0, 2, rw + 12, rh), border_radius=4)
-        # End 'folds'
+       
         pygame.draw.polygon(back_surf, shadow_color, [(0, 0), (15, rh//2), (0, rh)])
         pygame.draw.polygon(back_surf, shadow_color, [(rw+12, 0), (rw+12-15, rh//2), (rw+12, rh)])
         surface.blit(back_surf, (rx - 6, ry - 2))
     else:
-        # Front part of ribbon
-        front_surf = pygame.Surface((rw, rh), pygame.SRCALPHA)
-        # Main band with a subtle top-to-bottom gradient effect (using double rect)
-        pygame.draw.rect(front_surf, ribbon_color, (0, 0, rw, rh), border_radius=2)
-        pygame.draw.rect(front_surf, (255, 255, 255, 40), (0, 0, rw, 2)) # Top highlight
-        pygame.draw.rect(front_surf, (0, 0, 0, 40), (0, rh-2, rw, 2))      # Bottom shadow
         
-        # Gold trim lines
+        front_surf = pygame.Surface((rw, rh), pygame.SRCALPHA)
+        
+        pygame.draw.rect(front_surf, ribbon_color, (0, 0, rw, rh), border_radius=2)
+        pygame.draw.rect(front_surf, (255, 255, 255, 40), (0, 0, rw, 2))
+        pygame.draw.rect(front_surf, (0, 0, 0, 40), (0, rh-2, rw, 2))      
+        
         pygame.draw.line(front_surf, gold_trim, (0, 4), (rw, 4), 1)
         pygame.draw.line(front_surf, gold_trim, (0, rh-5), (rw, rh-5), 1)
         
@@ -82,32 +81,123 @@ def draw_hand_ribbon(surface, rects, text="", is_front=True):
         # Label
         if text:
             try:
-                # Use a small font for the ribbon label
+               
                 f = pygame.font.SysFont("Arial", 14, bold=True)
                 txt_surf = f.render(text.upper(), True, gold_trim)
                 surface.blit(txt_surf, (rx + rw//2 - txt_surf.get_width()//2, ry + rh//2 - txt_surf.get_height()//2))
             except: pass
 
+# --- Profile Persistence ---
+PROFILE_FILE = "user_profile.json"
+
+def save_user_profile(stats_dict):
+    try:
+        with open(PROFILE_FILE, "w") as f:
+            json.dump(stats_dict, f)
+    except Exception as e:
+        print(f"Save error: {e}")
+
+def load_user_profile():
+    defaults = {
+        "name": "Player",
+        "avatar_idx": 0,
+        "wins": 0,
+        "losses": 0,
+        "coins": 10000,
+        "rank": "Beginner"
+    }
+    if os.path.exists(PROFILE_FILE):
+        try:
+            with open(PROFILE_FILE, "r") as f:
+                data = json.load(f)
+                # Merge with defaults for robustness
+                for k, v in defaults.items():
+                    if k not in data: data[k] = v
+                return data
+        except Exception as e:
+            print(f"Load error: {e}")
+    return defaults
+
 def main():
     pygame.init()
+    # Default windowed resolution (1280x720)
     WIDTH, HEIGHT = 1280, 720
     screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
     pygame.display.set_caption("Mama's Go — Tong-its")
 
+    # Initialize variables used in on_resize closure early
+    background_raw = background = None
+    lobby_bkg_raw = lobby_bkg = None
+    lobby = None
+    profile_modal = None
+    phase_indicator = None
+    game_over_overlay = None
+    fight_resolution_overlay = None
+    layout = None
+    
+    # Turn Timing & State Tracking
+    TURN_LIMIT = 15.0
+    turn_timer = TURN_LIMIT
+    last_turn_state = (0, None)
+    meld_hit_zones = []
+
+    def on_resize(w, h):
+        nonlocal WIDTH, HEIGHT, screen, background, lobby_bkg, layout, lobby
+        nonlocal profile_modal, phase_indicator, game_over_overlay, fight_resolution_overlay
+        WIDTH, HEIGHT = w, h
+        screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
+        
+        # Scale backgrounds
+        if background_raw:
+            background = pygame.transform.scale(background_raw, (WIDTH, HEIGHT))
+        if lobby_bkg_raw:
+            lobby_bkg = pygame.transform.scale(lobby_bkg_raw, (WIDTH, HEIGHT))
+            
+        # Update managers and UI
+        layout = calc_layout()
+        lobby.w, lobby.h = WIDTH, HEIGHT
+        lobby.recalc_banners()
+        profile_modal.on_resize(WIDTH, HEIGHT)
+        phase_indicator.x = WIDTH // 2
+        
+        if game_over_overlay:
+            game_over_overlay.reposition(WIDTH, HEIGHT)
+        if fight_resolution_overlay:
+            fight_resolution_overlay.on_resize(WIDTH, HEIGHT)
+
     # ── Assets ────────────────────────────────────────────────────
     assets_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'assets'))
-    bg_path = os.path.join(assets_dir, "images", "clean_card_table.png")
+    
+    bg_pool = ["clean_card_table.png", "mahogany_card_table.png"]
+
+    def refresh_background():
+        nonlocal background_raw, background
+        try:
+            selected = random.choice(bg_pool)
+            bg_path = os.path.join(assets_dir, "images", selected)
+            background_raw = pygame.image.load(bg_path).convert()
+            background = pygame.transform.scale(background_raw, (WIDTH, HEIGHT))
+        except Exception as e:
+            print(f"Bkg error: {e}")
+            background_raw = background = None
+
+    refresh_background()
+
+    # Lobby Background (specific)
     try:
-        background_raw = pygame.image.load(bg_path).convert()
-        background = pygame.transform.scale(background_raw, (WIDTH, HEIGHT))
-    except Exception:
-        background_raw = background = None
+        lb_bkg_path = os.path.join(assets_dir, "images", "casino_lobby_bg.png")
+        lobby_bkg_raw = pygame.image.load(lb_bkg_path).convert()
+        lobby_bkg = pygame.transform.scale(lobby_bkg_raw, (WIDTH, HEIGHT))
+    except:
+        lobby_bkg_raw = lobby_bkg = None
 
     card_back_path = os.path.join(assets_dir, "Casino", "Cards", "back04.png")
     try: card_back_raw = pygame.image.load(card_back_path).convert_alpha()
     except Exception: card_back_raw = None
 
-    # Load avatars from the dedicated avatars directory and categorize by gender
+    # Dealer Manager
+    dealer_mgr = DealerManager(assets_dir)
+
     avatars_dir = os.path.join(assets_dir, "images", "avatars")
     av_pools = {'male': [], 'female': [], 'any': []}
     
@@ -116,18 +206,21 @@ def main():
             if fn.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
                 try:
                     img = pygame.image.load(os.path.join(avatars_dir, fn)).convert_alpha()
-                    if 'male' in fn.lower(): av_pools['male'].append(img)
-                    elif 'female' in fn.lower(): av_pools['female'].append(img)
-                    else: av_pools['any'].append(img)
+                    fn_lower = fn.lower()
+                    if any(k in fn_lower for k in ['female', 'women', 'girl', 'lady', 'p_female']): 
+                        av_pools['female'].append(img)
+                    elif any(k in fn_lower for k in ['male', 'man', 'boy', 'guy', 'men', 'p_male']): 
+                        av_pools['male'].append(img)
+                    else: 
+                        av_pools['any'].append(img)
                 except: pass
     
-    # Fallback to logic if specific gender pools are empty
     for g in ['male', 'female']:
         if not av_pools[g]: av_pools[g] = av_pools['any']
 
     cards_dir = os.path.join(assets_dir, "Casino", "Cards")
     card_image_cache = {}
-    CARD_SCALE = 0.55 # Scaled down high-res Casino assets for better fit
+    CARD_SCALE = 0.55 
     BASE_CARD_W = BASE_CARD_H = 0
 
     def get_card_image(card, scale=CARD_SCALE):
@@ -159,7 +252,7 @@ def main():
     # ── Fonts ─────────────────────────────────────────────────────
     fonts_dir = os.path.join(assets_dir, "fonts")
     def load_font(name_query, size):
-        # Walk through fonts_dir to find the .ttf/.otf that contains name_query
+        
         for root, dirs, files in os.walk(fonts_dir):
             for fn in files:
                 if name_query.lower() in fn.lower() and fn.endswith(('.ttf','.otf')):
@@ -172,38 +265,64 @@ def main():
     font_small = load_font("Inter_18pt-Regular", 16)
     font_btn = load_font("Inter_18pt-SemiBold", 18)
     font_phase = load_font("JetBrainsMono", 16)
+    
+    # ── Profile & Stats Loading ───────────────────────────────────
+    profile_data = load_user_profile()
+    player_name = profile_data["name"]
+    p_av_idx = profile_data["avatar_idx"]
+    player_stats = {
+        "coins": profile_data["coins"],
+        "rank": profile_data["rank"],
+        "wins": profile_data["wins"],
+        "losses": profile_data["losses"]
+    }
 
     # ── Engine ────────────────────────────────────────────────────
-    # Assign randomized names and profiles using gender logic
-    def generate_npc():
+ 
+    def generate_npc(exclude_names=None, exclude_avatars=None):
+        if exclude_names is None: exclude_names = []
+        if exclude_avatars is None: exclude_avatars = []
+        
         gender = random.choice(['male', 'female'])
-        name = random.choice(MALE_NAMES if gender == 'male' else FEMALE_NAMES)
-        avatar = random.choice(av_pools[gender]) if av_pools[gender] else None
+        # Ensure name uniqueness
+        pool_names = MALE_NAMES if gender == 'male' else FEMALE_NAMES
+        available_names = [n for n in pool_names if n not in exclude_names]
+        if not available_names: available_names = pool_names
+        name = random.choice(available_names)
+
+        # Ensure avatar uniqueness
+        p_avs = av_pools[gender] if av_pools[gender] else av_pools['any']
+        available_avatars = [a for a in p_avs if a not in exclude_avatars]
+        if not available_avatars: available_avatars = p_avs # Fallback
+        avatar = random.choice(available_avatars) if available_avatars else None
+        
         return name, avatar
 
-    # Player (Default name "Player")
-    player_name = "Player"
+    # Player / Avatar Setup
+    profile_fonts = {'title': font_title, 'body': font_body, 'small': font_small, 'btn': font_btn}
+    profile_modal = ProfileModal(WIDTH, HEIGHT, fonts=profile_fonts)
+    profile_modal.selected_avatar_idx = p_av_idx
+    current_avatar = profile_modal.avatars[p_av_idx] if p_av_idx < len(profile_modal.avatars) else None
     
     # Bots (NPCs with real human names)
-    bot1_info = generate_npc()
-    bot2_info = generate_npc()
-    while bot2_info[0] == bot1_info[0] or bot2_info[0] == player_name: 
-        bot2_info = generate_npc()
+    bot1_info = generate_npc(exclude_names=[player_name], exclude_avatars=[current_avatar])
+    bot2_info = generate_npc(exclude_names=[player_name, bot1_info[0]], 
+                             exclude_avatars=[current_avatar, bot1_info[1]])
 
-    engine = TongItsEngine([player_name, bot1_info[0], bot2_info[0]])
+    dealer_mgr.randomize()
+    engine = TongItsEngine([player_name, bot1_info[0], bot2_info[0]], dealer_idx=dealer_mgr.get_idx())
     engine.initialize_game()
-    
-    # Assign avatars to indices ([Player, Bot1, Bot2])
-    # Player avatar is None so the UI renders a 'P' icon from the name
-    assigned_avatars = [None, bot1_info[1], bot2_info[1]]
+    assigned_avatars = [current_avatar, bot1_info[1], bot2_info[1]]
 
     anim_mgr = AnimationManager()
     particles = ParticleEmitter()
+    lobby_particles = ParticleEmitter() # Dedicated for lobby
     ai_timer = None
     AI_THINK_DELAY = 0.7
 
-    # ── Dealing State ─────────────────────────────────────────────
-    game_state = 'shuffling'
+    # ── State ─────────────────────────────────────────────────────
+    game_state = 'lobby' # Start in Lobby
+    lobby = Lobby(WIDTH, HEIGHT, font_title, font_body)
     shuffle_timer = 0.0
     SHUFFLE_DURATION = 2.2
     deal_order = []
@@ -222,23 +341,58 @@ def main():
     dragging_card = None
     drag_offset = (0,0)
     drag_pos = (0,0)
-    card_visual_pos = {} # card_id -> [x, y]
+    card_visual_pos = {} 
     mouse_down_pos = None
     mouse_down_card = None
     is_dragging = False
     DRAG_THRESHOLD = 8
-    game_over_overlay = None
-    fight_resolution_overlay = None
-    hover_closed_pile = False
-    hover_discard_pile = False
-    
-    # --- Turn Timer (Balanced) ---
-    TURN_LIMIT = 15.0
-    turn_timer = TURN_LIMIT
-    last_turn_state = (engine.current_turn_index, engine.current_phase)
+    # --- Unified Game Start/Restart Helper ---
+    def start_new_game(target_state='shuffling', is_play_again=False):
+        nonlocal engine, bot1_info, bot2_info, assigned_avatars, game_state, shuffle_timer, deal_order
+        nonlocal dealt_count, dealt_per_player, deal_timer, flying_cards, ai_timer, selected_cards
+        nonlocal game_over_overlay, fight_resolution_overlay, turn_timer, last_turn_state, meld_hit_zones
+        
+        # Dealer Logic via Manager
+        # Only randomize when starting fresh from lobby, not on Play Again
+        if not is_play_again and target_state == 'shuffling':
+            dealer_mgr.randomize()
+            
+        cur_dealer_idx = dealer_mgr.get_idx()
 
-    # Meld hit zones for sapaw drag-and-drop: [(table_meld, pygame.Rect)]
-    meld_hit_zones = []
+        # Refresh Bots ONLY if starting fresh from lobby
+        if not is_play_again:
+            bot1_info = generate_npc(exclude_names=[player_name], exclude_avatars=[current_avatar])
+            bot2_info = generate_npc(exclude_names=[player_name, bot1_info[0]], 
+                                     exclude_avatars=[current_avatar, bot1_info[1]])
+        
+        # Initialize Engine with sync'd names and current dealer
+        engine = TongItsEngine([player_name, bot1_info[0], bot2_info[0]], dealer_idx=cur_dealer_idx)
+        engine.initialize_game()
+        
+        # Sync Avatars (Player may have changed)
+        assigned_avatars[0] = current_avatar
+        assigned_avatars[1] = bot1_info[1]
+        assigned_avatars[2] = bot2_info[1]
+        
+        # Reset State Variables
+        game_state = target_state
+        shuffle_timer = 0.0
+        
+        # Calculate deal order using DealerManager
+        deal_order = dealer_mgr.get_deal_sequence()
+        
+        dealt_count = 0
+        dealt_per_player = [0, 0, 0]
+        deal_timer = 0.0
+        flying_cards.clear()
+        ai_timer = None
+        selected_cards.clear()
+        game_over_overlay = None
+        fight_resolution_overlay = None
+        turn_timer = TURN_LIMIT
+        last_turn_state = (engine.current_turn_index, engine.current_phase)
+        meld_hit_zones = []
+        refresh_background()
 
     # ── UI Components ─────────────────────────────────────────────
     phase_indicator = PhaseIndicator(WIDTH // 2, 8, font_phase)
@@ -264,6 +418,11 @@ def main():
             'bot1_meld_x': WIDTH-300, 'bot1_meld_y': 190,
             'bot2_meld_x': 40, 'bot2_meld_y': 190,
             'btn_bar_y': HEIGHT-55, 'btn_bar_x': WIDTH//2,
+            'dealer_anchors': [
+                (100, HEIGHT - 100),              # Player (Bottom Left Bumper)
+                (WIDTH - 100, 80),                # Bot 1 (Top Right Bumper)
+                (100, 80)                         # Bot 2 (Top Left Bumper)
+            ]
         }
     layout = calc_layout()
 
@@ -317,6 +476,62 @@ def main():
     while running:
         dt = clock.tick(60) / 1000.0
         mouse_pos = pygame.mouse.get_pos()
+
+        # ── LOBBY ─────────────────────────────────────────────────
+        if game_state == 'lobby':
+            screen.fill((10, 15, 30))
+            
+            # Subtle background dust/stars (Now Golden/Celebratory)
+            if random.random() < 0.08:
+                p_colors = [(255, 215, 0), (255, 255, 180), (200, 160, 50)]
+                lobby_particles.emit(random.randint(0, WIDTH), random.randint(0, HEIGHT), 
+                                    count=1, colors=p_colors, speed=12, lifetime=2.5, gravity=False)
+            
+            lobby_particles.update(dt)
+            lobby.update(dt, mouse_pos)
+            lobby.draw(screen, player_name, current_avatar, player_stats, lobby_bkg)
+            lobby_particles.draw(screen)
+            
+            # Update and Draw Profile Modal on top
+            if profile_modal.active:
+                profile_modal.update(dt, mouse_pos)
+                profile_modal.draw(screen)
+            
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT: running = False
+                
+                # --- Profile Modal Interception ---
+                if profile_modal.active:
+                    resp = profile_modal.handle_event(event)
+                    if resp and resp["type"] == "save":
+                        player_name = resp["name"]
+                        p_av_idx = resp["avatar_idx"]
+                        current_avatar = profile_modal.avatars[p_av_idx]
+                        
+                        # Update and Save
+                        profile_data["name"] = player_name
+                        profile_data["avatar_idx"] = p_av_idx
+                        save_user_profile(profile_data)
+                    continue
+
+                if event.type == pygame.VIDEORESIZE:
+                    on_resize(event.w, event.h)
+                
+                # Trigger Profile on Avatar Click
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    # Avatar area: Bottom Left (25, H-68, 65, 65)
+                    avatar_rect = pygame.Rect(25, HEIGHT - 68, 65, 65)
+                    if avatar_rect.collidepoint(event.pos):
+                        profile_modal.open(player_name)
+                        continue
+
+                sel_mode = lobby.handle_event(event)
+                if sel_mode is not None:
+                    # Sync Profile and Start Game
+                    start_new_game(target_state='shuffling')
+            
+            pygame.display.flip()
+            continue
         player = engine.players[0]
         current_player = engine.get_current_player()
         is_player_turn = (engine.current_turn_index == 0)
@@ -326,25 +541,36 @@ def main():
 
         # --- Turn Timer Logic ---
         if not engine.is_game_over and game_state not in ('shuffling', 'dealing') and engine.game_phase != GamePhase.RESOLVING_FIGHT:
-            # Detect turn/phase change to reset timer
-            current_state = (engine.current_turn_index, engine.current_phase)
-            if current_state != last_turn_state:
+            # Only reset timer when the active player CHANGES, not on every phase move
+            if engine.current_turn_index != last_turn_state[0]:
                 turn_timer = TURN_LIMIT
-                last_turn_state = current_state
+                last_turn_state = (engine.current_turn_index, engine.current_phase)
+            else:
+                # Keep tracking phase for secondary logic, but don't reset timer
+                last_turn_state = (engine.current_turn_index, engine.current_phase)
             
             turn_timer -= dt
             
             # Force action on timeout
             if turn_timer <= 0:
-                turn_timer = TURN_LIMIT # Reset to prevent multiple triggers
+                # SMART TIMEOUT: Resolve all remaining turn steps immediately
                 curr_p = engine.get_current_player()
+                
+                # 1. Force Draw if they haven't drawn yet
                 if engine.current_phase == TurnPhase.DRAW:
                     engine.draw_from_deck(curr_p)
-                elif engine.current_phase == TurnPhase.MELD:
+                
+                # 2. Skip Melds/Actions if in those phases (including right after a forced draw)
+                if engine.current_phase in (TurnPhase.MELD, TurnPhase.ACTION):
                     engine.skip_to_discard()
-                elif engine.current_phase == TurnPhase.DISCARD or is_dealer_phase:
+                
+                # 3. Force Discard the highest card to end the turn
+                if engine.current_phase == TurnPhase.DISCARD or is_dealer_phase:
                     if curr_p.hand:
-                        engine.discard_card(curr_p, curr_p.hand[0])
+                        highest_card = max(curr_p.hand, key=lambda c: RANK_ORDER.index(c.rank))
+                        engine.discard_card(curr_p, highest_card)
+                
+                # Turn ends, next frame will reset timer for next player index
 
         # ── SHUFFLING ─────────────────────────────────────────────
         if game_state == 'shuffling':
@@ -353,10 +579,8 @@ def main():
             for ev in pygame.event.get():
                 if ev.type == pygame.QUIT: running = False
                 elif ev.type == pygame.VIDEORESIZE:
-                    WIDTH, HEIGHT = ev.w, ev.h
-                    screen = pygame.display.set_mode((WIDTH,HEIGHT), pygame.RESIZABLE)
-                    if background_raw: background = pygame.transform.scale(background_raw, (WIDTH,HEIGHT))
-                    layout = calc_layout()
+                    on_resize(ev.w, ev.h)
+            screen.fill((0, 0, 0))
             if background: screen.blit(background, (0,0))
             else: screen.fill(Colors.TABLE_GREEN)
             cb = get_card_back()
@@ -479,9 +703,8 @@ def main():
             for ev in pygame.event.get():
                 if ev.type == pygame.QUIT: running = False
                 elif ev.type == pygame.VIDEORESIZE:
-                    WIDTH,HEIGHT = ev.w,ev.h; screen = pygame.display.set_mode((WIDTH,HEIGHT),pygame.RESIZABLE)
-                    if background_raw: background = pygame.transform.scale(background_raw,(WIDTH,HEIGHT))
-                    layout = calc_layout()
+                    on_resize(ev.w, ev.h)
+            screen.fill((0, 0, 0))
             if background: screen.blit(background,(0,0))
             else: screen.fill(Colors.TABLE_GREEN)
             cb = get_card_back()
@@ -667,6 +890,19 @@ def main():
         if engine.is_game_over and game_state != 'game_over':
             game_state = 'game_over'
             game_over_overlay = GameOverOverlay(WIDTH, HEIGHT, font_title, font_body, font_btn)
+            
+            # --- Record Stats ---
+            is_win = (engine.winner and engine.winner.name == player_name)
+            if is_win:
+                player_stats["wins"] += 1
+                player_stats["coins"] += 1000 # Win bonus
+            else:
+                player_stats["losses"] += 1
+                player_stats["coins"] = max(0, player_stats["coins"] - 500) # Loss penalty
+
+            # Sync to persistent data and save
+            profile_data.update(player_stats)
+            save_user_profile(profile_data)
 
         if game_state == 'game_over' and game_over_overlay:
             game_over_overlay.update(dt, mouse_pos)
@@ -680,24 +916,16 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT: running = False
             elif event.type == pygame.VIDEORESIZE:
-                WIDTH,HEIGHT = event.w,event.h
-                screen = pygame.display.set_mode((WIDTH,HEIGHT),pygame.RESIZABLE)
-                if background_raw: background = pygame.transform.scale(background_raw,(WIDTH,HEIGHT))
-                layout = calc_layout(); phase_indicator.x = WIDTH//2
-                if game_over_overlay: game_over_overlay = GameOverOverlay(WIDTH,HEIGHT,font_title,font_body,font_btn)
+                on_resize(event.w, event.h)
 
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if game_state == 'game_over' and game_over_overlay:
                     if game_over_overlay.play_again_btn.is_clicked(event):
-                        engine = TongItsEngine(["Player","Manny","Jinky"]); engine.initialize_game()
-                        selected_cards.clear(); dragging_card = None; game_over_overlay = None
-                        fight_resolution_overlay = None
-                        anim_mgr.clear(); game_state = 'shuffling'; shuffle_timer = 0.0
-                        deal_order = []
-                        for rr in range(12): deal_order.extend([1,2,0])
-                        deal_order.append(0)
-                        dealt_count = 0; dealt_per_player = [0,0,0]; deal_timer = 0.0
-                        flying_cards.clear(); ai_timer = None; continue
+                        start_new_game(target_state='shuffling', is_play_again=True)
+                        continue
+                    elif game_over_overlay.lobby_btn.is_clicked(event):
+                        start_new_game(target_state='lobby')
+                        continue
 
                 if engine.game_phase == GamePhase.RESOLVING_FIGHT and fight_resolution_overlay:
                     if player not in engine.active_fight['responses']:
@@ -827,7 +1055,7 @@ def main():
                     drag_pos = (mx+drag_offset[0], my+drag_offset[1])
                 else:
                     hovered_card = None
-                    # Allow hover even on enemy turn for consistency with drag-ability
+                    
                     for card,rect,img in reversed(hand_rects):
                         if rect.collidepoint(mx,my): hovered_card = card; break
 
@@ -837,7 +1065,7 @@ def main():
                     dropped = False
 
                     if is_player_turn and not is_blocking:
-                        # 1. Check sapaw: drop on table meld
+                        
                         if engine.current_phase in (TurnPhase.DRAW, TurnPhase.MELD):
                             for tm, mrect in meld_hit_zones:
                                 expanded_rect = pygame.Rect(mrect.x - 20, mrect.y - 20, mrect.w + 40, mrect.h + 40)
@@ -846,7 +1074,6 @@ def main():
                                         dropped = True
                                     break
 
-                        # 2. Check discard: drop EXACTLY on or near the discard pile
                         discard_rect = pygame.Rect(layout['discard_x'] - 40, layout['discard_y'] - 40, CW + 80, CH + 80)
                         if not dropped and discard_rect.collidepoint(mx, my):       
                             if is_dealer_phase:
@@ -1169,7 +1396,7 @@ def main():
                               avatar_surf=assigned_avatars[bi],
                               show_burned=(engine.is_game_over or (engine.last_event and engine.last_event['type'] == 'fight')),
                               timer_progress=max(0, turn_timer / TURN_LIMIT) if engine.current_turn_index == bi else 0)
-            # Bot melds beside them
+      
             bmx = layout['bot1_meld_x'] if bi==1 else layout['bot2_meld_x']
             bmy = layout['bot1_meld_y'] if bi==1 else layout['bot2_meld_y']
             if bot.melds: draw_player_melds(screen, bot.melds, bmx, bmy, 280)
@@ -1191,10 +1418,9 @@ def main():
         LERP_SPEED = 12.0
         flying_card_objects_hand = {fc['card'] for fc in flying_cards if fc.get('card')}
         
-        # 1. Identify ribbon groups (Hand Groups + Selection)
+       
         ribbon_groups = []
         
-        # Selection ribbon - SMART VALIDATION: Split into contiguous segments if non-adjacent
         if len(selected_in_hand) >= 3 and MC.is_valid_meld(selected_in_hand):
              current_subgroup = []
              for card, rect, img in hand_rects:
@@ -1207,7 +1433,7 @@ def main():
              if len(current_subgroup) >= 1:
                  ribbon_groups.append({'rects': current_subgroup, 'label': 'Meld Ready', 'front_only': False})
         
-        # Groups ribbon - Exhaustively find ALL valid sub-melds within the group
+        
         h_idx = 0
         for gtype, count in groups:
             if (gtype == 'meld' or gtype == 'manual') and count >= 3:
@@ -1216,13 +1442,11 @@ def main():
                 
                 label = 'Meld Group' if gtype == 'meld' else 'Saved Group'
                 
-                # Scan thoroughly for all valid melds in this block
+                
                 temp_idx = 0
                 while temp_idx <= count - 3:
                     found_meld = False
-                    # For manual groups, we can wrap the whole thing or sub-melds.
-                    # The user specifically said "even the group meld can be destroyed anymore",
-                    # implying they want the ribbon to stay.
+                  
                     if gtype == 'manual':
                         actual_rects = group_rects_all
                         is_sub = any(all(gr in rg['rects'] for gr in actual_rects) for rg in ribbon_groups)
@@ -1236,7 +1460,7 @@ def main():
                         sub_cards = group_cards[temp_idx : temp_idx + length]
                         if MC.is_valid_meld(sub_cards):
                             actual_rects = group_rects_all[temp_idx : temp_idx + length]
-                            # Avoid doubling up on selection ribbons
+                            
                             is_sub = any(all(gr in rg['rects'] for gr in actual_rects) for rg in ribbon_groups)
                             if not is_sub:
                                 ribbon_groups.append({'rects': actual_rects, 'label': label, 'front_only': False})
@@ -1247,14 +1471,14 @@ def main():
                         temp_idx += 1
             if gtype != 'manual': h_idx += count
 
-        # 2. Draw Bottom Ribbons (Back part)
+      
         for rg in ribbon_groups:
             if not rg.get('front_only'):
                 draw_hand_ribbon(screen, rg['rects'], is_front=False)
 
-        # 3. Draw Cards & Front Ribbons (Staggered to fix layering/overlap)
+       
         for i, (card, rect, img) in enumerate(hand_rects):
-            # Interpolate visual position for smooth animation
+            
             c_id = id(card)
             if c_id not in card_visual_pos:
                 start_x = layout['deck_x'] if engine.current_phase == TurnPhase.DRAW else rect.x
@@ -1266,12 +1490,12 @@ def main():
             curr[1] += (rect.y - curr[1]) * LERP_SPEED * dt
 
             if card == dragging_card or (card in flying_card_objects_hand): 
-                # Still check if we need to draw a ribbon after this 'skipped' card to maintain order
+              
                 pass
             else:
                 draw_x, draw_y = curr
 
-                # Selection Highlight (subtle gold outline for ribboned selection)
+              
                 if card in selected_cards:
                     gl = pygame.Surface((rect.w+8,rect.h+8),pygame.SRCALPHA)
                     is_ribboned = any(rect in rg['rects'] for rg in ribbon_groups)
@@ -1300,7 +1524,7 @@ def main():
                 
                 screen.blit(img, (draw_x, draw_y))
 
-            # --- SMART WRAP: Draw front ribbon immediately after the LAST card of the group ---
+           
             for ribbon_g in ribbon_groups:
                 if rect == ribbon_g['rects'][-1]:
                     draw_hand_ribbon(screen, ribbon_g['rects'], text=ribbon_g['label'], is_front=True)
@@ -1327,8 +1551,7 @@ def main():
         if show_drop: btn_drop_meld.draw(screen)
         if show_fight: btn_call_fight.draw(screen)
 
-        # ── (Phase Indicator Hidden) ──
-        # phase_indicator.draw(screen, dt)
+      
 
         # ── Forced Meld Warning ──────────────────────────────────
         if is_player_turn and engine.has_forced_meld_pending(player):
@@ -1344,11 +1567,10 @@ def main():
             cx2 = fc['start'][0] + (fc['end'][0] - fc['start'][0]) * e
             cy2 = fc['start'][1] + (fc['end'][1] - fc['start'][1]) * e
 
-            # Only draw the card if it hasn't reached the end of its duration
+          
             if fc['elapsed'] < fc['duration']:
                 surviving_flying.append(fc)
-                # Use a consistent pile scale for flying cards by default if they don't have one
-                # or better, use the scale from the event if possible
+            
                 f_scale = 0.75 * CARD_SCALE
                 im = get_card_image(fc['card'], f_scale) if fc['is_face_up'] and fc['card'] else get_card_back(f_scale)
                 if im: 
@@ -1356,6 +1578,12 @@ def main():
         flying_cards = surviving_flying
 
         particles.draw(screen)
+        
+        # ── Dealer Chip (Drawn late to be on top of cards) ────────
+        d_idx = dealer_mgr.get_idx()
+        if d_idx < len(layout['dealer_anchors']):
+            dx, dy = layout['dealer_anchors'][d_idx]
+            dealer_mgr.draw(screen, dx, dy)
         
         if engine.game_phase == GamePhase.RESOLVING_FIGHT and fight_resolution_overlay:
             fight_resolution_overlay.draw(screen, engine.active_fight, player.calculate_points(), engine.players)
