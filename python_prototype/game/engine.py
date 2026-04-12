@@ -2,7 +2,7 @@ from .models import Deck, Player, Meld, TableMeld, TurnPhase, GamePhase
 
 
 class TongItsEngine:
-    def __init__(self, player_names, dealer_idx=0):
+    def __init__(self, player_names, dealer_idx=0, house_edge=False):
         self.deck = Deck()
         self.players = [
             Player(name, is_human=(i == 0))
@@ -11,6 +11,7 @@ class TongItsEngine:
         self.discard_pile = []
         self.table_melds = []           # All melds on the table
         self.dealer_idx = dealer_idx    # Added dealer_idx
+        self.house_edge = house_edge    # Proposal 2 rule
         self.current_turn_index = dealer_idx # Banker starts
         self.current_phase = TurnPhase.WAITING
         self.game_phase = GamePhase.SHUFFLING
@@ -467,9 +468,14 @@ class TongItsEngine:
             # For simplicity, if caller tied with a challenger, challenger wins.
             tied_players = [p for p in eligible if p.calculate_points() == best.calculate_points()]
             if len(tied_players) > 1:
-                # Give it to the first challenger in tied list
-                best_challenger = next((p for p in tied_players if p != caller), tied_players[0])
-                best = best_challenger
+                # Proposal 2: House Edge Tie-Breaker
+                banker = self.players[self.dealer_idx]
+                if self.house_edge and banker in tied_players:
+                    best = banker
+                else:
+                    # Traditional tie-break: challenger wins over caller
+                    best_challenger = next((p for p in tied_players if p != caller), tied_players[0])
+                    best = best_challenger
                 
             self.winner = best
             self.win_method = 'fight_won' if best == caller else 'fight_lost'
@@ -523,11 +529,20 @@ class TongItsEngine:
         if not eligible:
             eligible = self.players
 
-        best = min(eligible, key=lambda p: p.calculate_points())
-        self.winner = best
+        min_points = min(p.calculate_points() for p in eligible)
+        tied_players = [p for p in eligible if p.calculate_points() == min_points]
+        
+        if len(tied_players) > 1 and self.house_edge:
+            banker = self.players[self.dealer_idx]
+            if banker in tied_players:
+                self.winner = banker
+            else:
+                self.winner = tied_players[0]
+        else:
+            self.winner = tied_players[0]
 
         self._emit_event('deck_empty', {
-            'winner': best,
+            'winner': self.winner,
             'scores': {p.name: p.calculate_points() for p in self.players}
         })
 

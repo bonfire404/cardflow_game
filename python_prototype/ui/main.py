@@ -5,13 +5,16 @@ from game.engine import TongItsEngine
 from game.ai_bot import RuleBasedAI
 from game.models import TurnPhase, GamePhase, Meld as MC, RANK_ORDER
 from ui.animation import (AnimationManager, Animation, Timer, ParticleEmitter,
-                           ease_out_cubic, ease_out_back, ease_in_out_quad, linear)
+                           ease_out_cubic, ease_in_cubic, ease_out_back, ease_in_out_quad, linear)
 from ui.ui_components import (Colors, Button, PhaseIndicator, Badge, PlayerPanel,
                                GameOverOverlay, MeldDisplay, FightResolutionOverlay)
 from ui.lobby import Lobby
 from ui.profile import ProfileModal
+from ui.rules_modal import RulesModal
 from ui.dealer import DealerManager
 from ui.chips import ChipSystem
+from game.economy import EconomyManager
+from game.betting_configs import EconomyMode, BETTING_CONFIGS
 
 # --- Gendered Identity Pools ---
 MALE_NAMES = ["Juan", "Rico", "Dingdong", "Vhong", "Isko", "Vico", "Bong", "Ping", "Manny", "Iloy", "Gardo", "Ador"]
@@ -145,6 +148,7 @@ def main():
     current_bet_chips = []
     bot_bet_timer = 0.0
     bot_bet_chips = {1: [], 2: []}
+    pot_merge_timer = 0.0
 
     # For post-game coin float animations
     post_game_floats = []
@@ -170,6 +174,9 @@ def main():
         profile_modal.on_resize(WIDTH, HEIGHT)
         phase_indicator.x = WIDTH // 2
         
+        # We handle help_btn positioning per-state now for better balance
+        rules_modal.on_resize(WIDTH, HEIGHT)
+        
         if game_over_overlay:
             game_over_overlay.reposition(WIDTH, HEIGHT)
         if fight_resolution_overlay:
@@ -178,12 +185,12 @@ def main():
     # ── Assets ────────────────────────────────────────────────────
     assets_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'assets'))
     
-    bg_pool = ["clean_card_table.png", "mahogany_card_table.png"]
+    bg_pool = ["clean_card_table.png", "mahogany_card_table.png", "royal_ruby_table.png", "mahogany_ruby_table.png"]
 
-    def refresh_background():
+    def refresh_background(table_name=None):
         nonlocal background_raw, background
         try:
-            selected = random.choice(bg_pool)
+            selected = table_name if table_name else random.choice(["clean_card_table.png", "mahogany_card_table.png", "mahogany_ruby_table.png"])
             bg_path = os.path.join(assets_dir, "images", selected)
             background_raw = pygame.image.load(bg_path).convert()
             background = pygame.transform.scale(background_raw, (WIDTH, HEIGHT))
@@ -208,6 +215,7 @@ def main():
     # Dealer Manager and Chip System
     dealer_mgr = DealerManager(assets_dir)
     chip_system = ChipSystem(assets_dir)
+    economy_mgr = EconomyManager()
 
     avatars_dir = os.path.join(assets_dir, "images", "avatars")
     av_pools = {'male': [], 'female': [], 'any': []}
@@ -313,6 +321,9 @@ def main():
     # Player / Avatar Setup
     profile_fonts = {'title': font_title, 'body': font_body, 'small': font_small, 'btn': font_btn}
     profile_modal = ProfileModal(WIDTH, HEIGHT, fonts=profile_fonts)
+    rules_modal = RulesModal(font_title, font_body, font_small)
+    # Top-Right Anchor
+    help_btn_rect = pygame.Rect(WIDTH - 65, 15, 45, 45) 
     profile_modal.selected_avatar_idx = p_av_idx
     current_avatar = profile_modal.avatars[p_av_idx] if p_av_idx < len(profile_modal.avatars) else None
     
@@ -360,17 +371,22 @@ def main():
     is_dragging = False
     DRAG_THRESHOLD = 8
     # --- Unified Game Start/Restart Helper ---
-    def start_new_game(target_state='shuffling', is_play_again=False):
+    def start_new_game(target_state='shuffling', is_play_again=False, bet_level=100):
         nonlocal engine, bot1_info, bot2_info, assigned_avatars, game_state, shuffle_timer, deal_order
         nonlocal dealt_count, dealt_per_player, deal_timer, flying_cards, ai_timer, selected_cards
         nonlocal game_over_overlay, fight_resolution_overlay, turn_timer, last_turn_state, meld_hit_zones
         nonlocal current_bet_amount, post_game_floats, current_bet_chips, bot_bet_timer, bot_bet_chips
+        nonlocal economy_mgr
         
         post_game_floats.clear()
         current_bet_amount = 0
         current_bet_chips = []
         bot_bet_timer = 0.0
         bot_bet_chips = {1: [], 2: []}
+        
+        # Load Mode Config from new betting_configs.py
+        config = BETTING_CONFIGS.get(bet_level, BETTING_CONFIGS[100])
+        
         # Dealer Logic: Winner deals next. Randomize only if fresh start.
         if target_state in ('shuffling', 'betting'):
             if is_play_again:
@@ -392,8 +408,10 @@ def main():
             bot2_info = generate_npc(exclude_names=[player_name, bot1_info[0]], 
                                      exclude_avatars=[current_avatar, bot1_info[1]])
         
-        # Initialize Engine with sync'd names and current dealer
-        engine = TongItsEngine([player_name, bot1_info[0], bot2_info[0]], dealer_idx=cur_dealer_idx)
+        # Initialize Engine with selected mode rules (House Edge Tie-Breaker)
+        engine = TongItsEngine([player_name, bot1_info[0], bot2_info[0]], 
+                               dealer_idx=cur_dealer_idx,
+                               house_edge=config["rules"]["house_edge"])
         engine.initialize_game()
         
         # Sync Avatars (Player may have changed)
@@ -404,15 +422,25 @@ def main():
         # Reset pots if restarting fully, otherwise accumulate banker, reset main pot visually
         if target_state in ('shuffling', 'betting'):
             chip_system.reset_main_pot()
-        if not is_play_again:
-            chip_system.reset_banker_pot()
-            
-        # We don't deduct coins or add bets yet if target_state is 'betting'
-        # That will happen in the betting state.
-        if target_state != 'betting':
-            player_stats['coins'] -= 200
-            save_user_profile(profile_data)
-            chip_system.add_bets(100, layout, banker_bet_amount=100)
+            # Sync Visual Banker Pot with Economy Source
+            if not is_play_again:
+                economy_mgr = EconomyManager(bet_level=bet_level)
+                chip_system.reset_banker_pot()
+            elif economy_mgr.bet_level != bet_level:
+                # If play again with different bet (lobby redirect), reset manager
+                economy_mgr = EconomyManager(bet_level=bet_level)
+                chip_system.reset_banker_pot()
+                
+            # If skipping betting (rare), we must still start the round economy-wise
+            if target_state != 'betting':
+                economy_mgr.start_round(cur_dealer_idx)
+                # Deduct based on economy fee
+                player_fee = economy_mgr.calculate_entry_fee(cur_dealer_idx == 0)
+                player_stats['coins'] -= player_fee
+                save_user_profile(profile_data)
+                
+                # Visual chips sync
+                chip_system.add_bets(economy_mgr.base_ante, layout, banker_total=economy_mgr.banker_pot)
         
         # Reset State Variables
         game_state = target_state
@@ -434,7 +462,7 @@ def main():
         last_turn_state = (engine.current_turn_index, engine.current_phase)
         meld_hit_zones = []
         particles.clear()
-        refresh_background()
+        refresh_background(config["table_img"])
 
     # ── UI Components ─────────────────────────────────────────────
     phase_indicator = PhaseIndicator(WIDTH // 2, 8, font_phase)
@@ -536,12 +564,14 @@ def main():
             lobby.draw(screen, player_name, current_avatar, player_stats, lobby_bkg)
             lobby_particles.draw(screen)
             
-            # Update and Draw Profile Modal on top
+            # Update Modals
             if profile_modal.active:
                 profile_modal.update(dt, mouse_pos)
                 profile_modal.draw(screen)
+            if rules_modal.active:
+                rules_modal.update(dt)
                 
-            # If player clicked start, but has less than 200 coins, give them 1000 free coins
+            # Sync coin display
             if player_stats["coins"] < 200:
                 player_stats["coins"] += 1000
                 profile_data["coins"] = player_stats["coins"]
@@ -549,6 +579,28 @@ def main():
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: running = False
+                
+                # --- Modal Priority ---
+                if rules_modal.active:
+                    if event.type == pygame.MOUSEWHEEL:
+                        rules_modal.handle_scroll(event.y)
+                        continue
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        if rules_modal.handle_click(event.pos, WIDTH, HEIGHT):
+                            continue
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                        rules_modal.active = False
+                        continue
+                    if event.type != pygame.VIDEORESIZE: continue
+                
+                # Help Button Toggle (Locked if Profile open)
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    # Anchor button position for click check
+                    help_btn_rect.x = WIDTH - 60
+                    help_btn_rect.y = 15
+                    if help_btn_rect.collidepoint(event.pos) and not profile_modal.active:
+                        rules_modal.toggle()
+                        continue
                 
                 # --- Profile Modal Interception ---
                 if profile_modal.active:
@@ -567,18 +619,32 @@ def main():
                 if event.type == pygame.VIDEORESIZE:
                     on_resize(event.w, event.h)
                 
-                # Trigger Profile on Avatar Click
+                # Trigger Profile on Avatar Click (Locked if Rules open)
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    # Avatar area: Bottom Left (25, H-68, 65, 65)
-                    avatar_rect = pygame.Rect(25, HEIGHT - 68, 65, 65)
-                    if avatar_rect.collidepoint(event.pos):
-                        profile_modal.open(player_name)
-                        continue
+                    if not rules_modal.active:
+                        avatar_rect = pygame.Rect(25, HEIGHT - 68, 65, 65)
+                        if avatar_rect.collidepoint(event.pos):
+                            profile_modal.open(player_name)
+                            continue
 
-                sel_mode = lobby.handle_event(event)
-                if sel_mode is not None:
-                    # Sync Profile and Start Game
-                    start_new_game(target_state='betting')
+                sel_resp = lobby.handle_event(event)
+                if sel_resp is not None:
+                    # Sync Profile and Start Game with selected bet
+                    m_idx = sel_resp["mode_idx"]
+                    bet = sel_resp["bet"]
+                    start_new_game(target_state='betting', bet_level=bet)
+            
+            # --- Draw Help Button & Modal ---
+            # Subtle background glow for ? (Top-Right in Lobby)
+            help_btn_rect.x = WIDTH - 60
+            help_btn_rect.y = 15
+            pygame.draw.circle(screen, (30, 35, 50, 150), help_btn_rect.center, 22)
+            pygame.draw.circle(screen, Colors.TEXT_GOLD, help_btn_rect.center, 20, width=2)
+            q_surf = font_body.render("?", True, Colors.TEXT_GOLD)
+            screen.blit(q_surf, (help_btn_rect.centerx - q_surf.get_width()//2, help_btn_rect.centery - q_surf.get_height()//2))
+
+            if rules_modal.active:
+                rules_modal.draw(screen, WIDTH, HEIGHT, EconomyMode(economy_mgr.mode))
             
             pygame.display.flip()
             continue
@@ -586,6 +652,7 @@ def main():
         # ── GAMEPLAY UPDATES ─────────────────────────────────────
         particles.update(dt)
         anim_mgr.update(dt)
+        if rules_modal.active: rules_modal.update(dt)
         
         player = engine.players[0]
         current_player = engine.get_current_player()
@@ -631,126 +698,155 @@ def main():
         if game_state == 'betting':
             bot_bet_timer += dt
             for pi in [1, 2]:
-                target_bot_bet = 200 if engine.dealer_idx == pi else 100
-                if sum(bot_bet_chips[pi]) < target_bot_bet:
-                    # Every ~0.4s to 0.8s, the bot "clicks" a chip
-                    if bot_bet_timer > (pi * 0.3 + len(bot_bet_chips[pi]) * 0.4):
+                target_bot_bet = economy_mgr.base_ante * 2 if engine.dealer_idx == pi else economy_mgr.base_ante
+                current_bot_total = sum(bot_bet_chips[pi])
+                
+                # Check if bot still needs to "click" more chips
+                # (We count both already-landed chips and those currently in flight)
+                in_flight_sum = sum(fc['val'] for fc in flying_chips if fc.get('owner') == pi)
+                
+                if current_bot_total + in_flight_sum < target_bot_bet:
+                    if bot_bet_timer > (pi * 0.3 + (current_bot_total + in_flight_sum) * 0.05):
                         from ui.chips import CHIP_FILE_NAMES
-                        rem_amt = target_bot_bet - sum(bot_bet_chips[pi])
+                        rem_amt = target_bot_bet - (current_bot_total + in_flight_sum)
                         available = [v for v, _ in CHIP_FILE_NAMES if v <= rem_amt]
                         if available:
-                            bot_bet_chips[pi].append(random.choice(available))
-            
+                            cval = random.choice(available)
+                            # Spawn flying chip from Bot Avatar to Center
+                            bx, by = layout[f'bot{pi}_x'], layout[f'bot{pi}_y']
+                            pot_x = WIDTH // 2 + 25 if pi == 1 else WIDTH // 2 - 25
+                            pot_y = HEIGHT // 2 - 12
+                            
+                            flying_chips.append({
+                                'val': cval,
+                                'start': (bx, by),
+                                'end': (pot_x, pot_y),
+                                'elapsed': 0, 'duration': 0.45,
+                                'owner': pi
+                            })
+
+            event_clicked = False
             for ev in pygame.event.get():
                 if ev.type == pygame.QUIT: running = False
                 elif ev.type == pygame.VIDEORESIZE:
                     on_resize(ev.w, ev.h)
+
+                # --- Modal Priority ---
+                if rules_modal.active:
+                    if ev.type == pygame.MOUSEWHEEL:
+                        rules_modal.handle_scroll(ev.y)
+                        continue
+                    if ev.type == pygame.MOUSEBUTTONDOWN and ev.button == 1:
+                        if rules_modal.handle_click(ev.pos, WIDTH, HEIGHT):
+                            continue
+                    if ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE:
+                        rules_modal.active = False
+                        continue
+                    if ev.type != pygame.VIDEORESIZE: continue
+
+                # Toggle Help Button
+                if ev.type == pygame.MOUSEBUTTONDOWN and ev.button == 1:
+                    if help_btn_rect.collidepoint(ev.pos):
+                        rules_modal.toggle()
+                        continue
                 
                 if ev.type == pygame.MOUSEBUTTONDOWN and ev.button == 1:
+                    event_clicked = True
                     mx, my = ev.pos
-                    # Confirm Check
-                    if btn_confirm_bet.rect.collidepoint(mx, my) and current_bet_amount > 0:
-                        # Confirm exact bet regardless of combination
-                        if current_bet_amount == 100:
-                            player_stats['coins'] -= (current_bet_amount * 2 if engine.dealer_idx == 0 else current_bet_amount)
-                            save_user_profile(profile_data)
-                            chip_system.add_bets(current_bet_amount, layout, banker_bet_amount=current_bet_amount, custom_chips=current_bet_chips)
-                            game_state = 'shuffling'
-                            continue
-
-                    # Chip Click Check
-                    panel_h = 100
-                    panel_y = HEIGHT - panel_h - 40
-                    from ui.chips import CHIP_FILE_NAMES
-                    available_chips = sorted([v for v, _ in CHIP_FILE_NAMES])
-                    start_x = WIDTH // 2 - (len(available_chips) * 50) // 2
-                    for i, cval in enumerate(available_chips):
-                        crect = pygame.Rect(start_x + i * 50, panel_y + 30, 40, 40)
-                        if crect.collidepoint(mx, my):
-                            pot_multiplier = 2 if engine.dealer_idx == 0 else 1
-                            if current_bet_amount + cval <= 100:  # MAX BET 100 limit
-                                if player_stats['coins'] >= (current_bet_amount + cval) * pot_multiplier:
-                                    current_bet_amount += cval
-                                    current_bet_chips.append(cval)
-                                    flying_chips.append({
-                                        'val': cval,
-                                        'start': (crect.centerx, crect.centery),
-                                        'end': (layout['deck_x'] + (layout['discard_x'] - layout['deck_x']) // 2 + 30, layout['deck_y'] - 65),
-                                        'elapsed': 0.0,
-                                        'duration': 0.35
-                                    })
                             
             screen.fill((0, 0, 0))
             if background: screen.blit(background,(0,0))
             else: screen.fill(Colors.TABLE_GREEN)
 
-            # Draw "cabinet drop up" for chips
-            panel_h = 100
-            panel_y = HEIGHT - panel_h - 40
-            pygame.draw.rect(screen, (30, 30, 45, 230), (WIDTH//2 - 400, panel_y, 800, panel_h), border_radius=15)
-            pygame.draw.rect(screen, Colors.TEXT_GOLD, (WIDTH//2 - 400, panel_y, 800, panel_h), width=2, border_radius=15)
-            
-            title_txt = font_body.render(f"PLACE YOUR BET: {current_bet_amount} (Banker puts 2x)" if engine.dealer_idx==0 else f"PLACE YOUR BET: {current_bet_amount}", True, Colors.TEXT_GOLD)
-            screen.blit(title_txt, (WIDTH // 2 - title_txt.get_width() // 2, panel_y + 5))
-            
-            from ui.chips import CHIP_FILE_NAMES
-            available_chips = sorted([v for v, _ in CHIP_FILE_NAMES])
-            start_x = WIDTH // 2 - (len(available_chips) * 50) // 2
-            for i, cval in enumerate(available_chips):
-                img = chip_system.chip_images.get(cval)
-                if img:
-                    screen.blit(img, (start_x + i * 50, panel_y + 25))
-                val_txt = font_small.render(str(cval), True, Colors.TEXT_MUTED)
-                screen.blit(val_txt, (start_x + i * 50 + 18 - val_txt.get_width()//2, panel_y + 70))
+            # 1. Cabinet
+            panel_w, panel_h = 920, 180
+            panel_x, panel_y = (WIDTH - panel_w) // 2, HEIGHT - panel_h - 10
+            pg_surf = pygame.Surface((panel_w, panel_h), pygame.SRCALPHA)
+            pygame.draw.rect(pg_surf, (15, 20, 35, 240), (0, 0, panel_w, panel_h), border_radius=20)
+            pygame.draw.rect(pg_surf, Colors.TEXT_GOLD, (0, 0, panel_w, panel_h), width=3, border_radius=20)
+            screen.blit(pg_surf, (panel_x, panel_y))
 
-            if current_bet_amount > 0:
-                # Use current_bet_chips instead of amount to preserve exact denominations while building the bet
-                chip_system.draw_chip_stack(screen, current_bet_chips if current_bet_chips else current_bet_amount, layout['deck_x'] + (layout['discard_x'] - layout['deck_x']) // 2 + 30, layout['deck_y'] - 65)
+            # 2. Player Cabinet UI
+            av_surf = assigned_avatars[0]
+            if av_surf:
+                av_draw = pygame.transform.smoothscale(av_surf, (75, 75))
+                screen.blit(av_draw, (panel_x + 25, panel_y + 40))
+                name_surf = font_body.render(engine.players[0].name.upper(), True, Colors.TEXT_GOLD)
+                screen.blit(name_surf, (panel_x + 25 + 37 - name_surf.get_width()//2, panel_y + 122))
 
-            btn_confirm_bet.rect.topleft = (WIDTH//2 + 250, panel_y + 30)
+            # 3. Instruction
+            if economy_mgr.mode == EconomyMode.HITTER:
+                bet_hint = f"Banker puts 200 Bounty" if engine.dealer_idx == 0 else ""
+            elif economy_mgr.mode == EconomyMode.AGGRESSIVE:
+                bet_hint = f"Banker pays 3x Stake" if engine.dealer_idx == 0 else "High Stakes Table"
+            else: # SUSTAINED
+                bet_hint = f"Banker adds 200 Fee" if engine.dealer_idx == 0 else "80/20 Fight Split"
+            
+            title_part = "PLACE YOUR BET: "
+            amount_part = f"{current_bet_amount} / {economy_mgr.base_ante}"
+            t_surf = font_title.render(title_part, True, (255, 255, 255))
+            a_surf = font_title.render(amount_part, True, Colors.TEXT_GOLD)
+            total_t_w = t_surf.get_width() + a_surf.get_width()
+            start_t_x = (panel_x + 130) + (panel_w - 130 - total_t_w) // 2
+            screen.blit(t_surf, (start_t_x, panel_y + 15))
+            screen.blit(a_surf, (start_t_x + t_surf.get_width(), panel_y + 15))
+
+            # 4. Interactive Chips
+            chip_size, chip_spacing = 64, 88
+            start_x = panel_x + 160
             mx, my = pygame.mouse.get_pos()
-            btn_confirm_bet.update((mx,my), dt)
-            btn_confirm_bet.draw(screen)
-            
-            coins_rem = player_stats['coins'] - (current_bet_amount * 2 if engine.dealer_idx == 0 else current_bet_amount)
-            coins_txt = font_body.render(f"Your Coins: {coins_rem}", True, Colors.TEXT_GOLD)
-            screen.blit(coins_txt, (20, 20))
+            available_chips = [1, 5, 10, 25, 100, 500, 1000, 5000]
+            for i, cval in enumerate(available_chips):
+                crect = pygame.Rect(start_x + i * chip_spacing, panel_y + 70, chip_size, chip_size)
+                cimg = chip_system.chip_images.get(cval)
+                if cimg:
+                    cimg_large = pygame.transform.smoothscale(cimg, (chip_size, chip_size))
+                    if crect.collidepoint(mx, my):
+                        glow = pygame.Surface((chip_size+14, chip_size+14), pygame.SRCALPHA)
+                        pygame.draw.circle(glow, (255, 215, 0, 120), (chip_size//2+7, chip_size//2+7), chip_size//2+7)
+                        screen.blit(glow, (crect.x - 7, crect.y - 7))
+                    screen.blit(cimg_large, crect.topleft)
+                l_surf = font_body.render(str(cval), True, (255, 255, 255))
+                screen.blit(l_surf, (crect.centerx - l_surf.get_width() // 2, crect.bottom + 5))
 
-            # Render Bot Placeholders doing "betting" matching current user
-            bot_bet_txt = font_small.render("Betting...", True, Colors.TEXT_MUTED)
+                if event_clicked and crect.collidepoint(mx, my):
+                    if current_bet_amount + cval <= economy_mgr.base_ante:
+                        current_bet_amount += cval
+                        current_bet_chips.append(cval)
+                        flying_chips.append({
+                            'val': cval, 'owner': 0,
+                            'start': (crect.centerx, crect.centery),
+                            'end': (WIDTH // 2, HEIGHT // 2 + 30),
+                            'elapsed': 0, 'duration': 0.4
+                        })
+                        if current_bet_amount == economy_mgr.base_ante:
+                            # Auto-start will trigger once the last chip LANDS
+                            pass 
+
+            # 5. Center Pots (Draw Background Bots)
             for pi in [1, 2]:
-                bx = layout[f'bot{pi}_x']
-                by = layout[f'bot{pi}_y']
+                bx, by = layout[f'bot{pi}_x'], layout[f'bot{pi}_y']
                 player_panel.draw(screen, bx, by-45, engine.players[pi], is_active=False,
-                              show_points=False, 
-                              avatar_surf=assigned_avatars[pi],
-                              show_burned=False,
-                              timer_progress=0)
-                
-                # Show independent bot betting progress
+                               show_points=False, avatar_surf=assigned_avatars[pi],
+                               show_burned=False, timer_progress=0)
                 bot_pot_chips = bot_bet_chips[pi]
-                current_bot_total = sum(bot_pot_chips)
-                target_bot_bet = 200 if engine.dealer_idx == pi else 100
-                
-                # Push inward towards center of the table based on side: bot1 is on right, bot2 is on left
-                pot_x = bx - 160 if pi == 1 else bx + 160
-                pot_y = by + 110
-
+                pot_x = WIDTH // 2 + 25 if pi == 1 else WIDTH // 2 - 25
+                pot_y = HEIGHT // 2 - 12
                 if bot_pot_chips:
-                    chip_system.draw_chip_stack(screen, bot_pot_chips, pot_x, pot_y)
-                    if current_bot_total >= target_bot_bet:
-                        done_txt = font_small.render("Ready", True, Colors.TEXT_GREEN)
-                        screen.blit(done_txt, (pot_x - done_txt.get_width()//2, pot_y + 40))
-                else:
-                    screen.blit(bot_bet_txt, (pot_x - bot_bet_txt.get_width()//2, pot_y))
+                    chip_system.draw_chip_stack(screen, bot_pot_chips, pot_x, pot_y, scale=1.2)
 
-            # Show player panel during betting
-            player_panel.draw(screen, WIDTH//2, HEIGHT-68, engine.players[0], is_active=True, show_points=False,
-                              avatar_surf=assigned_avatars[0],
-                              show_burned=False,
-                              timer_progress=0)
+            # Draw Your Bet (Foreground)
+            if current_bet_amount > 0:
+                # Note: We only draw chips that have actually "landed" in current_bet_chips
+                # But current_bet_chips is filled instantly above. Let's fix that.
+                pass 
+            
+            # Use a separate list for "landed" chips to ensure they don't appear before animation ends
+            # (Wait, actually I'll just draw the current_bet_chips minus the ones in flight)
+            landed_human_chips = [c for c in current_bet_chips] # Needs logic to only show after flight
+            chip_system.draw_chip_stack(screen, landed_human_chips, WIDTH // 2, HEIGHT // 2 + 30, scale=1.2)
 
-            # Animate flying chips
+            # 6. Animate Flying Chips & Landing Logic
             surviving_chips = []
             for fc in flying_chips:
                 fc['elapsed'] += dt
@@ -759,13 +855,72 @@ def main():
                 cx = fc['start'][0] + (fc['end'][0] - fc['start'][0]) * e - 18
                 cy = fc['start'][1] + (fc['end'][1] - fc['start'][1]) * e - 18
                 
+                # Add parabolic arc
+                jump = math.sin(t * math.pi) * -120 
+                cy += jump
+
                 if fc['elapsed'] < fc['duration']:
                     surviving_chips.append(fc)
                     img = chip_system.chip_images.get(fc['val'])
                     if img:
-                        screen.blit(img, (int(cx), int(cy)))
+                        scaled = pygame.transform.smoothscale(img, (int(img.get_width()*1.2), int(img.get_height()*1.2)))
+                        screen.blit(scaled, (int(cx), int(cy)))
+                else:
+                    # LANDING: Add chip to the actual physical stack
+                    owner = fc.get('owner', 0)
+                    if owner == 0:
+                        # Human chips are already added to current_bet_chips instantly for count logic
+                        # But for visual landing, we can trigger the transition here
+                        if current_bet_amount == economy_mgr.base_ante and not any(f['owner'] == 0 for f in surviving_chips):
+                            # Start the Pot Merge cinematic instead of immediate shuffle
+                            game_state = 'pot_merge'
+                            pot_merge_timer = 0
+                            # Finalize economy stats here
+                            economy_mgr.start_round(engine.dealer_idx)
+                            player_fee = economy_mgr.calculate_entry_fee(engine.dealer_idx == 0)
+                            player_stats["coins"] -= player_fee
+                            save_user_profile(profile_data)
+                            continue
+                    else:
+                        bot_bet_chips[owner].append(fc['val'])
+            
             flying_chips = surviving_chips
+            pygame.display.flip()
+            continue
 
+        # ── POT MERGE ─────────────────────────────────────────────
+        if game_state == 'pot_merge':
+            pot_merge_timer += dt
+            MERGE_DURATION = 0.6
+            
+            screen.fill((0, 0, 0))
+            if background: screen.blit(background,(0,0))
+            else: screen.fill(Colors.TABLE_GREEN)
+            
+            p = min(pot_merge_timer / MERGE_DURATION, 1.0)
+            e = ease_in_cubic(p) # Snaps toward the center
+            
+            target_x, target_y = layout['deck_x'] + 150, layout['deck_y'] - 50 # Actual banker pot location
+            
+            # 1. Animate the triad stacks merging
+            # Your Stack
+            ux, uy = WIDTH // 2, HEIGHT // 2 + 30
+            mx, my = ux + (target_x - ux) * e, uy + (target_y - uy) * e
+            chip_system.draw_chip_stack(screen, current_bet_chips, int(mx), int(my), scale=1.2 + (p * 0.2))
+            
+            # Bot Stacks
+            for pi in [1, 2]:
+                pot_x = WIDTH // 2 + 25 if pi == 1 else WIDTH // 2 - 25
+                pot_y = HEIGHT // 2 - 12
+                bx, by = pot_x + (target_x - pot_x) * e, pot_y + (target_y - pot_y) * e
+                chip_system.draw_chip_stack(screen, bot_bet_chips[pi], int(bx), int(by), scale=1.2 + (p * 0.2))
+
+            if p >= 1.0:
+                # CINEMATIC FINISHED: Commit everything to the physical banker pot
+                chip_system.add_bets(current_bet_amount, layout, banker_total=economy_mgr.banker_pot, custom_chips=current_bet_chips)
+                game_state = 'shuffling'
+                shuffle_timer = 0
+                
             pygame.display.flip()
             continue
 
@@ -1096,45 +1251,54 @@ def main():
             
             is_win = (engine.winner and engine.winner.name == player_name)
             
-            payout = 0
-            if engine.winner:
-                payout += chip_system.main_pot
-                # If dealer won, and their streak is >= 2, they take the banker pot
-                if dealer_has_won and dealer_streak >= 2:
-                    payout += chip_system.banker_pot
-                    chip_system.reset_banker_pot()
-            engine.payout = payout
+            # --- Resolve Proposal 1 Economy ---
+            burned_indices = [i for i, p in enumerate(engine.players) if p.is_burned or (p.calculate_points() >= 0 and not p.melds)]
+            # Note: The second check ensures players who haven't "opened" (no melds) are also penalized as per rule.
+            
+            payout_deltas, pay_details = economy_mgr.resolve_payouts(
+                winner_idx=engine.players.index(engine.winner) if engine.winner else -1,
+                dealer_idx=dealer_mgr.get_idx(),
+                win_streak=dealer_streak,
+                win_method=engine.win_method or "",
+                caller_idx=engine.players.index(engine.active_fight['caller']) if (engine.active_fight and 'caller' in engine.active_fight) else None,
+                burned_indices=burned_indices
+            )
+            
+            payout = pay_details['total_won']
+            engine.payout = payout # Set for overlay display
+            
+            # Visual Sync: If the Banker Pot was paid out, reset the visual counter on the table
+            if pay_details['banker_pot_payout'] > 0:
+                chip_system.reset_banker_pot()
+            else:
+                # Otherwise, ensure the visual chip system knows the NEW accumulated amount
+                chip_system.banker_pot = economy_mgr.banker_pot
+            
+            # Apply deltas to all players (for local stats and floating text)
+            player_change = payout_deltas[0]
+            player_stats["coins"] += player_change
             
             if is_win:
                 player_stats["wins"] += 1
-                player_stats["coins"] += payout # Apply payout
             else:
                 player_stats["losses"] += 1
 
             profile_data.update(player_stats)
             save_user_profile(profile_data)
             
-            # Setup floating text animations for coin changes
-            if engine.winner:
-                win_idx = engine.players.index(engine.winner)
+            # --- Setup floating text animations for all players ---
+            for pid in range(3):
+                px = layout['hand_center_x'] if pid == 0 else layout[f'bot{pid}_x']
+                py = layout['hand_y'] if pid == 0 else layout[f'bot{pid}_y']
                 
-                # Everyone except winner lost the base current_bet_amount that was submitted
-                # (Visually represent their loss)
-                for pid in range(3):
-                    px = layout['hand_center_x'] if pid == 0 else layout[f'bot{pid}_x']
-                    py = layout['hand_y'] if pid == 0 else layout[f'bot{pid}_y']
-                    
-                    if pid != win_idx:
-                        amt = current_bet_amount * 2 if engine.dealer_idx == pid else current_bet_amount
-                        post_game_floats.append({
-                            'text': f"-{amt}", 'color': (255, 80, 80),
-                            'x': px, 'y': py, 'life': 3.0, 'dy': -20
-                        })
-                    else:
-                        post_game_floats.append({
-                            'text': f"+{payout}", 'color': (100, 255, 100),
-                            'x': px, 'y': py, 'life': 3.0, 'dy': -20
-                        })
+                amt = payout_deltas[pid]
+                if amt != 0:
+                    txt = f"+{amt}" if amt > 0 else f"{amt}"
+                    col = (100, 255, 100) if amt > 0 else (255, 80, 80)
+                    post_game_floats.append({
+                        'text': txt, 'color': col,
+                        'x': px, 'y': py, 'life': 3.0, 'dy': -20
+                    })
 
         if game_state == 'game_over' and game_over_overlay:
             game_over_overlay.update(dt, mouse_pos)
@@ -1150,6 +1314,25 @@ def main():
             if event.type == pygame.QUIT: running = False
             elif event.type == pygame.VIDEORESIZE:
                 on_resize(event.w, event.h)
+
+            # --- Rules Modal (Highest Priority) ---
+            if rules_modal.active:
+                if event.type == pygame.MOUSEWHEEL:
+                    rules_modal.handle_scroll(event.y)
+                    continue
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if rules_modal.handle_click(event.pos, WIDTH, HEIGHT):
+                        continue
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    rules_modal.active = False
+                    continue
+                if event.type != pygame.VIDEORESIZE: continue
+
+            # --- Toggle Help Button ---
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if help_btn_rect.collidepoint(event.pos):
+                    rules_modal.toggle()
+                    continue
 
             # --- Modal Override (Highest Priority) ---
             if show_discard_modal:
@@ -1172,20 +1355,18 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if game_state == 'game_over' and game_over_overlay:
                     if game_over_overlay.play_again_rect.collidepoint(event.pos):
-                        start_new_game(target_state='betting', is_play_again=True)
+                        start_new_game(target_state='betting', is_play_again=True, bet_level=economy_mgr.bet_level)
                         continue
                     elif game_over_overlay.lobby_rect.collidepoint(event.pos):
                         start_new_game(target_state='lobby')
                         continue
 
                 if engine.game_phase == GamePhase.RESOLVING_FIGHT and fight_resolution_overlay:
-                    if player not in engine.active_fight['responses'] and not fight_resolution_overlay.locked_choice:
+                    if player not in engine.active_fight['responses']:
                         # The user needs to respond
                         if fight_resolution_overlay.btn_fight.is_clicked(event):
-                            fight_resolution_overlay.locked_choice = 'fight'
                             engine.respond_to_fight(player, 'fight')
                         elif fight_resolution_overlay.btn_fold.is_clicked(event):
-                            fight_resolution_overlay.locked_choice = 'fold'
                             engine.respond_to_fight(player, 'fold')
                     continue
 
@@ -1389,7 +1570,7 @@ def main():
                 bot_player = engine.players[bot_idx]
                 if bot_player not in engine.active_fight['responses'] and bot_player != engine.active_fight['caller']:
                     if ai_timer is None: 
-                        ai_timer = Timer(0.8 + bot_idx * 0.4)
+                        ai_timer = Timer(1.5 + bot_idx * 0.5)
                     if ai_timer.update(dt):
                         response = RuleBasedAI._should_respond_fight(engine, bot_player, engine.active_fight)
                         engine.respond_to_fight(bot_player, response)
@@ -1708,24 +1889,26 @@ def main():
         
         h_idx = 0
         for gtype, count in groups:
-            # Allow manual groups to show ribbons from 2+ cards; melds still need 3+
-            if (gtype == 'manual' and count >= 2) or (gtype == 'meld' and count >= 3):
+            if (gtype == 'meld' or gtype == 'manual') and count >= 3:
                 group_cards = hand[h_idx : h_idx + count]
                 group_rects_all = [r for c,r,i in hand_rects[h_idx : h_idx + count]]
                 
-                # Dynamic Labeling: If a manual group IS a valid meld, treat it as one visually
-                is_actually_meld = MC.is_valid_meld(group_cards)
-                label = 'Meld Group' if (gtype == 'meld' or is_actually_meld) else 'GROUPED'
+                label = 'Meld Group' if gtype == 'meld' else 'Saved Group'
                 
-                if gtype == 'manual':
-                    if not any(all(gr in rg['rects'] for gr in group_rects_all) for rg in ribbon_groups):
-                        ribbon_groups.append({'rects': group_rects_all, 'label': label, 'front_only': False})
-                    h_idx += count
-                    continue
                 
                 temp_idx = 0
                 while temp_idx <= count - 3:
                     found_meld = False
+                  
+                    if gtype == 'manual':
+                        actual_rects = group_rects_all
+                        is_sub = any(all(gr in rg['rects'] for gr in actual_rects) for rg in ribbon_groups)
+                        if not is_sub:
+                            ribbon_groups.append({'rects': actual_rects, 'label': label, 'front_only': False})
+                        h_idx += count
+                        found_meld = True
+                        break
+
                     for length in range(count - temp_idx, 2, -1):
                         sub_cards = group_cards[temp_idx : temp_idx + length]
                         if MC.is_valid_meld(sub_cards):
@@ -1810,10 +1993,11 @@ def main():
                     screen.blit(ht,(drag_pos[0],drag_pos[1]-25))
 
         # ── Player Panel ─────────────────────────────────────────
-        player_panel.draw(screen, WIDTH//2, HEIGHT-68, player, is_active=is_player_turn, show_points=True,
+        player_panel.draw(screen, WIDTH//2, HEIGHT-90, player, is_active=is_player_turn, show_points=True,
                           avatar_surf=assigned_avatars[0],
                           show_burned=(engine.is_game_over or (engine.last_event and engine.last_event['type'] == 'fight')),
-                          timer_progress=max(0, turn_timer / TURN_LIMIT) if is_player_turn else 0)
+                          timer_progress=max(0, turn_timer / TURN_LIMIT) if is_player_turn else 0,
+                          bounty_ban_games=economy_mgr.bounty_bans.get(0, 0))
 
         # ── Buttons ──────────────────────────────────────────────
         btn_sort.draw(screen)
@@ -1821,7 +2005,21 @@ def main():
         if show_drop: btn_drop_meld.draw(screen)
         if show_fight: btn_call_fight.draw(screen)
 
-      
+        # --- Draw Help Button & Modal (Game Face) ---
+        help_btn_rect.centerx = WIDTH // 2
+        help_btn_rect.y = 10 # Slightly higher
+        
+        pygame.draw.circle(screen, (30, 35, 50, 150), help_btn_rect.center, 22)
+        pygame.draw.circle(screen, Colors.TEXT_GOLD, help_btn_rect.center, 20, width=2)
+        q_surf = font_body.render("?", True, Colors.TEXT_GOLD)
+        screen.blit(q_surf, (help_btn_rect.centerx - q_surf.get_width()//2, help_btn_rect.centery - q_surf.get_height()//2))
+
+        if rules_modal.active:
+            rules_modal.draw(screen, WIDTH, HEIGHT, economy_mgr.mode)
+
+        # Profile Modal (Final)
+        if profile_modal.active:
+            profile_modal.draw(screen)
 
         # ── Forced Meld Warning ──────────────────────────────────
         if is_player_turn and engine.has_forced_meld_pending(player):
@@ -1856,12 +2054,11 @@ def main():
             
             # Auto-adjust player chip to avoid overlap with dynamic hand width
             if d_idx == 0 and game_state not in ('shuffling', 'dealing'):
+                # Place it 60px to the left of the first card in the hand
                 dx = hand_start_x - 60
                 dy = layout['hand_y'] + 10
-            
-            # Pass targets to update, then draw
-            dealer_mgr.update(dt, dx, dy)
-            dealer_mgr.draw(screen)
+                
+            dealer_mgr.draw(screen, dx, dy)
         
         if engine.game_phase == GamePhase.RESOLVING_FIGHT and fight_resolution_overlay:
             fight_resolution_overlay.draw(screen, engine.active_fight, player.calculate_points(), engine.players)
@@ -1894,7 +2091,7 @@ def main():
                     pygame.draw.circle(coin_surf, (255, 215, 0, alpha), (cw//2, cw//2), cw//2)
                     pygame.draw.circle(coin_surf, (200, 160, 0, alpha), (cw//2, cw//2), cw//2 - 3, 2)
                     m_font = pygame.font.SysFont("Courier", int(20 * pop_scale), bold=True)
-                    m_surf = m_font.render("$", True, (0, 0, 0, alpha))
+                    m_surf = m_font.render("M", True, (0, 0, 0, alpha))
                     coin_surf.blit(m_surf, (cw//2 - m_surf.get_width()//2, cw//2 - m_surf.get_height()//2))
 
                     scale_w, scale_h = int(f_surf.get_width() * pop_scale), int(f_surf.get_height() * pop_scale)

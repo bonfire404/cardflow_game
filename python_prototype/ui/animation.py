@@ -8,6 +8,10 @@ def ease_out_cubic(t):
     """Fast start, slow end. Great for card movements."""
     return 1.0 - (1.0 - t) ** 3
 
+def ease_in_cubic(t):
+    """Slow start, fast end. Great for snapping/slamming effects."""
+    return t * t * t
+
 def ease_in_out_quad(t):
     """Smooth start and end. Good for UI transitions."""
     if t < 0.5:

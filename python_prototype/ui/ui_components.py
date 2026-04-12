@@ -58,7 +58,7 @@ class Colors:
     # Cards
     CARD_GLOW = (255, 215, 0, 100)
     CARD_SELECTED = (100, 200, 255, 150)
-    CARD_HOVER = (255, 255, 255, 60)
+    CARD_HOVER = (255, 220, 100, 50)
 
     # Phase indicator
     PHASE_ACTIVE = (80, 200, 120)
@@ -214,7 +214,7 @@ class PlayerPanel:
         self.font_name = font_name
         self.font_stats = font_stats
 
-    def draw(self, surface, x, y, player, is_active=False, show_points=False, align='center', avatar_surf=None, show_burned=False, timer_progress=0.0, is_dealer=False, dealer_img=None):
+    def draw(self, surface, x, y, player, is_active=False, show_points=False, align='center', avatar_surf=None, show_burned=False, timer_progress=0.0, is_dealer=False, dealer_img=None, bounty_ban_games=0):
         # Modern Layout Dimensions
         pw, ph = 240, 80
         if align == 'center': px = x - pw // 2
@@ -225,8 +225,20 @@ class PlayerPanel:
         # --- 1. Panel Background (Modern Glassmorphism) ---
         panel_surf = pygame.Surface((pw, ph), pygame.SRCALPHA)
         bg_alpha = 240 if is_active else 180
-        pygame.draw.rect(panel_surf, (18, 22, 36, bg_alpha), (0, 0, pw, ph), border_radius=18)
-        pygame.draw.rect(panel_surf, (255, 255, 255, 30), (0, 0, pw, ph), width=1, border_radius=18)
+        
+        # Proposal 3: 'Cold Streak' Visual for bounty ban
+        is_cold = bounty_ban_games > 0
+        panel_col = (18, 22, 36, bg_alpha)
+        if is_cold:
+            # Shift colors to cold blue
+            panel_col = (15, 30, 50, bg_alpha)
+            
+        pygame.draw.rect(panel_surf, panel_col, (0, 0, pw, ph), border_radius=18)
+        
+        border_col = (255, 255, 255, 30)
+        if is_cold: border_col = (100, 180, 255, 80) # Glowing ice border
+        
+        pygame.draw.rect(panel_surf, border_col, (0, 0, pw, ph), width=1, border_radius=18)
         
         # Active turn glow
         if is_active:
@@ -270,11 +282,22 @@ class PlayerPanel:
             init_surf = self.font_stats.render(player.name[0].upper(), True, Colors.TEXT_WHITE)
             surface.blit(init_surf, (center[0] - init_surf.get_width() // 2, center[1] - init_surf.get_height() // 2))
 
+        # Cold Streak overlay on avatar
+        if is_cold:
+            frost = pygame.Surface((target_size, target_size), pygame.SRCALPHA)
+            pygame.draw.circle(frost, (100, 200, 255, 60), (target_size//2, target_size//2), target_size//2)
+            surface.blit(frost, (av_x, av_y))
+            # Draw a tiny lock icon
+            lock_txt = self.font_stats.render("❄", True, (150, 230, 255))
+            surface.blit(lock_txt, (av_x + target_size - 15, av_y + 5))
+
         # --- 3. Text & Stats ---
         text_off_x = av_x + target_size + 14
         
-        name_color = Colors.TEXT_GOLD if is_active else Colors.TEXT_WHITE
-        name_surf = self.font_name.render(player.name, True, name_color)
+        name_txt_color = Colors.TEXT_GOLD if is_active else Colors.TEXT_WHITE
+        if is_cold: name_txt_color = (180, 220, 255)
+        
+        name_surf = self.font_name.render(player.name, True, name_txt_color)
         surface.blit(name_surf, (text_off_x, py + 12))
 
         card_text = f"{player.card_count()} CARDS"
@@ -287,6 +310,10 @@ class PlayerPanel:
         elif show_burned:
             status_color = Colors.BURN_RED if player.is_burned else Colors.SAFE_GREEN
             status_label = "BURNED" if player.is_burned else "ACTIVE"
+            if is_cold and not player.is_burned:
+                status_color = (100, 180, 255)
+                status_label = f"ICY ({bounty_ban_games}G)"
+                
             status_surf = self.font_stats.render(status_label.upper(), True, status_color)
             surface.blit(status_surf, (px + pw - status_surf.get_width() - 15, py + 42))
         else:
@@ -338,23 +365,19 @@ class FightResolutionOverlay:
         self._blurred_bg = None
 
         # Buttons (premium style)
-        btn_w, btn_h = 210, 64
+        btn_w, btn_h = 220, 64
         self.btn_fight = Button(
             width // 2 - btn_w - 25, height // 2 + 195, btn_w, btn_h,
-            "⚔ FIGHT", font_btn,
-            color=(190, 30, 30), hover_color=(240, 50, 50),
-            border_radius=16
+            "FIGHT", font_btn,
+            color=(180, 40, 40), hover_color=(220, 60, 60),
+            border_radius=14
         )
         self.btn_fold = Button(
             width // 2 + 25, height // 2 + 195, btn_w, btn_h,
-            "🏳 FOLD", font_btn,
-            color=(70, 75, 90), hover_color=(100, 105, 125),
-            border_radius=16
+            "FOLD", font_btn,
+            color=(80, 85, 100), hover_color=(110, 115, 135),
+            border_radius=14
         )
-        
-        # Choice tracking for immediate feedback
-        self.locked_choice = None # 'fight' or 'fold'
-        self.choice_anim_timer = 0.0
 
         # Avatars (set externally)
         self.avatars = [None, None, None]
@@ -377,16 +400,12 @@ class FightResolutionOverlay:
         self.entrance_timer = min(self.entrance_timer + dt, self.entrance_duration)
         self.alpha = min(self.alpha + self.fade_speed * dt, self.target_alpha)
         self.shake_timer = max(0, self.shake_timer - dt)
-        
-        if self.locked_choice:
-            self.choice_anim_timer += dt
 
         # Animate pie fills toward targets
         for i in range(3):
             if self.pie_fills[i] < self.pie_targets[i]:
                 self.pie_fills[i] = min(self.pie_fills[i] + self.pie_fill_speed * dt, self.pie_targets[i])
 
-        # IMPORTANT: We use mouse_pos WITHOUT shake offset for button updates
         self.btn_fight.update(mouse_pos, dt)
         self.btn_fold.update(mouse_pos, dt)
 
@@ -664,50 +683,45 @@ class FightResolutionOverlay:
         if needs_response:
             # Hint text above buttons
             hint_text = "CHOOSE YOUR RESPONSE"
-            hint_pulse = int(210 + 45 * math.sin(self.time_alive * 4))
+            hint_pulse = int(200 + 55 * math.sin(self.time_alive * 3))
             hint_surf = self.font_body.render(hint_text, True, (hint_pulse, hint_pulse, hint_pulse))
-            hint_y = self.btn_fight.rect.y - 45
+            hint_y = self.btn_fight.rect.y - 35
             surface.blit(hint_surf, (center_x - hint_surf.get_width() // 2, hint_y))
 
-            # Button draw (Note: NOT affected by screen shake for stability)
-            # But the rest of the UI IS affected by shake to keep the "vibe"
-            
-            # Draw buttons at their stable rect positions
+            # Button glow effects
+            ticks = pygame.time.get_ticks()
+
+            # Fight button pulse glow
+            fight_glow_a = int(25 + 20 * math.sin(ticks * 0.006))
+            fight_glow = pygame.Surface((self.btn_fight.rect.w + 20, self.btn_fight.rect.h + 20), pygame.SRCALPHA)
+            pygame.draw.rect(fight_glow, (220, 50, 50, fight_glow_a), (0, 0, fight_glow.get_width(), fight_glow.get_height()), border_radius=18)
+            surface.blit(fight_glow, (self.btn_fight.rect.x - 10, self.btn_fight.rect.y - 10))
+
+            # Fold button subtle glow
+            fold_glow_a = int(15 + 10 * math.sin(ticks * 0.004))
+            fold_glow = pygame.Surface((self.btn_fold.rect.w + 16, self.btn_fold.rect.h + 16), pygame.SRCALPHA)
+            pygame.draw.rect(fold_glow, (100, 105, 120, fold_glow_a), (0, 0, fold_glow.get_width(), fold_glow.get_height()), border_radius=18)
+            surface.blit(fold_glow, (self.btn_fold.rect.x - 8, self.btn_fold.rect.y - 8))
+
             self.btn_fight.draw(surface)
             self.btn_fold.draw(surface)
-            
-            # Add dramatic pulse glow to Fight button
-            ticks = pygame.time.get_ticks()
-            f_glow_a = int(30 + 30 * math.sin(ticks * 0.01))
-            pygame.draw.rect(surface, (255, 50, 50, f_glow_a), self.btn_fight.rect.inflate(12, 12), border_radius=18, width=2)
         else:
-            # Show the player's choice with a dramatic effect
-            resp = self.locked_choice or (responses.get(human_player))
-            if resp:
-                choice_text = "FIGHT!!" if resp == 'fight' else "FOLDED"
-                choice_color = self.COLOR_FIGHT if resp == 'fight' else self.COLOR_FOLD
-                
-                # Show a dramatic "LOCKED" indicator
-                msg = f"YOU HAVE CHOSEN TO {choice_text}"
-                msg_surf = self.font_title.render(msg, True, choice_color)
-                
-                # Pulsating scale/entrance for the choice
-                s = 1.0 + 0.05 * math.sin(self.time_alive * 5)
-                m_scaled = pygame.transform.smoothscale(msg_surf, (int(msg_surf.get_width() * s), int(msg_surf.get_height() * s)))
-                
-                mx = center_x - m_scaled.get_width() // 2
-                my = self.btn_fight.rect.y + 10
-                surface.blit(m_scaled, (mx, my))
-                
-                # Show "Waiting for others" subtext
-                wait_text = "WAITING FOR OPPONENTS" + ("." * (int(self.time_alive * 2) % 4))
-                wait_surf = self.font_body.render(wait_text, True, Colors.TEXT_MUTED)
-                surface.blit(wait_surf, (center_x - wait_surf.get_width() // 2, my + 60))
+            # Show a "waiting for others" or the player's own response
+            if human_player == caller:
+                wait_msg = "WAITING FOR RESPONSES..."
+            elif human_player.is_burned:
+                wait_msg = "YOU ARE BURNED - AUTO FOLD"
+            elif human_player in responses:
+                resp = responses[human_player]
+                wait_msg = f"YOU CHOSE TO {'FIGHT' if resp == 'fight' else 'FOLD'}!"
             else:
-                # If neither decision nor waiting, show generic state
-                wait_msg = "WAITING FOR TABLE..."
-                wait_surf = self.font_body.render(wait_msg, True, Colors.TEXT_MUTED)
-                surface.blit(wait_surf, (center_x - wait_surf.get_width() // 2, self.btn_fight.rect.y + 15))
+                wait_msg = "WAITING..."
+
+            wait_a = int(180 + 60 * math.sin(self.time_alive * 3))
+            wait_surf = self.font_body.render(wait_msg, True, Colors.TEXT_MUTED)
+            wait_surf.set_alpha(wait_a)
+            wait_y = self.btn_fight.rect.y + 10
+            surface.blit(wait_surf, (center_x - wait_surf.get_width() // 2, wait_y))
 
 
 class GameOverOverlay:

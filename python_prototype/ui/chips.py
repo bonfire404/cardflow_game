@@ -64,7 +64,7 @@ class ChipSystem:
             
         return breakdown
 
-    def draw_chip_stack(self, surface, amount_or_chips, base_x, base_y):
+    def draw_chip_stack(self, surface, amount_or_chips, base_x, base_y, scale=1.0):
         if isinstance(amount_or_chips, list):
             if not amount_or_chips: return
             chips = amount_or_chips[:]
@@ -81,7 +81,7 @@ class ChipSystem:
         
         import random
         for i, stack in enumerate(stacks):
-            stack_x = base_x + (i * 22) - (len(stacks) * 11)
+            stack_x = base_x + (i * 22 * scale) - (len(stacks) * 11 * scale)
             stack_y = base_y
             
             if not stack: continue
@@ -89,6 +89,8 @@ class ChipSystem:
             # Draw one unified soft oval shadow for the whole stack
             img = self.chip_images.get(stack[0])
             if img:
+                if scale != 1.0:
+                    img = pygame.transform.smoothscale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))
                 w, h = img.get_size()
                 shadow = pygame.Surface((w+10, int(h*0.6)), pygame.SRCALPHA)
                 pygame.draw.ellipse(shadow, (0, 0, 0, 100), (0, 0, w+10, int(h*0.6)))
@@ -102,10 +104,12 @@ class ChipSystem:
             for j, val in enumerate(stack):
                 img = self.chip_images.get(val)
                 if img:
+                    if scale != 1.0:
+                        img = pygame.transform.smoothscale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))
                     # Slight imperfection per chip
                     random.seed(amount * 1000 + i * 100 + j)
                     cx = stack_x + base_offset_x + random.uniform(-0.5, 0.5)
-                    cy = stack_y + base_offset_y - (j * 3.5) # stack them upwards
+                    cy = stack_y + base_offset_y - (j * 3.5 * scale) # stack them upwards
                     surface.blit(img, (cx, cy))
                     
         # Reset random seed
@@ -115,10 +119,10 @@ class ChipSystem:
         self.banker_pot_display['x'] = layout['deck_x'] + (layout['discard_x'] - layout['deck_x']) // 2 - 20
         self.banker_pot_display['y'] = layout['deck_y'] - 65
 
-    def add_bets(self, bet_amount, layout, banker_bet_amount=100, custom_chips=None):
-        self.main_pot += bet_amount * 3
-        # Banker puts 2x the base bet amount into the banker pot
-        self.banker_pot += banker_bet_amount * 2
+    def add_bets(self, bet_amount, layout, banker_total=100, custom_chips=None):
+        """Sets the visual state of the chips based on the current pots."""
+        self.main_pot = bet_amount * 3
+        self.banker_pot = banker_total
         self.update_layout(layout)
 
         # Place bets near the players so the middle only has the banker pot
@@ -128,14 +132,26 @@ class ChipSystem:
         # Helper to generate randomized chip combinations for bots that sum exactly to total
         def generate_random_chips(amount):
             import random
-            # Cap chip denomination at 100 for a more physically satisfying, overflowing stack
-            available_chip_values = [val for val, _ in CHIP_FILE_NAMES if val <= 100]
+            # Dynamically adjust cap to prevent 'flooding' the table with hundreds of small chips
+            chip_cap = 100
+            if amount > 5000: chip_cap = 1000
+            elif amount > 2000: chip_cap = 500
+            
+            available_chip_values = [val for val, _ in CHIP_FILE_NAMES if val <= chip_cap]
             available = [val for val in available_chip_values if val <= amount]
             if not available: return amount
+            
             chips = []
             remaining = amount
+            # Use deterministic largest chips first for bulk
+            for v in sorted(available_chip_values, reverse=True):
+                if v > 100: # Only use high-value chips for the bulk
+                    count = remaining // v
+                    if count > 0:
+                        chips.extend([v] * count)
+                        remaining %= v
+            
             while remaining > 0:
-                # Prefer smaller chips for variety but keep it reasonable
                 viable = [v for v in available_chip_values if v <= remaining]
                 if not viable: break
                 c = random.choice(viable)

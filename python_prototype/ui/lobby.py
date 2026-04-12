@@ -87,7 +87,12 @@ class Lobby:
             cf_path = os.path.join(lobby_dir, "currency_frame.png")
             self.coin_frame = pygame.image.load(cf_path).convert_alpha()
             self.coin_frame = pygame.transform.smoothscale(self.coin_frame, (240, 80))
-        except: self.coin_frame = None
+        except:
+            self.coin_frame = None
+        
+        self.selected_bet_idx = 0
+        self.bet_values = [100, 300, 600]
+        self.bet_rects = [] # Dynamic rects for the 3 bet buttons
         
         self.recalc_banners()
 
@@ -134,9 +139,17 @@ class Lobby:
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            # Check bet selection for Casino Classic (index 0)
+            if self.hover_idx == 0:
+                for b_idx, b_rect in enumerate(self.bet_rects):
+                    if b_rect.collidepoint(event.pos):
+                        self.selected_bet_idx = b_idx
+                        return None # Don't start game yet, just switch bet
+
             for i, r in enumerate(self.banner_rects):
                 if r.collidepoint(event.pos) and self.modes[i][3]:
-                    return i
+                    # Return both mode and selected bet
+                    return {"mode_idx": i, "bet": self.bet_values[self.selected_bet_idx]}
         return None
 
     def _get_masked_avatar(self, avatar):
@@ -273,6 +286,36 @@ class Lobby:
             sep_s = pygame.Surface((rect.w - 40, 1), pygame.SRCALPHA)
             sep_s.fill((255, 255, 255, 30))
             surface.blit(sep_s, (rect.x + 20, sep_y))
+
+            # --- NEW: Bet Selection (Only for Casino Classic index 0) ---
+            if i == 0:
+                self.bet_rects = []
+                bw, bh = 60, 24
+                total_bw = len(self.bet_values) * bw + (len(self.bet_values)-1) * 8
+                sx = rect.centerx - total_bw // 2
+                sy = sep_y - 45 # Positioned between icon and separator
+                
+                for b_idx, val in enumerate(self.bet_values):
+                    b_rect = pygame.Rect(sx + b_idx * (bw + 8), sy, bw, bh)
+                    self.bet_rects.append(b_rect)
+                    is_sel = (self.selected_bet_idx == b_idx)
+                    
+                    # Button Body
+                    bc = (255, 215, 50, 220) if is_sel else (40, 45, 60, 180)
+                    if not is_sel and b_rect.collidepoint(pygame.mouse.get_pos()):
+                        bc = (255, 230, 120, 140)
+                    
+                    pygame.draw.rect(surface, bc, b_rect, border_radius=12)
+                    if is_sel:
+                        # Glow for selected
+                        glow = pygame.Surface((bw+8, bh+8), pygame.SRCALPHA)
+                        pygame.draw.rect(glow, (255, 215, 50, 40), (0, 0, bw+8, bh+8), border_radius=15)
+                        surface.blit(glow, (b_rect.x-4, b_rect.y-4))
+
+                    # Text
+                    tc = (20, 15, 0) if is_sel else (220, 220, 230)
+                    v_txt = self.font_micro.render(str(val), True, tc)
+                    surface.blit(v_txt, (b_rect.centerx - v_txt.get_width()//2, b_rect.centery - v_txt.get_height()//2))
             
             # Text Design
             name_color = (255, 255, 255) if active else (150, 150, 160)
