@@ -21,9 +21,16 @@ def init_db():
             wins INTEGER,
             losses INTEGER,
             coins INTEGER,
-            rank TEXT
+            rank TEXT,
+            last_replenish INTEGER DEFAULT 0
         )
     ''')
+
+    # Migration: Add last_replenish column if it doesn't exist
+    try:
+        cursor.execute("ALTER TABLE user_profile ADD COLUMN last_replenish INTEGER DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass
 
     # Enforce exactly one profile row (ID 1)
     cursor.execute("SELECT id FROM user_profile ORDER BY id ASC")
@@ -32,8 +39,8 @@ def init_db():
     if not rows:
         # Create the single mandatory profile row
         cursor.execute('''
-            INSERT INTO user_profile (id, name, avatar_idx, wins, losses, coins, rank)
-            VALUES (1, 'Player', 0, 0, 0, 10000, 'Beginner')
+            INSERT INTO user_profile (id, name, avatar_idx, wins, losses, coins, rank, last_replenish)
+            VALUES (1, 'Player', 0, 0, 0, 10000, 'Beginner', 0)
         ''')
         conn.commit()
     elif len(rows) > 1:
@@ -52,7 +59,8 @@ def load_user_profile():
         "wins": 0,
         "losses": 0,
         "coins": 10000,
-        "rank": "Beginner"
+        "rank": "Beginner",
+        "last_replenish": 0
     }
 
     if not os.path.exists(DB_PATH):
@@ -87,7 +95,7 @@ def save_user_profile(stats_dict):
         # Update the single profile row (ID 1)
         cursor.execute('''
             UPDATE user_profile SET
-            name = ?, avatar_idx = ?, wins = ?, losses = ?, coins = ?, rank = ?
+            name = ?, avatar_idx = ?, wins = ?, losses = ?, coins = ?, rank = ?, last_replenish = ?
             WHERE id = 1
         ''', (
             stats_dict.get("name", "Player"),
@@ -95,7 +103,8 @@ def save_user_profile(stats_dict):
             stats_dict.get("wins", 0),
             stats_dict.get("losses", 0),
             stats_dict.get("coins", 10000),
-            stats_dict.get("rank", "Beginner")
+            stats_dict.get("rank", "Beginner"),
+            stats_dict.get("last_replenish", 0)
         ))
             
         conn.commit()

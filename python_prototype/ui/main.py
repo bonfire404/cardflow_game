@@ -1,4 +1,4 @@
-import sys, os, math, pygame, random, json
+import sys, os, math, pygame, random, json, time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from game.engine import TongItsEngine
@@ -11,6 +11,7 @@ from ui.ui_components import (Colors, Button, PhaseIndicator, Badge, PlayerPanel
 from ui.lobby import Lobby
 from ui.profile import ProfileModal
 from ui.rules_modal import RulesModal
+from ui.reward_modal import DailyRewardModal
 from ui.dealer import DealerManager
 from ui.chips import ChipSystem
 
@@ -266,7 +267,8 @@ def main():
         "coins": profile_data["coins"],
         "rank": profile_data["rank"],
         "wins": profile_data["wins"],
-        "losses": profile_data["losses"]
+        "losses": profile_data["losses"],
+        "last_replenish": profile_data.get("last_replenish", 0)
     }
 
     # ── Engine ────────────────────────────────────────────────────
@@ -297,6 +299,7 @@ def main():
     current_avatar = profile_modal.avatars[p_av_idx] if p_av_idx < len(profile_modal.avatars) else None
     
     rules_modal = RulesModal(font_title, font_body, font_small)
+    reward_modal = DailyRewardModal(font_title, font_body, font_small)
 
     # Bots (NPCs with real human names)
     bot1_info = generate_npc(exclude_names=[player_name], exclude_avatars=[current_avatar])
@@ -563,14 +566,33 @@ def main():
                     # Fallback if dictionary fails
                     pass
 
-            # If player clicked start, but has less than 200 coins, give them 1000 free coins
-            if player_stats["coins"] < 200:
-                player_stats["coins"] += 1000
+            # 24-Hour Coin Replenishment: 20,000 coins if balance < 600
+            curr_t = int(time.time())
+            last_r = player_stats.get("last_replenish", 0)
+            if player_stats["coins"] < 600 and (curr_t - last_r) >= 86400:
+                reward_amt = 20000
+                player_stats["coins"] += reward_amt
+                player_stats["last_replenish"] = curr_t
                 profile_data["coins"] = player_stats["coins"]
+                profile_data["last_replenish"] = curr_t
                 save_user_profile(profile_data)
-            
+                
+                # Show the daily reward popup
+                reward_modal.open(reward_amt)
+
+            # Draw Reward Modal
+            if reward_modal.active:
+                reward_modal.update(dt, mouse_pos)
+                reward_modal.draw(screen, WIDTH, HEIGHT)
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: running = False
+
+                # --- Reward Modal Interception ---
+                if reward_modal.active:
+                    if reward_modal.handle_click(event):
+                        pass
+                    continue
 
                 # --- Rules Modal Interception ---
                 if rules_modal.active:
