@@ -89,17 +89,79 @@ class Lobby:
                 self.icons.append(pygame.transform.smoothscale(img, (140, 140)))
             except: self.icons.append(None)
             
+        # Load Help Icons (White and Black for hover)
+        try:
+            help_white_path = get_resource_path(os.path.join("assets", "game_icons", "PNG", "White", "2x", "information.png"))
+            self.icon_help_white = pygame.image.load(help_white_path).convert_alpha()
+            self.icon_help_white = pygame.transform.smoothscale(self.icon_help_white, (24, 24))
+            
+            help_black_path = get_resource_path(os.path.join("assets", "game_icons", "PNG", "Black", "2x", "information.png"))
+            self.icon_help_black = pygame.image.load(help_black_path).convert_alpha()
+            self.icon_help_black = pygame.transform.smoothscale(self.icon_help_black, (24, 24))
+        except:
+            self.icon_help_white = None
+            self.icon_help_black = None
+            
+        # Load Settings Icons
+        try:
+            gear_white_path = get_resource_path(os.path.join("assets", "game_icons", "PNG", "White", "2x", "gear.png"))
+            self.icon_gear_white = pygame.image.load(gear_white_path).convert_alpha()
+            self.icon_gear_white = pygame.transform.smoothscale(self.icon_gear_white, (24, 24))
+            
+            gear_black_path = get_resource_path(os.path.join("assets", "game_icons", "PNG", "Black", "2x", "gear.png"))
+            self.icon_gear_black = pygame.image.load(gear_black_path).convert_alpha()
+            self.icon_gear_black = pygame.transform.smoothscale(self.icon_gear_black, (24, 24))
+        except:
+            self.icon_gear_white = None
+            self.icon_gear_black = None
+            
+        # Load Quit Icons
+        try:
+            exit_white_path = get_resource_path(os.path.join("assets", "game_icons", "PNG", "White", "2x", "exit.png"))
+            self.icon_exit_white = pygame.image.load(exit_white_path).convert_alpha()
+            self.icon_exit_white = pygame.transform.smoothscale(self.icon_exit_white, (24, 24))
+            
+            exit_black_path = get_resource_path(os.path.join("assets", "game_icons", "PNG", "Black", "2x", "exit.png"))
+            self.icon_exit_black = pygame.image.load(exit_black_path).convert_alpha()
+            self.icon_exit_black = pygame.transform.smoothscale(self.icon_exit_black, (24, 24))
+        except:
+            self.icon_exit_white = None
+            self.icon_exit_black = None
+            
+        # Load Quest Icons
+        try:
+            quest_white_path = get_resource_path(os.path.join("assets", "game_icons", "PNG", "White", "2x", "medal1.png"))
+            self.icon_quest_white = pygame.image.load(quest_white_path).convert_alpha()
+            self.icon_quest_white = pygame.transform.smoothscale(self.icon_quest_white, (24, 24))
+            
+            quest_black_path = get_resource_path(os.path.join("assets", "game_icons", "PNG", "Black", "2x", "medal1.png"))
+            self.icon_quest_black = pygame.image.load(quest_black_path).convert_alpha()
+            self.icon_quest_black = pygame.transform.smoothscale(self.icon_quest_black, (24, 24))
+        except:
+            self.icon_quest_white = None
+            self.icon_quest_black = None
+            self.icon_gear_black = None
+            
+        # Load Center Icons
+        self.center_icons = []
+        icons_dir = get_resource_path(os.path.join("assets", "game_icons", "PNG", "White", "2x"))
+        center_icon_files = ["multiplayer.png", "singleplayer.png", "trophy.png"]
+        for fn in center_icon_files:
+            try:
+                img = pygame.image.load(os.path.join(icons_dir, fn)).convert_alpha()
+                self.center_icons.append(pygame.transform.smoothscale(img, (80, 80)))
+            except: self.center_icons.append(None)
+            
         try:
             cf_path = os.path.join(lobby_dir, "currency_frame.png")
-            self.coin_frame = pygame.image.load(cf_path).convert_alpha()
-            self.coin_frame = pygame.transform.smoothscale(self.coin_frame, (210, 60))
-
+            self.coin_frame_orig = pygame.image.load(cf_path).convert_alpha()
         except:
-            self.coin_frame = None
+            self.coin_frame_orig = None
         
         self.selected_bets = {0: 0, 1: 0, 2: 0}
         self.mode_bets = {
             0: [100, 300, 600],
+            1: ["EASY", "MEDIUM", "HARD"],
             2: [1000, 5000, 10000]
         }
         self.bet_rects_map = {} # Map mode_idx -> list of button rects
@@ -130,9 +192,15 @@ class Lobby:
         total_w = len(self.modes) * self.banner_w + (len(self.modes) - 1) * gap
         start_x = self.w // 2 - total_w // 2
         
-        # Help Button Position (Top Right)
+        # Help & Settings Button Position (Top Right)
         bw_h = 46
         self.help_btn_rect = pygame.Rect(self.w - bw_h - 20, 18, bw_h, bw_h)
+        self.settings_btn_rect = pygame.Rect(self.w - (bw_h * 2) - 30, 18, bw_h, bw_h)
+        
+        # Quit & Quest Buttons (Bottom Right)
+        self.quit_btn_rect = pygame.Rect(self.w - bw_h - 20, self.h - 65, bw_h, bw_h)
+        self.quest_btn_rect = pygame.Rect(self.w - (bw_h * 2) - 30, self.h - 65, bw_h, bw_h)
+        
         start_y = self.h // 2 - self.banner_h // 2 + 20
         for i in range(len(self.modes)):
             self.banner_rects.append(pygame.Rect(start_x + i * (self.banner_w + gap), start_y, self.banner_w, self.banner_h))
@@ -163,6 +231,18 @@ class Lobby:
             # Check Help Button
             if self.help_btn_rect.collidepoint(event.pos):
                 return {"type": "help"}
+
+            # Check Settings Button
+            if self.settings_btn_rect.collidepoint(event.pos):
+                return {"type": "settings"}
+                
+            # Check Quit Button
+            if self.quit_btn_rect.collidepoint(event.pos):
+                return {"type": "quit"}
+
+            # Check Quest Button
+            if self.quest_btn_rect.collidepoint(event.pos):
+                return {"type": "quest"}
 
 
             # Check bet selection for modes that support it
@@ -243,21 +323,42 @@ class Lobby:
             pygame.draw.line(sweep_surf, (255, 255, 255, sa), (col, 0), (col, 80))
         surface.blit(sweep_surf, (sweep_x, 0))
 
-        if self.coin_frame:
-            cx, cy = 25, 10
-            surface.blit(self.coin_frame, (cx, cy))
+        if self.coin_frame_orig:
             balance_str = f"{stats.get('coins', 0):,}"
             
             # Modernized text: Pure White with a subtle Gold Glow/Shadow
             shadow_color = (150, 110, 20) # Deep gold shadow
             main_color = (255, 255, 255)  # Crisp white text
             
-            shadow_txt = self.font_coins.render(balance_str, True, shadow_color)
-            main_txt = self.font_coins.render(balance_str, True, main_color)
+            gap = 3 # 3 pixels gap for visible difference
             
-            # Perfect centering for the new rectangular frame (width 210)
-            tx = cx + 105 - main_txt.get_width() // 2
-            ty = cy + 30 - main_txt.get_height() // 2
+            # Render main text with gaps
+            main_surfs = [self.font_coins.render(char, True, main_color) for char in balance_str]
+            total_w = sum(s.get_width() for s in main_surfs) + gap * (len(balance_str) - 1)
+            main_txt = pygame.Surface((total_w, main_surfs[0].get_height()), pygame.SRCALPHA)
+            x_offset = 0
+            for s in main_surfs:
+                main_txt.blit(s, (x_offset, 0))
+                x_offset += s.get_width() + gap
+                
+            # Render shadow text with gaps
+            shadow_surfs = [self.font_coins.render(char, True, shadow_color) for char in balance_str]
+            shadow_txt = pygame.Surface((total_w, shadow_surfs[0].get_height()), pygame.SRCALPHA)
+            x_offset = 0
+            for s in shadow_surfs:
+                shadow_txt.blit(s, (x_offset, 0))
+                x_offset += s.get_width() + gap
+                
+            # Auto-adjust frame width with more padding
+            frame_w = max(210, total_w + 80)
+            coin_frame = pygame.transform.smoothscale(self.coin_frame_orig, (frame_w, 80))
+            
+            cx, cy = 25, 10
+            surface.blit(coin_frame, (cx, cy))
+            
+            # Centering for the auto-adjusted frame
+            tx = cx + frame_w // 2 - total_w // 2
+            ty = cy + 40 - main_txt.get_height() // 2
 
             
             # Draw shadow then main text
@@ -341,7 +442,17 @@ class Lobby:
             # --- Card Frame (Image-based) ---
             if i < len(self.icons) and self.icons[i]:
                 # Scale and draw the provided card frame
-                frame_img = pygame.transform.smoothscale(self.icons[i], (rect.w, rect.h))
+                if i == 0: # Casino Classic
+                    frame_img = pygame.transform.smoothscale(self.icons[i], (rect.w + 20, rect.h + 20))
+                    blit_pos = (rect.x - 10, rect.y - 10)
+                else:
+                    frame_img = pygame.transform.smoothscale(self.icons[i], (rect.w, rect.h))
+                    blit_pos = rect.topleft
+                
+                # Draw backdrop inside the frame so it's not transparent (Inset by 15px)
+                bg_surf = pygame.Surface((rect.w - 30, rect.h - 30), pygame.SRCALPHA)
+                pygame.draw.rect(bg_surf, (15, 12, 25, 220), (0, 0, rect.w - 30, rect.h - 30), border_radius=20)
+                surface.blit(bg_surf, (rect.x + 15, rect.y + 15))
                 
                 # Apply hover transparency or glow
                 if is_hover:
@@ -350,7 +461,7 @@ class Lobby:
                     pygame.draw.rect(glow_surf, (255, 215, 100, 40), (0, 0, rect.w + 20, rect.h + 20), border_radius=32)
                     surface.blit(glow_surf, (rect.x - 10, rect.y - 10))
                 
-                surface.blit(frame_img, rect.topleft)
+                surface.blit(frame_img, blit_pos)
             else:
                 # Fallback to Premium Glass Card Body if image missing
                 b_surf = pygame.Surface((rect.w, rect.h), pygame.SRCALPHA)
@@ -369,7 +480,26 @@ class Lobby:
                 bx_color = (255, 230, 100, 220) if is_hover else (*m_color, 140) if active else (100, 100, 110, 100)
                 pygame.draw.rect(surface, bx_color, rect, width=3 if is_hover else 2, border_radius=32)
 
-            # Card Icons removed as they are integrated into the Card Frames
+            # Draw Center Icon
+            if i < len(self.center_icons) and self.center_icons[i]:
+                icon_img = self.center_icons[i]
+                
+                # Calculate space for icon (above separator and bet buttons)
+                icon_space_h = rect.h - 165 if i in self.mode_bets else rect.h - 120
+                cy = rect.y + icon_space_h // 2
+                cx = rect.centerx
+                
+                ix = cx - icon_img.get_width() // 2
+                iy = cy - icon_img.get_height() // 2
+                
+                # Draw Glow behind icon
+                glow_size = icon_img.get_width() + 40
+                glow_surf = pygame.Surface((glow_size, glow_size), pygame.SRCALPHA)
+                pygame.draw.circle(glow_surf, (*m_color, 40), (glow_size//2, glow_size//2), glow_size//2)
+                surface.blit(glow_surf, (cx - glow_size//2, cy - glow_size//2))
+                
+                # Draw Icon
+                surface.blit(icon_img, (ix, iy))
 
             # Inner separator line between icon and text
             sep_y = rect.bottom - 120
@@ -425,7 +555,10 @@ class Lobby:
                     if i == 2 and is_locked:
                         txt_val = f"Lv{req_lvl}"
                     else:
-                        txt_val = f"{val//1000}k" if val >= 1000 else str(val)
+                        if isinstance(val, str):
+                            txt_val = val
+                        else:
+                            txt_val = f"{val//1000}k" if val >= 1000 else str(val)
                         
                     v_txt = self.font_micro.render(txt_val, True, tc)
                     surface.blit(v_txt, (b_rect.centerx - v_txt.get_width()//2, b_rect.centery - v_txt.get_height()//2))
@@ -540,11 +673,63 @@ class Lobby:
         # Draw border
         pygame.draw.circle(surface, (255, 255, 255, 200), hb.center, hb.w // 2, width=2)
         
-        # Draw '?' text
-        try:
-            f_help = pygame.font.SysFont("Arial", 24, bold=True)
-        except:
-            f_help = self.font_body
-        tc = (20, 15, 0) if hb_hover else (220, 220, 230)
-        txt_help = f_help.render("?", True, tc)
-        surface.blit(txt_help, (hb.centerx - txt_help.get_width()//2, hb.centery - txt_help.get_height()//2))
+        # Draw '?' icon or fallback to text
+        if hb_hover and self.icon_help_black:
+            surface.blit(self.icon_help_black, (hb.centerx - 12, hb.centery - 12))
+        elif not hb_hover and self.icon_help_white:
+            surface.blit(self.icon_help_white, (hb.centerx - 12, hb.centery - 12))
+        else:
+            try:
+                f_help = pygame.font.SysFont("Arial", 24, bold=True)
+            except:
+                f_help = self.font_body
+            tc = (20, 15, 0) if hb_hover else (220, 220, 230)
+            txt_help = f_help.render("?", True, tc)
+            surface.blit(txt_help, (hb.centerx - txt_help.get_width()//2, hb.centery - txt_help.get_height()//2))
+
+        # 5. Draw Settings Button
+        sb = self.settings_btn_rect
+        sb_hover = sb.collidepoint(m_pos)
+        
+        # Draw background circle
+        bc = (255, 215, 50) if sb_hover else (40, 45, 60, 180)
+        pygame.draw.circle(surface, bc, sb.center, sb.w // 2)
+        
+        # Draw border
+        pygame.draw.circle(surface, (255, 255, 255, 200), sb.center, sb.w // 2, width=2)
+        
+        # Draw gear icon
+        if sb_hover and self.icon_gear_black:
+            surface.blit(self.icon_gear_black, (sb.centerx - 12, sb.centery - 12))
+        elif not sb_hover and self.icon_gear_white:
+            surface.blit(self.icon_gear_white, (sb.centerx - 12, sb.centery - 12))
+
+        # 6. Draw Quit Button
+        qb = self.quit_btn_rect
+        qb_hover = qb.collidepoint(m_pos)
+        bc = (255, 50, 50) if qb_hover else (40, 45, 60, 180)
+        pygame.draw.circle(surface, bc, qb.center, qb.w // 2)
+        pygame.draw.circle(surface, (255, 255, 255, 200), qb.center, qb.w // 2, width=2)
+        
+        if qb_hover and self.icon_exit_black:
+            surface.blit(self.icon_exit_black, (qb.centerx - 12, qb.centery - 12))
+        elif not qb_hover and self.icon_exit_white:
+            surface.blit(self.icon_exit_white, (qb.centerx - 12, qb.centery - 12))
+        else:
+            txt = self.font_small.render("EXIT", True, (255, 255, 255))
+            surface.blit(txt, (qb.centerx - txt.get_width()//2, qb.centery - txt.get_height()//2))
+            
+        # 7. Draw Quest Button
+        qsb = self.quest_btn_rect
+        qsb_hover = qsb.collidepoint(m_pos)
+        bc = (255, 215, 50) if qsb_hover else (40, 45, 60, 180)
+        pygame.draw.circle(surface, bc, qsb.center, qsb.w // 2)
+        pygame.draw.circle(surface, (255, 255, 255, 200), qsb.center, qsb.w // 2, width=2)
+        
+        if qsb_hover and self.icon_quest_black:
+            surface.blit(self.icon_quest_black, (qsb.centerx - 12, qsb.centery - 12))
+        elif not qsb_hover and self.icon_quest_white:
+            surface.blit(self.icon_quest_white, (qsb.centerx - 12, qsb.centery - 12))
+        else:
+            txt = self.font_small.render("!", True, (255, 255, 255))
+            surface.blit(txt, (qsb.centerx - txt.get_width()//2, qsb.centery - txt.get_height()//2))

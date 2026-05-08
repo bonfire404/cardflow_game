@@ -1,4 +1,6 @@
 import pygame
+import os
+from ui.paths import get_resource_path
 
 class ConfirmationModal:
     def __init__(self, font_title, font_body, font_small):
@@ -11,6 +13,20 @@ class ConfirmationModal:
         self.rect = pygame.Rect(0, 0, 450, 220)
         self.yes_rect = pygame.Rect(0, 0, 100, 40)
         self.no_rect = pygame.Rect(0, 0, 100, 40)
+        
+        # Load Icons
+        try:
+            checkmark_path = get_resource_path(os.path.join("assets", "game_icons", "PNG", "White", "2x", "checkmark.png"))
+            self.icon_yes = pygame.image.load(checkmark_path).convert_alpha()
+            self.icon_yes = pygame.transform.smoothscale(self.icon_yes, (20, 20))
+            
+            cross_path = get_resource_path(os.path.join("assets", "game_icons", "PNG", "White", "2x", "cross.png"))
+            self.icon_no = pygame.image.load(cross_path).convert_alpha()
+            self.icon_no = pygame.transform.smoothscale(self.icon_no, (20, 20))
+        except Exception as e:
+            print(f"Failed to load modal icons: {e}")
+            self.icon_yes = None
+            self.icon_no = None
         
     def open(self, message, callback):
         self.message = message
@@ -66,16 +82,22 @@ class ConfirmationModal:
         if self.yes_rect.collidepoint(pygame.mouse.get_pos()):
             bc_yes = (70, 140, 240)
         pygame.draw.rect(surface, bc_yes, self.yes_rect, border_radius=8)
-        txt_yes = self.font_small.render("Yes", True, (255, 255, 255))
-        surface.blit(txt_yes, (self.yes_rect.centerx - txt_yes.get_width() // 2, self.yes_rect.centery - txt_yes.get_height() // 2))
+        if self.icon_yes:
+            surface.blit(self.icon_yes, (self.yes_rect.centerx - 10, self.yes_rect.centery - 10))
+        else:
+            txt_yes = self.font_small.render("Yes", True, (255, 255, 255))
+            surface.blit(txt_yes, (self.yes_rect.centerx - txt_yes.get_width() // 2, self.yes_rect.centery - txt_yes.get_height() // 2))
         
         # No Button
         bc_no = (40, 45, 60)
         if self.no_rect.collidepoint(pygame.mouse.get_pos()):
             bc_no = (60, 65, 80)
         pygame.draw.rect(surface, bc_no, self.no_rect, border_radius=8)
-        txt_no = self.font_small.render("No", True, (220, 220, 230))
-        surface.blit(txt_no, (self.no_rect.centerx - txt_no.get_width() // 2, self.no_rect.centery - txt_no.get_height() // 2))
+        if self.icon_no:
+            surface.blit(self.icon_no, (self.no_rect.centerx - 10, self.no_rect.centery - 10))
+        else:
+            txt_no = self.font_small.render("No", True, (220, 220, 230))
+            surface.blit(txt_no, (self.no_rect.centerx - txt_no.get_width() // 2, self.no_rect.centery - txt_no.get_height() // 2))
         
     def wrap_text(self, text, font, max_width):
         words = text.split(' ')

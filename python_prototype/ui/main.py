@@ -10,9 +10,11 @@ from ui.animation import (AnimationManager, Animation, Timer, ParticleEmitter,
 from ui.ui_components import (Colors, Button, PhaseIndicator, Badge, PlayerPanel,
                                GameOverOverlay, MeldDisplay, FightResolutionOverlay, ProfileInspectOverlay)
 from ui.lobby import Lobby
+from ui.settings_modal import SettingsModal
 from ui.profile import ProfileModal
 from ui.rules_modal import RulesModal
 from ui.reward_modal import DailyRewardModal
+from ui.quest_modal import DailyQuestModal
 from ui.confirmation_modal import ConfirmationModal
 from ui.ingame_menu import InGameMenu
 from ui.dealer import DealerManager
@@ -295,6 +297,8 @@ def main():
     # ΓöÇΓöÇ Profile & Stats Loading ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
     init_db() # Ensure schema is up to date
     profile_data = load_user_profile()
+    profile_data["coins"] = 1000000
+    save_user_profile(profile_data)
     player_name = profile_data["name"]
     p_av_idx = profile_data["avatar_idx"]
     player_stats = {
@@ -343,6 +347,7 @@ def main():
     
     rules_modal = RulesModal(font_title, font_body, font_small)
     reward_modal = DailyRewardModal(font_title, font_body, font_small)
+    quest_modal = DailyQuestModal(font_title, font_body, font_small)
     confirmation_modal = ConfirmationModal(font_title, font_body, font_small)
     ingame_menu = InGameMenu(font_title, font_body)
 
@@ -427,6 +432,13 @@ def main():
     MUSIC_LOBBY = os.path.join(music_dir, "Masakit na BG.mp3")
     MUSIC_INGAME = os.path.join(music_dir, "Moavii - Downtown (ingame).mp3")
     
+    SOUND_LOBBY = None
+    if os.path.exists(MUSIC_LOBBY):
+        try:
+            SOUND_LOBBY = pygame.mixer.Sound(MUSIC_LOBBY)
+            SOUND_LOBBY.set_volume(0.3)
+        except: pass
+
     # --- Sound Effects ---
     SFX_SHUFFLE = None
     shuffle_path = os.path.join(sfx_dir, "shuffling-card.mp3")
@@ -533,17 +545,29 @@ def main():
         except: pass
 
     current_music = None
+    lobby_music_started = False
     def play_music(track_path):
-        nonlocal current_music
+        nonlocal current_music, lobby_music_started
         if not os.path.exists(track_path):
             return
         if current_music == track_path:
             return
         current_music = track_path
         try:
-            pygame.mixer.music.load(track_path)
-            pygame.mixer.music.set_volume(0.3)
-            pygame.mixer.music.play(-1)
+            if track_path == MUSIC_LOBBY:
+                pygame.mixer.music.stop() # Stop ingame music
+                if SOUND_LOBBY:
+                    if not lobby_music_started:
+                        pygame.mixer.Channel(7).play(SOUND_LOBBY, loops=-1)
+                        lobby_music_started = True
+                    else:
+                        pygame.mixer.Channel(7).unpause()
+            else: # Ingame music
+                if SOUND_LOBBY:
+                    pygame.mixer.Channel(7).pause()
+                pygame.mixer.music.load(track_path)
+                pygame.mixer.music.set_volume(0.3)
+                pygame.mixer.music.play(-1)
         except Exception as e:
             print(f"Music error: {e}")
 
@@ -564,6 +588,9 @@ def main():
 
     def set_bgm_volume(volume_factor):
         pygame.mixer.music.set_volume(0.3 * volume_factor)
+        pygame.mixer.Channel(7).set_volume(0.3 * volume_factor)
+
+    settings_modal = SettingsModal(font_title, font_body, font_small, set_bgm_volume, set_sfx_volume)
 
     # Initial music playback
     play_music(MUSIC_LOBBY)
@@ -635,6 +662,7 @@ def main():
         engine.players[1].rp = bot1_info[2].get('rp', 0)
         engine.players[1].wins = bot1_info[2].get('wins', 0)
         engine.players[1].losses = bot1_info[2].get('losses', 0)
+        engine.players[1].difficulty = bot1_info[2].get('difficulty')
 
         engine.players[2].rank = bot2_info[2]['rank']
         engine.players[2].level = bot2_info[2]['level']
@@ -642,6 +670,7 @@ def main():
         engine.players[2].rp = bot2_info[2].get('rp', 0)
         engine.players[2].wins = bot2_info[2].get('wins', 0)
         engine.players[2].losses = bot2_info[2].get('losses', 0)
+        engine.players[2].difficulty = bot2_info[2].get('difficulty')
 
 
 
@@ -662,7 +691,7 @@ def main():
             
         # We don't deduct coins or add bets yet if target_state is 'betting'
         # That will happen in the betting state.
-        if target_state != 'betting':
+        if target_state != 'betting' and not isinstance(target_bet_limit, str):
             deduct_amt = target_bet_limit * 2 if engine.dealer_idx == 0 else target_bet_limit
             player_stats['coins'] -= deduct_amt
             profile_data['coins'] = player_stats['coins']
@@ -687,6 +716,7 @@ def main():
         selected_cards.clear()
         game_over_overlay = None
         fight_resolution_overlay = None
+        ingame_menu.is_open = False
         turn_timer = TURN_LIMIT
         last_turn_state = (engine.current_turn_index, engine.current_phase)
         meld_hit_zones = []
@@ -697,15 +727,15 @@ def main():
     phase_indicator = PhaseIndicator(WIDTH // 2, 8, font_phase)
     badge_comp = Badge(font_small)
     player_panel = PlayerPanel(font_body, font_small)
-    btn_sort = Button(0, 0, 120, 35, "Auto Sort", font_btn, color=(60,60,90), hover_color=(80,80,120))
-    btn_drop_meld = Button(0, 0, 140, 40, "Drop Meld", font_btn,
-                           color=Colors.BTN_SUCCESS, hover_color=Colors.BTN_SUCCESS_HOVER)
-    btn_call_fight = Button(0, 0, 140, 40, "Fight!", font_btn,
-                            color=Colors.BTN_DANGER, hover_color=Colors.BTN_DANGER_HOVER)
-    btn_group = Button(0, 0, 120, 35, "Group", font_btn,
-                        color=(50, 80, 100), hover_color=(70, 110, 140))
-    btn_confirm_bet = Button(0, 0, 140, 40, "Confirm Bet", font_btn,
-                           color=Colors.BTN_SUCCESS, hover_color=Colors.BTN_SUCCESS_HOVER)
+    btn_sort = Button(0, 0, 140, 48, "Auto Sort", font_btn, color=(50, 120, 220), hover_color=(70, 145, 255), border_radius=12)
+    btn_drop_meld = Button(0, 0, 140, 48, "Drop Meld", font_btn,
+                           color=Colors.BTN_SUCCESS, hover_color=Colors.BTN_SUCCESS_HOVER, border_radius=12)
+    btn_call_fight = Button(0, 0, 140, 48, "Fight!", font_btn,
+                            color=Colors.BTN_DANGER, hover_color=Colors.BTN_DANGER_HOVER, border_radius=12)
+    btn_group = Button(0, 0, 140, 48, "Group", font_btn,
+                        color=(40, 120, 180), hover_color=(60, 150, 220), border_radius=12)
+    btn_confirm_bet = Button(0, 0, 140, 48, "Confirm Bet", font_btn,
+                           color=Colors.BTN_SUCCESS, hover_color=Colors.BTN_SUCCESS_HOVER, border_radius=12)
 
     def calc_layout():
         return {
@@ -863,19 +893,43 @@ def main():
                 reward_modal.update(dt, mouse_pos)
                 reward_modal.draw(screen, WIDTH, HEIGHT)
 
+            if quest_modal.active:
+                quest_modal.update(dt, mouse_pos)
+                quest_modal.draw(screen, WIDTH, HEIGHT)
+
+            # Draw Confirmation Modal
+            if confirmation_modal.is_open:
+                confirmation_modal.draw(screen, WIDTH, HEIGHT)
+
+            # Draw Settings Modal
+            if settings_modal.is_open:
+                settings_modal.draw(screen, WIDTH, HEIGHT)
+
 
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    if game_state != 'lobby' and game_state != 'game_over':
-                        is_ranked = (target_bet_limit >= 1000)
-                        apply_leaver_penalty(is_ranked)
-                    running = False
+                    def confirm_quit_window():
+                        nonlocal running
+                        if game_state != 'lobby' and game_state != 'game_over':
+                            is_ranked = (target_bet_limit >= 1000)
+                            apply_leaver_penalty(is_ranked)
+                        running = False
+                        pygame.quit()
+                        sys.exit()
+                    
+                    confirmation_modal.open("Are you sure you want to quit the game?", confirm_quit_window)
+                    continue
 
                 # --- Confirmation Modal Interception ---
                 if confirmation_modal.is_open:
                     if confirmation_modal.handle_event(event):
                         pass
+                    continue
+
+                # --- Settings Modal Interception ---
+                if settings_modal.is_open:
+                    settings_modal.handle_event(event)
                     continue
 
                 # --- In-Game Menu Interception ---
@@ -901,10 +955,21 @@ def main():
                         set_bgm_volume(1.0 if ingame_menu.bgm_on else 0.0)
                     continue
 
-                # --- Reward Modal Interception ---
                 if reward_modal.active:
                     if reward_modal.handle_click(event):
                         pass
+                    continue
+
+                if quest_modal.active:
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        res = quest_modal.handle_click(event)
+                        if res:
+                            if res.get("type") == "claim":
+                                amt = res["amount"]
+                                player_stats["coins"] += amt
+                                profile_data["coins"] = player_stats["coins"]
+                                save_user_profile(profile_data)
+                                if SFX_CHIPS: SFX_CHIPS.play()
                     continue
 
                 # --- Rules Modal Interception ---
@@ -913,9 +978,9 @@ def main():
                         if event.button == 1:
                             rules_modal.handle_click(event.pos, WIDTH, HEIGHT)
                         elif event.button == 4:
-                            rules_modal.handle_scroll(-1)
-                        elif event.button == 5:
                             rules_modal.handle_scroll(1)
+                        elif event.button == 5:
+                            rules_modal.handle_scroll(-1)
                     elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                         rules_modal.active = False
                     continue
@@ -962,6 +1027,18 @@ def main():
                     if isinstance(sel_mode, dict) and sel_mode.get("type") == "profile":
                         profile_modal.open(player_name, player_stats)
                         continue
+                    if isinstance(sel_mode, dict) and sel_mode.get("type") == "settings":
+                        settings_modal.open()
+                        continue
+                    if isinstance(sel_mode, dict) and sel_mode.get("type") == "quit":
+                        def confirm_quit_btn():
+                            pygame.quit()
+                            sys.exit()
+                        confirmation_modal.open("Are you sure you want to quit the game?", confirm_quit_btn)
+                        continue
+                    if isinstance(sel_mode, dict) and sel_mode.get("type") == "quest":
+                        quest_modal.open()
+                        continue
                     if isinstance(sel_mode, dict) and sel_mode.get("type") == "warning_modal":
                         msg = "This is a pro mode or advanced mode. Are you sure you want to play at this desired table even though your level is not yet high?"
                         
@@ -979,7 +1056,10 @@ def main():
                         target_bet_limit = sel_mode["bet"]
                         
                     # Sync Profile and Start Game
-                    start_new_game(target_state='betting')
+                    if isinstance(sel_mode, dict) and sel_mode.get("mode_idx") == 1:
+                        start_new_game(target_state='shuffling')
+                    else:
+                        start_new_game(target_state='betting')
             
             pygame.display.flip()
             continue
@@ -1594,14 +1674,14 @@ def main():
         else: phase_indicator.set_phase('WAITING')
 
         # Button updates
-        btn_sort.rect.topleft = (WIDTH-140, layout['hand_y']-45)
+        btn_sort.rect.topleft = (WIDTH-150, layout['hand_y']-55)
         btn_sort.update(mouse_pos, dt)
 
         # Only consider selected cards that are still in the player's hand
         # (Fixing bug where dropped/discarded cards could stay in the selected list)
         selected_in_hand = [c for c in selected_cards if c in player.hand]
 
-        btn_group.rect.topleft = (WIDTH-270, layout['hand_y']-45)
+        btn_group.rect.topleft = (WIDTH-300, layout['hand_y']-55)
         
         # Check if selection overlaps with an existing manual group
         is_ungroup_candidate = False
@@ -1613,13 +1693,13 @@ def main():
         
         if is_ungroup_candidate:
             btn_group.text = "Ungroup"
-            btn_group.color = (130, 80, 50) # Brownish/orange for ungrouping
-            btn_group.hover_color = (160, 110, 70)
+            btn_group.color = (220, 100, 50) # Brighter orange for ungrouping
+            btn_group.hover_color = (250, 130, 80)
             btn_group.enabled = True
         else:
             btn_group.text = "Group"
-            btn_group.color = (50, 80, 100)
-            btn_group.hover_color = (70, 110, 140)
+            btn_group.color = (40, 120, 180)
+            btn_group.hover_color = (60, 150, 220)
             btn_group.enabled = len(selected_in_hand) >= 2
             
         btn_group.update(mouse_pos, dt)
@@ -1687,8 +1767,13 @@ def main():
             if is_win:
                 player_stats["wins"] += 1
                 player_stats["coins"] += payout # Apply payout
+                quest_modal.update_quest("win", 1)
+                quest_modal.update_quest("streak", 1)
             else:
                 player_stats["losses"] += 1
+                quest_modal.update_quest("streak_reset", 0)
+                
+            quest_modal.update_quest("play", 1)
 
             # Sync progression values to player_stats so they aren't overwritten
             player_stats["xp"] = updated_profile.get("xp", 0)
@@ -2678,6 +2763,10 @@ def main():
         # Draw Confirmation Modal
         if confirmation_modal.is_open:
             confirmation_modal.draw(screen, WIDTH, HEIGHT)
+
+        # Draw Settings Modal
+        if settings_modal.is_open:
+            settings_modal.draw(screen, WIDTH, HEIGHT)
 
         pygame.display.flip()
     pygame.quit()

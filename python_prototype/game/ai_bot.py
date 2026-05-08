@@ -183,12 +183,22 @@ class RuleBasedAI:
         should_hold = False
         
         # Early game: High chance to hold melds to look 'dangerous' or wait for better runs
+        diff = getattr(player, 'difficulty', 'MEDIUM')
         if deck_rem > 25:
+            hold_chance = 0.75
+            wait_chance = 0.30
+            if diff == 'EASY':
+                hold_chance = 0.30
+                wait_chance = 0.10
+            elif diff == 'HARD':
+                hold_chance = 0.90
+                wait_chance = 0.50
+
             # 75% chance to hold if we already have one safety meld down
-            if has_melds_on_table and random.random() < 0.75:
+            if has_melds_on_table and random.random() < hold_chance:
                 should_hold = True
             # Even if no melds down, 30% chance to wait (high risk/reward)
-            elif not has_melds_on_table and random.random() < 0.30:
+            elif not has_melds_on_table and random.random() < wait_chance:
                 should_hold = True
                 
         # Mid game: Holding to 'wait' for a Tong-its (if only 1-2 cards away)
@@ -243,6 +253,21 @@ class RuleBasedAI:
                         if engine.is_game_over:
                             return
 
+    # ─── Difficulty Helper ───────────────────────────────────────────
+
+    @staticmethod
+    def _get_difficulty_factor(player):
+        diff = getattr(player, 'difficulty', 'MEDIUM')
+        if not diff:
+            diff = 'MEDIUM'
+        diff = diff.upper()
+        if diff == "EASY":
+            return 1.5  # More reckless
+        elif diff == "HARD":
+            return 0.7  # More cautious
+        else:
+            return 1.0
+
     # ─── Fight Decision ──────────────────────────────────────────────
 
     @staticmethod
@@ -256,13 +281,14 @@ class RuleBasedAI:
 
         points = player.calculate_points()
         deck_remaining = engine.deck.remaining()
+        factor = RuleBasedAI._get_difficulty_factor(player)
         
         # 1. Immediate Win: extremely low points
-        if points <= 5:
+        if points <= 5 * factor:
             return True
             
         # 2. Aggressive Late Game: If deck is running low
-        if deck_remaining < 10 and points <= 15:
+        if deck_remaining < 10 and points <= 15 * factor:
             return True
 
         # 3. Stratregic Mid-Game:
@@ -270,7 +296,7 @@ class RuleBasedAI:
         avg_opponent_cards = sum(p.card_count() for p in engine.players if p != player) / 2
         
         # If we have very few cards (e.g. 3-4) and points are decent (e.g. < 10)
-        if player.card_count() <= 5 and points <= 10:
+        if player.card_count() <= 5 and points <= 10 * factor:
             # If opponents have many cards (e.g. > 8), they likely have high points
             if avg_opponent_cards > player.card_count() + 3:
                 return True
@@ -278,7 +304,7 @@ class RuleBasedAI:
         # 4. Burned status check:
         # If someone is burned, our chances increase since they can't challenge
         burned_count = sum(1 for p in engine.players if p != player and p.is_burned)
-        if burned_count >= 1 and points <= 12:
+        if burned_count >= 1 and points <= 12 * factor:
             return True
 
         return False
@@ -297,6 +323,8 @@ class RuleBasedAI:
         # Never challenge if burned (auto-fold is handled by engine, but safety check)
         if player.is_burned:
             return 'fold'
+            
+        factor = RuleBasedAI._get_difficulty_factor(player)
         
         # Estimate caller's points using visible info:
         # Cards in hand × estimated average value per card
@@ -315,7 +343,7 @@ class RuleBasedAI:
         other_opponents = [p for p in engine.players if p != player and p != caller]
         
         # 1. Extreme confidence: very low points, always fight
-        if my_points <= 5:
+        if my_points <= 5 * factor:
             return 'fight'
         
         # 2. Clear advantage: our points are lower than estimated caller points
@@ -323,28 +351,28 @@ class RuleBasedAI:
             return 'fight'
         
         # 3. Competitive range: similar points, factor in card count advantage
-        if my_points <= estimated_caller_pts + 5:
+        if my_points <= estimated_caller_pts + 5 * factor:
             # If we have fewer or equal cards, we likely have lower value cards
             if player.card_count() <= caller_cards:
                 return 'fight'
             # Close enough to gamble
-            if my_points <= 15:
+            if my_points <= 15 * factor:
                 return 'fight'
         
         # 4. Check if opponents are burned (fewer challengers = better odds)
         burned_opponents = sum(1 for p in other_opponents if p.is_burned)
-        if burned_opponents >= 1 and my_points <= 20:
+        if burned_opponents >= 1 and my_points <= 20 * factor:
             return 'fight'
         
         # 5. Moderate points but not terrible — compare card counts as tiebreaker
-        if my_points <= 25:
+        if my_points <= 25 * factor:
             if player.card_count() < caller_cards:
                 return 'fight'
-            if player.card_count() == caller_cards and my_points <= 18:
+            if player.card_count() == caller_cards and my_points <= 18 * factor:
                 return 'fight'
         
         # 6. High points — only fight if we suspect caller has even more
-        if my_points <= 35:
+        if my_points <= 35 * factor:
             if player.card_count() < caller_cards - 2:
                 return 'fight'  # Significantly fewer cards = likely lower points
         
@@ -372,6 +400,10 @@ class RuleBasedAI:
         hand = player.hand[:]
         if not hand: return None
         if len(hand) == 1: return hand[0]
+
+        # Easy bots: 40% chance to discard a random card (making them easier)
+        if getattr(player, 'difficulty', 'MEDIUM') == 'EASY' and random.random() < 0.40:
+            return random.choice(hand)
 
         scores = {}
         for card in hand:

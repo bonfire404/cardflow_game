@@ -1,8 +1,8 @@
 # Manual to Start The App
 
 cd python_prototype
-python -m ui.main
 
+python -m ui.main
 # Update Exe command
 python -m PyInstaller --noconfirm MamasGo.spec
 

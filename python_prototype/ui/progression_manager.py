@@ -5,16 +5,26 @@ RANKS = ["Wood", "Iron", "Bronze", "Silver", "Gold", "Immortal"]
 
 def get_match_rewards(is_win, is_tongits=False, bet_limit=100):
     """Returns (xp, rp) based on match result and bet limit."""
-    # Calculate RP multiplier based on bet limit
-    if bet_limit <= 100:
-        mult = 1.0
-    elif bet_limit <= 300:
-        mult = 1.5
-    elif bet_limit <= 600:
-        mult = 2.0
+    # Calculate RP multiplier based on bet limit or difficulty
+    if isinstance(bet_limit, str):
+        if bet_limit == "EASY":
+            mult = 1.0
+        elif bet_limit == "MEDIUM":
+            mult = 1.5
+        elif bet_limit == "HARD":
+            mult = 2.0
+        else:
+            mult = 1.0
     else:
-        # For custom high stakes tables
-        mult = 2.0 + (bet_limit - 600) / 2000.0
+        if bet_limit <= 100:
+            mult = 1.0
+        elif bet_limit <= 300:
+            mult = 1.5
+        elif bet_limit <= 600:
+            mult = 2.0
+        else:
+            # For custom high stakes tables
+            mult = 2.0 + (bet_limit - 600) / 2000.0
 
     if is_win:
         if is_tongits:
@@ -26,23 +36,38 @@ def get_match_rewards(is_win, is_tongits=False, bet_limit=100):
 
 
 def generate_bot_profile(bet_limit):
-    """Generates a realistic rank, level, and stats for a bot based on the room's bet limit."""
+    """Generates a realistic rank, level, and stats for a bot based on the room's bet limit or difficulty."""
     # Determine Rank Pool
-    if bet_limit <= 300:
-        pool = ["Wood", "Iron"]
-        lvl_range = (1, 5)
-    elif bet_limit <= 600:
-        pool = ["Iron", "Bronze"]
-        lvl_range = (5, 10)
-    elif bet_limit <= 1000:
-        pool = ["Bronze", "Silver"]
-        lvl_range = (10, 20)
-    elif bet_limit <= 5000:
-        pool = ["Silver", "Gold"]
-        lvl_range = (20, 40)
+    if isinstance(bet_limit, str):
+        diff = bet_limit.upper()
+        if diff == "EASY":
+            pool = ["Wood", "Iron"]
+            lvl_range = (1, 5)
+        elif diff == "MEDIUM":
+            pool = ["Iron", "Bronze"]
+            lvl_range = (5, 10)
+        elif diff == "HARD":
+            pool = ["Bronze", "Silver"]
+            lvl_range = (10, 20)
+        else:
+            pool = ["Gold", "Immortal"]
+            lvl_range = (40, 100)
     else:
-        pool = ["Gold", "Immortal"]
-        lvl_range = (40, 100)
+        if bet_limit <= 300:
+            pool = ["Wood", "Iron"]
+            lvl_range = (1, 5)
+        elif bet_limit <= 600:
+            pool = ["Iron", "Bronze"]
+            lvl_range = (5, 10)
+        elif bet_limit <= 1000:
+            pool = ["Bronze", "Silver"]
+            lvl_range = (10, 20)
+        elif bet_limit <= 5000:
+            pool = ["Silver", "Gold"]
+            lvl_range = (20, 40)
+        else:
+            pool = ["Gold", "Immortal"]
+            lvl_range = (40, 100)
 
     rank = random.choice(pool)
     level = random.randint(*lvl_range)
@@ -80,7 +105,7 @@ def generate_bot_profile(bet_limit):
     wins = int(total_games * win_rate)
     losses = total_games - wins
 
-    return {
+    profile = {
         "rank": rank,
         "level": level,
         "xp": total_xp,
@@ -88,6 +113,9 @@ def generate_bot_profile(bet_limit):
         "wins": wins,
         "losses": losses
     }
+    if isinstance(bet_limit, str):
+        profile["difficulty"] = bet_limit.upper()
+    return profile
 
 
 

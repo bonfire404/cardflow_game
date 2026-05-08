@@ -73,6 +73,22 @@ class ProfileModal:
         self._pen_hover = False
 
         self._load_avatars_from_assets()
+        
+        # Load Close Icon
+        try:
+            cross_path = get_resource_path(os.path.join("assets", "game_icons", "PNG", "White", "2x", "cross.png"))
+            self.icon_close = pygame.image.load(cross_path).convert_alpha()
+            self.icon_close = pygame.transform.smoothscale(self.icon_close, (16, 16))
+        except:
+            self.icon_close = None
+
+        # Load Wrench Icon
+        try:
+            wrench_path = get_resource_path(os.path.join("assets", "game_icons", "PNG", "White", "2x", "wrench.png"))
+            self.icon_wrench = pygame.image.load(wrench_path).convert_alpha()
+            self.icon_wrench = pygame.transform.smoothscale(self.icon_wrench, (16, 16))
+        except:
+            self.icon_wrench = None
 
     def _load_avatars_from_assets(self):
         """Load avatars from the project directory and process them into premium circular frames."""
@@ -370,8 +386,11 @@ class ProfileModal:
         # Close "X" Button
         close_color = (180, 50, 50) if self._close_hover else (120, 40, 40)
         pygame.draw.circle(surface, close_color, self.close_btn_rect.center, 16)
-        x_surf = self.font_small.render("X", True, (255, 255, 255))
-        surface.blit(x_surf, (self.close_btn_rect.centerx - x_surf.get_width() // 2, self.close_btn_rect.centery - x_surf.get_height() // 2))
+        if self.icon_close:
+            surface.blit(self.icon_close, (self.close_btn_rect.centerx - 8, self.close_btn_rect.centery - 8))
+        else:
+            x_surf = self.font_small.render("X", True, (255, 255, 255))
+            surface.blit(x_surf, (self.close_btn_rect.centerx - x_surf.get_width() // 2, self.close_btn_rect.centery - x_surf.get_height() // 2))
 
         # ================= LEFT COLUMN (Profile & Rank) =================
         col1_x = px + 40
@@ -392,21 +411,66 @@ class ProfileModal:
             pygame.draw.circle(surface, (60, 65, 85), self.pen_rect.center, 15)
             if self._pen_hover:
                 pygame.draw.circle(surface, Colors.TEXT_GOLD, self.pen_rect.center, 15, 1)
-            # Draw pencil
+            
+            # Draw wrench icon as edit
             cx, cy = self.pen_rect.center
-            pygame.draw.line(surface, (220, 220, 220), (cx - 5, cy + 5), (cx + 5, cy - 5), 2)
-            pygame.draw.polygon(surface, (220, 220, 220), [(cx + 3, cy - 7), (cx + 7, cy - 3), (cx + 7, cy - 7)])
+            if self.icon_wrench:
+                surface.blit(self.icon_wrench, (cx - 8, cy - 8))
+            else:
+                pygame.draw.line(surface, (220, 220, 220), (cx - 5, cy + 5), (cx + 5, cy - 5), 2)
+                pygame.draw.polygon(surface, (220, 220, 220), [(cx + 3, cy - 7), (cx + 7, cy - 3), (cx + 7, cy - 7)])
             
             # 3. Rank Badge & RP (Only in view mode)
             from ui.assets_mgr import get_rank_badge
             rank_str = self.stats.get('rank', 'Wood')
             badge_surf = get_rank_badge(rank_str, "large")
-            badge_surf = pygame.transform.smoothscale(badge_surf, (80, 80))
-            surface.blit(badge_surf, (col1_x + 70, py + 310))
+            badge_surf = pygame.transform.smoothscale(badge_surf, (110, 110))
+            surface.blit(badge_surf, (col1_x + 55, py + 300))
             
             rp = self.stats.get('rp', 0)
-            rp_surf = self.font_body.render(f"{rank_str} - {rp} RP", True, (220, 220, 230))
-            surface.blit(rp_surf, (col1_x + 110 - rp_surf.get_width()//2, py + 400))
+            
+            # 1. Rank Text (Modernized: Gold, Bold, Uppercase)
+            rank_surf = self.font_title.render(rank_str.upper(), True, Colors.TEXT_GOLD)
+            surface.blit(rank_surf, (col1_x + 110 - rank_surf.get_width()//2, py + 415))
+            
+            # 2. RP Progress Bar
+            bar_w = 220
+            bar_h = 10
+            bar_x = col1_x
+            bar_y = py + 460
+            
+            # Draw bar background
+            pygame.draw.rect(surface, (25, 30, 45, 200), (bar_x, bar_y, bar_w, bar_h), border_radius=5)
+            pygame.draw.rect(surface, (255, 255, 255, 20), (bar_x, bar_y, bar_w, bar_h), width=1, border_radius=5)
+            
+            # Calculate fill (Assuming 1000 RP per tier for visual progress)
+            if rank_str.lower() == "immortal":
+                progress = 1.0
+            else:
+                progress = (rp % 1000) / 1000.0
+                if progress == 0 and rp > 0: progress = 1.0 # Edge case for exact thousands
+            fill_w = int(bar_w * progress)
+            
+            if fill_w > 0:
+                # Draw gradient fill for progress
+                fill_surf = pygame.Surface((fill_w, bar_h), pygame.SRCALPHA)
+                for x in range(fill_w):
+                    t = x / bar_w
+                    r = int(218 + (255 - 218) * t)
+                    g = int(175 + (215 - 175) * t)
+                    b = int(50 + (0 - 50) * t)
+                    pygame.draw.line(fill_surf, (r, g, b, 235), (x, 0), (x, bar_h))
+                
+                # Mask fill surf to round corners
+                fill_mask = pygame.Surface((fill_w, bar_h), pygame.SRCALPHA)
+                pygame.draw.rect(fill_mask, (255, 255, 255, 255), (0, 0, fill_w, bar_h), border_radius=5)
+                fill_surf.blit(fill_mask, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)
+                
+                surface.blit(fill_surf, (bar_x, bar_y))
+                
+            # 3. RP Text below bar
+            rp_txt = self.font_small.render(f"{rp} RP", True, (200, 200, 210))
+            surface.blit(rp_txt, (bar_x + bar_w // 2 - rp_txt.get_width() // 2, bar_y + bar_h + 5))
             
         else:
             # Edit Mode Name Input (Grouped in Card)
@@ -454,7 +518,9 @@ class ProfileModal:
                 ("LOSSES", str(losses), col2_x + 160, py + 120, 140),
                 ("WIN RATE", f"{win_rate:.1f}%", col2_x, py + 200, 140),
                 ("STREAK", str(streak), col2_x + 160, py + 200, 140),
-                ("BIGGEST WIN", f"{biggest_win} Coins", col2_x, py + 280, 300)
+                ("BIGGEST WIN", f"{biggest_win} Coins", col2_x, py + 280, 300),
+                ("TOTAL GAMES", str(wins + losses), col2_x, py + 360, 140),
+                ("LEVEL", str(self.stats.get('level', 1)), col2_x + 160, py + 360, 140)
             ]
             for label, val, x, y, w in stats_to_draw:
                 pygame.draw.rect(surface, (25, 30, 45, 220), (x, y, w, 65), border_radius=12)

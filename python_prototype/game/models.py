@@ -72,13 +72,14 @@ class Deck:
 
 
 class Player:
-    def __init__(self, name, is_human=False, level=1, rank="Wood", rp=0, xp=0):
+    def __init__(self, name, is_human=False, level=1, rank="Wood", rp=0, xp=0, difficulty=None):
         self.name = name
         self.is_human = is_human
         self.level = level
         self.rank = rank
         self.rp = rp
         self.xp = xp
+        self.difficulty = difficulty
         self.hand = []
         self.melds = []              # List of TableMeld objects owned by this player
         self.is_burned = True        # True until they drop at least one meld
