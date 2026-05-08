@@ -1,0 +1,5 @@
+{
+    "python.defaultInterpreterPath": "C:\\Users\\BONFIRE BASE\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.terminal.activateEnvInCurrentTerminal": true
+}

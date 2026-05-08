@@ -16,10 +16,17 @@ class Lobby:
         self.font_micro = pygame.font.SysFont("Arial", 12, bold=True)
         # Load a smaller Sekuya for coin balance
         _sekuya_path = get_resource_path(os.path.join("assets", "fonts", "Sekuya", "Sekuya-Regular.ttf"))
-        try: self.font_coins = pygame.font.Font(_sekuya_path, 22)
+        try: self.font_coins = pygame.font.Font(_sekuya_path, 28)
         except: self.font_coins = f_body
         self.time_acc = 0.0
         
+        # Load app logo
+        _logo_path = get_resource_path(os.path.join("assets", "images", "cardflow_logo.png"))
+        try:
+            self.logo_img = pygame.image.load(_logo_path).convert_alpha()
+        except:
+            self.logo_img = None
+            
         # --- Particle System ---
         self.particles = []
         for _ in range(50):
@@ -31,10 +38,9 @@ class Lobby:
                 'alpha': random.randint(100, 255)
             })
         self.modes = [
-            ("CASINO CLASSIC", "1 VS 2 BOTS", (255, 215, 0), True),
-            ("AI ARENA", "BOT TRAINING", (180, 100, 255), True),
-            ("FRIENDS", "SOCIAL LOUNGE", (0, 180, 255), False),
-            ("ARENA", "RANKED GLORY", (255, 60, 60), False)
+            ("CASINO CLASSIC", "1 VS 2 BOTS", (0, 180, 255), True),
+            ("AI ARENA", "BOT TRAINING", (255, 60, 60), True),
+            ("RANK", "COMPETITIVE RANKED MODE", (255, 215, 0), True)
         ]
         
         self.banner_w = 260
@@ -76,7 +82,7 @@ class Lobby:
         # Load Icons
         self.icons = []
         lobby_dir = get_resource_path(os.path.join("assets", "images", "lobby"))
-        icon_files = ["play_now.png", "ai_arena.png", "friends.png", "arena_ranked.png"]
+        icon_files = ["classic_mode.png", "ai_mode.png", "rank_mode.png"]
         for fn in icon_files:
             try:
                 img = pygame.image.load(os.path.join(lobby_dir, fn)).convert_alpha()
@@ -86,13 +92,17 @@ class Lobby:
         try:
             cf_path = os.path.join(lobby_dir, "currency_frame.png")
             self.coin_frame = pygame.image.load(cf_path).convert_alpha()
-            self.coin_frame = pygame.transform.smoothscale(self.coin_frame, (240, 80))
+            self.coin_frame = pygame.transform.smoothscale(self.coin_frame, (210, 60))
+
         except:
             self.coin_frame = None
         
-        self.selected_bet_idx = 0
-        self.bet_values = [100, 300, 600]
-        self.bet_rects = [] # Dynamic rects for the 3 bet buttons
+        self.selected_bets = {0: 0, 1: 0, 2: 0}
+        self.mode_bets = {
+            0: [100, 300, 600],
+            2: [1000, 5000, 10000]
+        }
+        self.bet_rects_map = {} # Map mode_idx -> list of button rects
         
         self.help_btn_rect = pygame.Rect(0,0,0,0)
         self.recalc_banners()
@@ -144,22 +154,32 @@ class Lobby:
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            # Check Profile Click
+            ax, ay = 30, self.h - 65
+            profile_rect = pygame.Rect(ax, ay, 200, 52)
+            if profile_rect.collidepoint(event.pos):
+                return {"type": "profile"}
+
             # Check Help Button
             if self.help_btn_rect.collidepoint(event.pos):
                 return {"type": "help"}
 
-            # Check bet selection for Casino Classic (index 0)
-            if self.hover_idx == 0:
-                for b_idx, b_rect in enumerate(self.bet_rects):
+
+            # Check bet selection for modes that support it
+            if self.hover_idx in self.mode_bets:
+                for b_idx, b_rect in enumerate(self.bet_rects_map.get(self.hover_idx, [])):
                     if b_rect.collidepoint(event.pos):
-                        self.selected_bet_idx = b_idx
-                        return None # Don't start game yet, just switch bet
+                        self.selected_bets[self.hover_idx] = b_idx
+                        return None # Switch bet, don't start game
 
             for i, r in enumerate(self.banner_rects):
                 if self.modes[i][3]:
                     play_rect = pygame.Rect(r.centerx - 70, r.bottom - 55, 140, 42)
                     if play_rect.collidepoint(event.pos):
-                        return {"mode_idx": i, "bet": self.bet_values[self.selected_bet_idx]}
+                        # Get selected bet for this mode, or default to 0
+                        mode_bet_list = self.mode_bets.get(i, [100])
+                        sel_idx = self.selected_bets.get(i, 0)
+                        return {"mode_idx": i, "bet": mode_bet_list[sel_idx]}
         return None
 
     def _get_masked_avatar(self, avatar):
@@ -200,22 +220,81 @@ class Lobby:
         surface.blit(sweep_surf, (sweep_x, 0))
 
         if self.coin_frame:
-            cx, cy = 25, 0
+            cx, cy = 25, 10
             surface.blit(self.coin_frame, (cx, cy))
-            balance_str = f"{stats['coins']:,}"
-            glow_txt = self.font_coins.render(balance_str, True, (255, 215, 100))
-            surface.blit(glow_txt, (cx + 150 - glow_txt.get_width() // 2, cy + 40 - glow_txt.get_height() // 2))
+            balance_str = f"{stats.get('coins', 0):,}"
+            
+            # Modernized text: Pure White with a subtle Gold Glow/Shadow
+            shadow_color = (150, 110, 20) # Deep gold shadow
+            main_color = (255, 255, 255)  # Crisp white text
+            
+            shadow_txt = self.font_coins.render(balance_str, True, shadow_color)
+            main_txt = self.font_coins.render(balance_str, True, main_color)
+            
+            # Perfect centering for the new rectangular frame (width 210)
+            tx = cx + 105 - main_txt.get_width() // 2
+            ty = cy + 30 - main_txt.get_height() // 2
 
-        # Sekuya Title with Glow
-        main_title = "MAMA'S GO"
-        title_pulse = int(230 + 25 * math.sin(self.time_acc * 3))
-        title_txt = self.font_title.render(main_title, True, (255, 215, 50))
-        # Shadow for depth
-        shadow_txt = self.font_title.render(main_title, True, (20, 10, 0))
-        tx = self.w // 2 - title_txt.get_width() // 2
+            
+            # Draw shadow then main text
+            surface.blit(shadow_txt, (tx + 2, ty + 2))
+            surface.blit(main_txt, (tx, ty))
+
+        # Stylized Game Title: CARDFL(ICON)W
+        part1 = "CARDFL"
+        part2 = "W"
+        
+        txt_p1 = self.font_title.render(part1, True, (225, 40, 40))
+        txt_p2 = self.font_title.render(part2, True, (225, 40, 40))
+        
+        sh_b1 = self.font_title.render(part1, True, (10, 5, 5))
+        sh_b2 = self.font_title.render(part2, True, (10, 5, 5))
+        sh_w1 = self.font_title.render(part1, True, (240, 240, 240))
+        sh_w2 = self.font_title.render(part2, True, (240, 240, 240))
+        
+        icon_h = txt_p1.get_height()
+        icon_w = icon_h
+        icon_scaled = None
+        
+        if self.logo_img:
+            img_rect = self.logo_img.get_rect()
+            aspect = img_rect.w / img_rect.h
+            icon_w = int(icon_h * aspect)
+            icon_scaled = pygame.transform.smoothscale(self.logo_img, (icon_w, icon_h))
+        else:
+            # Fallback to letter O
+            txt_o = self.font_title.render("O", True, (225, 40, 40))
+            sh_bo = self.font_title.render("O", True, (10, 5, 5))
+            sh_wo = self.font_title.render("O", True, (240, 240, 240))
+            icon_w = txt_o.get_width()
+            
+        gap = -12
+        total_w = txt_p1.get_width() + icon_w + txt_p2.get_width() + gap * 2
+        
+        tx = self.w // 2 - total_w // 2
         ty = 15
-        surface.blit(shadow_txt, (tx + 2, ty + 2))
-        surface.blit(title_txt, (tx, ty))
+        
+        # Draw Part 1
+        surface.blit(sh_b1, (tx + 3, ty + 3))
+        surface.blit(sh_w1, (tx - 1, ty - 1))
+        surface.blit(txt_p1, (tx, ty))
+        
+        x_offset = tx + txt_p1.get_width() + gap
+        
+        # Draw Icon or Fallback O
+        if icon_scaled:
+            surface.blit(icon_scaled, (x_offset, ty))
+        else:
+            surface.blit(sh_bo, (x_offset + 3, ty + 3))
+            surface.blit(sh_wo, (x_offset - 1, ty - 1))
+            surface.blit(txt_o, (x_offset, ty))
+            
+        x_offset += icon_w + gap
+        
+        # Draw Part 2
+        surface.blit(sh_b2, (x_offset + 3, ty + 3))
+        surface.blit(sh_w2, (x_offset - 1, ty - 1))
+        surface.blit(txt_p2, (x_offset, ty))
 
         # 3. Central Modes
         for i, (m_name, m_sub, m_color, active) in enumerate(self.modes):
@@ -235,61 +314,38 @@ class Lobby:
                 rect.inflate_ip(16, 16)
                 rect.y -= 15
             
-            # Premium Glass Card Body
-            b_surf = pygame.Surface((rect.w, rect.h), pygame.SRCALPHA)
-            b_alpha = 200 if is_hover else 140
-            
-            # Per-row gradient for card body
-            for row in range(rect.h):
-                rt = row / rect.h
-                rc = int(25 + 15 * rt)
-                gc = int(30 + 15 * rt)
-                bc = int(50 + 20 * rt)
-                pygame.draw.line(b_surf, (rc, gc, bc, b_alpha), (0, row), (rect.w, row))
-            
-            # Round the corners
-            mask = pygame.Surface((rect.w, rect.h), pygame.SRCALPHA)
-            pygame.draw.rect(mask, (255, 255, 255, 255), (0, 0, rect.w, rect.h), border_radius=32)
-            b_surf.blit(mask, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)
-            
-            # Frosted glass highlight
-            f_hl = pygame.Surface((rect.w, 80), pygame.SRCALPHA)
-            pygame.draw.rect(f_hl, (255, 255, 255, 20 if is_hover else 12), (0, 0, rect.w, 80), border_radius=32)
-            b_surf.blit(f_hl, (0, 0))
-            
-            surface.blit(b_surf, rect.topleft)
-            
-            # Animated Border
-            bx_color = (255, 230, 100, 220) if is_hover else (*m_color, 140) if active else (100, 100, 110, 100)
-            bw = 3 if is_hover else 2
-            pygame.draw.rect(surface, bx_color, rect, width=bw, border_radius=32)
-
-            # Decorative corner accents (top-left, top-right, bottom-left, bottom-right)
-            if active:
-                corner_len = 20
-                corner_a = 200 if is_hover else 120
-                cc = (*m_color[:3], corner_a) if not is_hover else (255, 230, 100, corner_a)
-                # Top-left
-                pygame.draw.line(surface, cc, (rect.x + 8, rect.y + 4), (rect.x + 8 + corner_len, rect.y + 4), 3)
-                pygame.draw.line(surface, cc, (rect.x + 4, rect.y + 8), (rect.x + 4, rect.y + 8 + corner_len), 3)
-                # Top-right
-                pygame.draw.line(surface, cc, (rect.right - 8, rect.y + 4), (rect.right - 8 - corner_len, rect.y + 4), 3)
-                pygame.draw.line(surface, cc, (rect.right - 4, rect.y + 8), (rect.right - 4, rect.y + 8 + corner_len), 3)
-                # Bottom-left
-                pygame.draw.line(surface, cc, (rect.x + 8, rect.bottom - 4), (rect.x + 8 + corner_len, rect.bottom - 4), 3)
-                pygame.draw.line(surface, cc, (rect.x + 4, rect.bottom - 8), (rect.x + 4, rect.bottom - 8 - corner_len), 3)
-                # Bottom-right
-                pygame.draw.line(surface, cc, (rect.right - 8, rect.bottom - 4), (rect.right - 8 - corner_len, rect.bottom - 4), 3)
-                pygame.draw.line(surface, cc, (rect.right - 4, rect.bottom - 8), (rect.right - 4, rect.bottom - 8 - corner_len), 3)
-
-            icon_y = rect.y + 110
+            # --- Card Frame (Image-based) ---
             if i < len(self.icons) and self.icons[i]:
-                icon_img = self.icons[i]
-                if is_hover: 
-                    icon_img = pygame.transform.smoothscale(icon_img, (165, 165))
-                    surface.blit(icon_img, (rect.centerx - 82, icon_y - 82))
-                else: 
-                    surface.blit(icon_img, (rect.centerx - 70, icon_y - 70))
+                # Scale and draw the provided card frame
+                frame_img = pygame.transform.smoothscale(self.icons[i], (rect.w, rect.h))
+                
+                # Apply hover transparency or glow
+                if is_hover:
+                    # Optional: Add a slight gold glow behind the card on hover
+                    glow_surf = pygame.Surface((rect.w + 20, rect.h + 20), pygame.SRCALPHA)
+                    pygame.draw.rect(glow_surf, (255, 215, 100, 40), (0, 0, rect.w + 20, rect.h + 20), border_radius=32)
+                    surface.blit(glow_surf, (rect.x - 10, rect.y - 10))
+                
+                surface.blit(frame_img, rect.topleft)
+            else:
+                # Fallback to Premium Glass Card Body if image missing
+                b_surf = pygame.Surface((rect.w, rect.h), pygame.SRCALPHA)
+                b_alpha = 200 if is_hover else 140
+                for row in range(rect.h):
+                    rt = row / rect.h
+                    rc, gc, bc = int(25 + 15 * rt), int(30 + 15 * rt), int(50 + 20 * rt)
+                    pygame.draw.line(b_surf, (rc, gc, bc, b_alpha), (0, row), (rect.w, row))
+                
+                mask = pygame.Surface((rect.w, rect.h), pygame.SRCALPHA)
+                pygame.draw.rect(mask, (255, 255, 255, 255), (0, 0, rect.w, rect.h), border_radius=32)
+                b_surf.blit(mask, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)
+                surface.blit(b_surf, rect.topleft)
+                
+                # Fallback Border
+                bx_color = (255, 230, 100, 220) if is_hover else (*m_color, 140) if active else (100, 100, 110, 100)
+                pygame.draw.rect(surface, bx_color, rect, width=3 if is_hover else 2, border_radius=32)
+
+            # Card Icons removed as they are integrated into the Card Frames
 
             # Inner separator line between icon and text
             sep_y = rect.bottom - 120
@@ -297,18 +353,19 @@ class Lobby:
             sep_s.fill((255, 255, 255, 30))
             surface.blit(sep_s, (rect.x + 20, sep_y))
 
-            # --- NEW: Bet Selection (Only for Casino Classic index 0) ---
-            if i == 0:
-                self.bet_rects = []
+            # --- Bet Selection (For modes defined in mode_bets) ---
+            if i in self.mode_bets:
+                mode_bet_rects = []
                 bw, bh = 60, 24
-                total_bw = len(self.bet_values) * bw + (len(self.bet_values)-1) * 8
+                mode_vals = self.mode_bets[i]
+                total_bw = len(mode_vals) * bw + (len(mode_vals)-1) * 8
                 sx = rect.centerx - total_bw // 2
-                sy = sep_y - 45 # Positioned between icon and separator
+                sy = sep_y - 45 # Positioned between icon/artwork and separator
                 
-                for b_idx, val in enumerate(self.bet_values):
+                for b_idx, val in enumerate(mode_vals):
                     b_rect = pygame.Rect(sx + b_idx * (bw + 8), sy, bw, bh)
-                    self.bet_rects.append(b_rect)
-                    is_sel = (self.selected_bet_idx == b_idx)
+                    mode_bet_rects.append(b_rect)
+                    is_sel = (self.selected_bets.get(i, 0) == b_idx)
                     
                     # Button Body
                     bc = (255, 215, 50, 220) if is_sel else (40, 45, 60, 180)
@@ -322,10 +379,13 @@ class Lobby:
                         pygame.draw.rect(glow, (255, 215, 50, 40), (0, 0, bw+8, bh+8), border_radius=15)
                         surface.blit(glow, (b_rect.x-4, b_rect.y-4))
 
-                    # Text
+                    # Text (Using 'k' shorthand for large values)
+                    txt_val = f"{val//1000}k" if val >= 1000 else str(val)
                     tc = (20, 15, 0) if is_sel else (220, 220, 230)
-                    v_txt = self.font_micro.render(str(val), True, tc)
+                    v_txt = self.font_micro.render(txt_val, True, tc)
                     surface.blit(v_txt, (b_rect.centerx - v_txt.get_width()//2, b_rect.centery - v_txt.get_height()//2))
+                
+                self.bet_rects_map[i] = mode_bet_rects
             
             # Text Design
             name_color = (255, 255, 255) if active else (150, 150, 160)
@@ -349,9 +409,14 @@ class Lobby:
                 # Modern gradient/gloss button
                 btn_surface = pygame.Surface((play_rect.w, play_rect.h), pygame.SRCALPHA)
                 
-                # Base colors
-                base_color = (30, 220, 80) if btn_hover else (20, 160, 50)
-                dark_color = (10, 140, 30) if btn_hover else (10, 100, 20)
+                # Dynamic colors based on mode theme
+                m_r, m_g, m_b = m_color
+                if btn_hover:
+                    base_color = (min(255, m_r + 40), min(255, m_g + 40), min(255, m_b + 40))
+                    dark_color = (max(0, m_r - 20), max(0, m_g - 20), max(0, m_b - 20))
+                else:
+                    base_color = m_color
+                    dark_color = (max(0, m_r - 80), max(0, m_g - 80), max(0, m_b - 80))
                 
                 # Vertical gradient
                 for y in range(play_rect.h):
@@ -384,7 +449,7 @@ class Lobby:
                 p_text = "P L A Y" if btn_hover else "PLAY"
                 p_txt = self.font_body.render(p_text, True, (255, 255, 255))
                 # Text Shadow
-                p_shadow = self.font_body.render(p_text, True, (0, 80, 0))
+                p_shadow = self.font_body.render(p_text, True, (max(0, m_r - 120), max(0, m_g - 120), max(0, m_b - 120)))
                 
                 cx = play_rect.centerx - p_txt.get_width()//2
                 cy = play_rect.centery - p_txt.get_height()//2
@@ -398,49 +463,24 @@ class Lobby:
         # Footer Profile Section
         ax, ay = 30, self.h - 65
         
-        # Profile frame (static, no rotation)
-        fx, fy = ax - 14, ay - 10
-        surface.blit(self.frame_surf, (fx, fy))
-
-        # Avatar glow pulse
-        av_glow_a = int(25 + 15 * math.sin(self.time_acc * 3))
-        pygame.draw.circle(surface, (255, 215, 100, av_glow_a), (fx + 40, fy + 40), 38)
+        # Footer Profile Section (Minimalist)
+        ax, ay = 30, self.h - 65
         
-        # Avatar inside the frame
+        # Avatar (Minimalist round, no cover)
         if avatar:
-            surface.blit(self._get_masked_avatar(avatar), (fx + 14, fy + 14))
+            surface.blit(self._get_masked_avatar(avatar), (ax, ay))
         else:
-            pygame.draw.circle(surface, (60, 70, 90), (fx + 40, fy + 40), 26)
+            pygame.draw.circle(surface, (60, 70, 90), (ax + 26, ay + 26), 26)
 
-        # Player name and stats  
-        text_x = fx + 90
+        # Player name
+        text_x = ax + 65
         p_txt = self.font_body.render(name.upper(), True, (255, 255, 255))
-        surface.blit(p_txt, (text_x, ay - 2))
+        surface.blit(p_txt, (text_x, ay + 10))
+        
+        # Level beside name
+        level = stats.get('level', 1)
+        lvl_txt = self.font_small.render(f"LVL {level}", True, (150, 160, 180))
+        surface.blit(lvl_txt, (text_x + p_txt.get_width() + 10, ay + 14))
+
 
         # 4. Draw Help Button ('?')
-        hb = self.help_btn_rect
-        is_h_hover = hb.collidepoint(pygame.mouse.get_pos())
-        
-        # Glow
-        if is_h_hover:
-            h_glow = pygame.Surface((hb.w + 20, hb.h + 20), pygame.SRCALPHA)
-            pygame.draw.circle(h_glow, (255, 215, 50, 40), (hb.w//2 + 10, hb.h//2 + 10), hb.w//2 + 10)
-            surface.blit(h_glow, (hb.x - 10, hb.y - 10))
-            
-        # Button Circle
-        pygame.draw.circle(surface, (200, 160, 40) if is_h_hover else (30, 25, 45), hb.center, hb.w // 2)
-        pygame.draw.circle(surface, (255, 215, 100), hb.center, hb.w // 2, 2)
-        
-        q_txt = self.font_body.render("?", True, (255, 215, 100))
-        surface.blit(q_txt, (hb.centerx - q_txt.get_width() // 2, hb.centery - q_txt.get_height() // 2))
-        
-        # Label removed for top-right minimalism
-
-        # Win/loss with cleaner formatting
-        wins_surf = self.font_micro.render(f"W {stats['wins']}", True, (100, 255, 130))
-        losses_surf = self.font_micro.render(f"L {stats['losses']}", True, (255, 120, 100))
-        divider_surf = self.font_micro.render(" | ", True, (100, 100, 120))
-        surface.blit(wins_surf, (text_x, ay + 26))
-        surface.blit(divider_surf, (text_x + wins_surf.get_width(), ay + 26))
-        surface.blit(losses_surf, (text_x + wins_surf.get_width() + divider_surf.get_width(), ay + 26))
-        surface.blit(losses_surf, (text_x + wins_surf.get_width() + divider_surf.get_width(), ay + 26))

@@ -41,7 +41,7 @@ class Colors:
 
     # Text
     TEXT_WHITE = (240, 240, 245)
-    TEXT_GOLD = (255, 215, 0)
+    TEXT_GOLD = (255, 80, 80)  # Rebranded to Cardflow Red
     TEXT_MUTED = (160, 160, 175)
     TEXT_RED = (255, 80, 80)
     TEXT_GREEN = (80, 255, 120)
@@ -56,8 +56,8 @@ class Colors:
     BTN_DISABLED = (60, 60, 70)
 
     # Cards
-    CARD_GLOW = (255, 215, 0, 100)
-    CARD_SELECTED = (100, 200, 255, 150)
+    CARD_GLOW = (255, 60, 40, 120)  # Red Glow for Cardflow
+    CARD_SELECTED = (255, 100, 100, 150)
     CARD_HOVER = (255, 255, 255, 60)
 
     # Phase indicator
@@ -66,9 +66,9 @@ class Colors:
     PHASE_DONE = (60, 60, 70)
 
     # Ribbon / Grouping
-    RIBBON_RED = (200, 30, 45)
-    RIBBON_GOLD = (218, 165, 32)
-    RIBBON_SHADOW = (120, 15, 25)
+    RIBBON_RED = (220, 40, 40)
+    RIBBON_GOLD = (255, 215, 0)  # Actual Gold color
+    RIBBON_SHADOW = (100, 10, 20)
 
     # Player status
     BURN_RED = (255, 60, 40)
@@ -208,6 +208,165 @@ class Badge:
 
 # ─── Player Info Panel ───────────────────────────────────────────────
 
+class LevelProgressBar:
+    def __init__(self, font_small, width=200, height=14):
+        self.font_small = font_small
+        self.w = width
+        self.h = height
+
+    def draw(self, surface, x, y, level, total_xp):
+        # Calculate progress within the current level
+        temp_level = 1
+        xp_remaining = total_xp
+        req = 1000
+        
+        while True:
+            req = 1000 if temp_level <= 10 else temp_level * 150
+            if temp_level < level and xp_remaining >= req:
+                xp_remaining -= req
+                temp_level += 1
+            else:
+                break
+        
+        progress = min(1.0, xp_remaining / max(1, req))
+
+        # Background
+        pygame.draw.rect(surface, (30, 35, 45), (x, y, self.w, self.h), border_radius=self.h//2)
+        # Fill
+        fill_w = int(self.w * progress)
+        if fill_w > 0:
+            fill_rect = pygame.Rect(x, y, fill_w, self.h)
+            # Use a nice blue-to-cyan gradient or just a vibrant color
+            pygame.draw.rect(surface, (80, 200, 255), fill_rect, border_radius=self.h//2)
+        # Border
+        pygame.draw.rect(surface, (100, 110, 130), (x, y, self.w, self.h), width=1, border_radius=self.h//2)
+        
+        # Text
+        text_surf = self.font_small.render(f"Lvl {level}  ({int(xp_remaining)}/{req})", True, (200, 210, 220))
+        surface.blit(text_surf, (x + self.w//2 - text_surf.get_width()//2, y - 18))
+
+class ProfileInspectOverlay:
+    def __init__(self, font_title, font_body, font_small):
+        self.font_title = font_title
+        self.font_body = font_body
+        self.font_small = font_small
+        self.visible = False
+        self.target_player = None
+        self.target_avatar = None
+        self.pb = LevelProgressBar(font_small, 260, 16)
+        
+    def show(self, player, avatar_surf):
+        self.target_player = player
+        self.target_avatar = avatar_surf
+        self.visible = True
+        
+    def hide(self):
+        self.visible = False
+        
+    def draw(self, surface):
+        if not self.visible or not self.target_player: return
+        
+        sw, sh = surface.get_size()
+        
+        # Dim background
+        dim = pygame.Surface((sw, sh), pygame.SRCALPHA)
+        dim.fill((0, 0, 0, 200)) # Darker dim
+        surface.blit(dim, (0, 0))
+        
+        # Panel Dimensions
+        pw, ph = 420, 520
+        px, py = sw//2 - pw//2, sh//2 - ph//2
+        
+        # --- 1. Premium Glassmorphism Panel ---
+        # Main background with vertical gradient
+        panel_surf = pygame.Surface((pw, ph), pygame.SRCALPHA)
+        for row in range(ph):
+            rt = row / ph
+            # Dark blue to very dark blue/purple gradient
+            rc = int(25 + 10 * (1 - rt))
+            gc = int(30 + 15 * (1 - rt))
+            bc = int(55 + 20 * (1 - rt))
+            pygame.draw.line(panel_surf, (rc, gc, bc, 245), (0, row), (pw, row))
+            
+        # Rounded corners mask
+        mask = pygame.Surface((pw, ph), pygame.SRCALPHA)
+        pygame.draw.rect(mask, (255, 255, 255, 255), (0, 0, pw, ph), border_radius=24)
+        panel_surf.blit(mask, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)
+        
+        # Border
+        pygame.draw.rect(panel_surf, (255, 215, 100, 60), (0, 0, pw, ph), width=2, border_radius=24)
+        surface.blit(panel_surf, (px, py))
+        
+        # --- 2. Title ---
+        title_surf = self.font_title.render("PLAYER PROFILE", True, (255, 215, 100))
+        # Shadow
+        title_shadow = self.font_title.render("PLAYER PROFILE", True, (10, 5, 5))
+        tsx = px + pw//2 - title_surf.get_width()//2
+        tsy = py + 25
+        surface.blit(title_shadow, (tsx + 2, tsy + 2))
+        surface.blit(title_surf, (tsx, tsy))
+        
+        # --- 3. Avatar with Glow ---
+        if self.target_avatar:
+            av_size = 110
+            av = pygame.transform.smoothscale(self.target_avatar, (av_size, av_size))
+            
+            # Mask to circle
+            av_mask = pygame.Surface((av_size, av_size), pygame.SRCALPHA)
+            pygame.draw.circle(av_mask, (255, 255, 255), (av_size//2, av_size//2), av_size//2)
+            av.blit(av_mask, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)
+            
+            # Glow
+            glow = pygame.Surface((av_size + 20, av_size + 20), pygame.SRCALPHA)
+            pygame.draw.circle(glow, (255, 215, 100, 40), (av_size//2 + 10, av_size//2 + 10), av_size//2 + 10)
+            
+            av_x = px + pw//2 - av_size//2
+            av_y = py + 80
+            surface.blit(glow, (av_x - 10, av_y - 10))
+            surface.blit(av, (av_x, av_y))
+            
+            # Avatar Border
+            pygame.draw.circle(surface, (255, 215, 100), (av_x + av_size//2, av_y + av_size//2), av_size//2, width=2)
+        
+        # --- 4. Name ---
+        name_surf = self.font_body.render(self.target_player.name, True, (255, 255, 255))
+        surface.blit(name_surf, (px + pw//2 - name_surf.get_width()//2, py + 205))
+        
+        # --- 5. Rank Badge & Info ---
+        from ui.assets_mgr import get_rank_badge
+        badge_surf = get_rank_badge(getattr(self.target_player, 'rank', "Wood"), "large")
+        # Scale down a bit if it's too large (usually large is 120x120)
+        badge_surf = pygame.transform.smoothscale(badge_surf, (100, 100))
+        badge_x = px + pw//2 - badge_surf.get_width()//2
+        badge_y = py + 235
+        surface.blit(badge_surf, (badge_x, badge_y))
+        
+        # RP Text
+        rp = getattr(self.target_player, 'rp', 0)
+        rank_str = getattr(self.target_player, 'rank', "Wood")
+        rp_surf = self.font_body.render(f"{rank_str} Rank - {rp} RP", True, (220, 220, 230))
+        surface.blit(rp_surf, (px + pw//2 - rp_surf.get_width()//2, py + 340))
+        
+        # --- 6. Stats (Wins/Losses) ---
+        wins = getattr(self.target_player, 'wins', 0)
+        losses = getattr(self.target_player, 'losses', 0)
+        win_rate = (wins / (wins + losses) * 100) if (wins + losses) > 0 else 0
+        
+        stats_txt = self.font_small.render(f"Wins: {wins}  |  Losses: {losses}  |  Win Rate: {win_rate:.1f}%", True, (170, 180, 200))
+        surface.blit(stats_txt, (px + pw//2 - stats_txt.get_width()//2, py + 375))
+        
+        # --- 7. Level & XP Bar ---
+        level = getattr(self.target_player, 'level', 1)
+        xp = getattr(self.target_player, 'xp', 0)
+        
+        # Use our LevelProgressBar
+        self.pb.draw(surface, px + pw//2 - self.pb.w//2, py + 415, level, xp)
+        
+        # --- 8. Close Instruction ---
+        close_surf = self.font_small.render("Click anywhere to close", True, (130, 130, 150))
+        surface.blit(close_surf, (px + pw//2 - close_surf.get_width()//2, py + 480))
+
+
 class PlayerPanel:
     """Displays player name, card count, burn status, and points."""
     def __init__(self, font_name, font_stats):
@@ -270,12 +429,16 @@ class PlayerPanel:
             init_surf = self.font_stats.render(player.name[0].upper(), True, Colors.TEXT_WHITE)
             surface.blit(init_surf, (center[0] - init_surf.get_width() // 2, center[1] - init_surf.get_height() // 2))
 
+        from ui.assets_mgr import get_rank_badge
+        
         # --- 3. Text & Stats ---
         text_off_x = av_x + target_size + 14
         
         name_color = Colors.TEXT_GOLD if is_active else Colors.TEXT_WHITE
         name_surf = self.font_name.render(player.name, True, name_color)
         surface.blit(name_surf, (text_off_x, py + 12))
+
+        # Rank badge removed from in-game panel (visible only in Profile Stalk)
 
         if show_cards:
             card_text = f"{player.card_count()} CARDS"
@@ -355,6 +518,8 @@ class FightResolutionOverlay:
 
         # Avatars (set externally)
         self.avatars = [None, None, None]
+        
+        self._choice_made = False
 
     def set_avatars(self, avatar_list):
         """Set the player avatar surfaces for rendering inside pie rings."""
@@ -369,11 +534,14 @@ class FightResolutionOverlay:
         self.btn_fold.rect.x = width // 2 + 25
         self.btn_fold.rect.y = height // 2 + 195
 
-    def update(self, dt, mouse_pos):
+    def update(self, dt, mouse_pos, active_fight=None):
         self.time_alive += dt
         self.entrance_timer = min(self.entrance_timer + dt, self.entrance_duration)
         self.alpha = min(self.alpha + self.fade_speed * dt, self.target_alpha)
         self.shake_timer = max(0, self.shake_timer - dt)
+        
+        if not active_fight:
+            self._choice_made = False
 
         # Animate pie fills toward targets
         for i in range(3):
@@ -642,9 +810,9 @@ class FightResolutionOverlay:
         self._draw_crossed_swords(surface, center_x + gap // 2, vs_y, 28)
 
         # ── FIGHT / FOLD Buttons ──
-        # Only show if the human player hasn't responded yet
+        # Only show if the human player hasn't responded yet and hasn't just clicked
         human_player = players[0]
-        needs_response = (human_player not in responses and human_player != caller and not human_player.is_burned)
+        needs_response = (human_player not in responses and human_player != caller and not human_player.is_burned and not self._choice_made)
 
         if needs_response:
             # Hint text above buttons
@@ -698,12 +866,13 @@ class GameOverOverlay:
     MEDAL_SILVER = (192, 192, 210)
     MEDAL_BRONZE = (205, 127, 50)
 
-    def __init__(self, width, height, font_title, font_body, font_btn):
+    def __init__(self, width, height, font_title, font_body, font_btn, font_small):
         self.width = width
         self.height = height
         self.font_title = font_title
         self.font_body = font_body
         self.font_btn = font_btn
+        self.font_small = font_small
         self.alpha = 0
         self.target_alpha = 255
         self.fade_speed = 500
@@ -877,7 +1046,7 @@ class GameOverOverlay:
             if 0 < a < 255:
                 pygame.draw.circle(surface, (255, 235, 180, min(a, 255)), (int(sx), int(sy)), max(1, int(size)))
 
-    def draw(self, surface, winner, win_method, scores, engine, get_card_image, statuses=None):
+    def draw(self, surface, winner, win_method, scores, engine, get_card_image, player_rank="BEGINNER", statuses=None):
         ep = min(self.entrance_timer / max(self.entrance_duration, 0.001), 1.0)
         ease = 1.0 - (1.0 - ep) ** 3
 
@@ -917,7 +1086,7 @@ class GameOverOverlay:
             b = int(35 + 30 * t)
             a = int(min(self.alpha, 245) * ease)
             pygame.draw.line(banner_surf, (r, g, b, a), (0, row), (self.width, row))
-
+        
         # Animated sweep light across banner
         sweep_x = int((ticks * 0.08) % (self.width + 200)) - 100
         sweep_w = 120
@@ -936,21 +1105,25 @@ class GameOverOverlay:
         # Winner text
         is_player_win = (winner and winner.name == engine.players[0].name)
         main_text = f"{winner.name.upper()} WINS!" if winner else "GAME DRAWN"
-        title_color = (100, 255, 160) if is_player_win else Colors.TEXT_GOLD
+        
+        # Use Cardflow Red (TEXT_GOLD) or vibrant green
+        title_color = (80, 255, 160) if is_player_win else Colors.TEXT_GOLD
         title_surf = self.font_title.render(main_text, True, title_color)
-        title_shadow = self.font_title.render(main_text, True, (20, 15, 0))
-        tx = center_x - title_surf.get_width() // 2
-        ty = banner_y + 18
-        surface.blit(title_shadow, (tx + 2, ty + 2))
-        surface.blit(title_surf, (tx, ty))
+        
+        # Subtle glow instead of hard shadow
+        glow_surf = self.font_title.render(main_text, True, (*title_color, 50))
+        for ox, oy in [(-2,0), (2,0), (0,-2), (0,2)]:
+            surface.blit(glow_surf, (center_x - title_surf.get_width() // 2 + ox, banner_y + 18 + oy))
+            
+        surface.blit(title_surf, (center_x - title_surf.get_width() // 2, banner_y + 18))
 
         payout = getattr(engine, 'payout', 0)
-        method_y_offset = title_surf.get_height() + 25
+        method_y_offset = 60
         if payout > 0:
-            pay_txt = f"TOTAL COINS COLLECTED: {payout} !"
+            pay_txt = f"TOTAL COINS COLLECTED: {payout}"
             pay_surf = self.font_body.render(pay_txt, True, (255, 230, 50))
-            surface.blit(pay_surf, (center_x - pay_surf.get_width() // 2, banner_y + title_surf.get_height() + 25))
-            method_y_offset = title_surf.get_height() + pay_surf.get_height() + 30
+            surface.blit(pay_surf, (center_x - pay_surf.get_width() // 2, banner_y + method_y_offset))
+            method_y_offset += 25
 
         method_labels = {
             'tongits': 'TONG-ITS!', 'fight': 'FIGHT RESOLVED!',
@@ -958,7 +1131,7 @@ class GameOverOverlay:
             'deck_empty': 'DECK DEPLETED!', 'spread': 'SPREAD!'
         }
         method_text = method_labels.get(win_method, win_method.upper() if win_method else '')
-        ms = self.font_body.render(method_text, True, (200, 200, 220))
+        ms = self.font_small.render(method_text, True, (160, 160, 180))
         surface.blit(ms, (center_x - ms.get_width() // 2, banner_y + method_y_offset))
 
         # ── Player Result Cards (Podium Layout) ──
@@ -967,8 +1140,7 @@ class GameOverOverlay:
         base_card_h = min(360, self.height - 260)
         gap = 22
         
-        # Start the cards safely below the banner text (method text)
-        card_start_y = banner_y + method_y_offset + ms.get_height() + 85
+        card_start_y = banner_y + banner_h + 40
 
         for i, player_obj in enumerate(engine.players):
             p_name = player_obj.name
@@ -976,70 +1148,47 @@ class GameOverOverlay:
             is_win = (winner and p_name == winner.name)
             rank = rank_map.get(i, 3)
 
-            # Podium sizing: winner gets 15% wider, losers slightly narrower
+            # Podium sizing: winner gets larger
             if is_win:
-                cw = int(base_card_w * 1.12)
+                cw = int(base_card_w * 1.15)
                 ch = int(base_card_h * 1.05)
-                cy = card_start_y - 10
+                cy = card_start_y - 15
             else:
                 cw = base_card_w
                 ch = base_card_h
-                cy = card_start_y + 15
+                cy = card_start_y + 10
 
             # Horizontal positioning (centered group)
-            total_w = int(base_card_w * 1.12) + base_card_w * (player_count - 1) + gap * (player_count - 1)
+            total_w = int(base_card_w * 1.15) + base_card_w * (player_count - 1) + gap * (player_count - 1)
             sx = center_x - total_w // 2
             px = sx
             for j in range(i):
-                pw = int(base_card_w * 1.12) if (winner and engine.players[j].name == winner.name) else base_card_w
+                pw = int(base_card_w * 1.15) if (winner and engine.players[j].name == winner.name) else base_card_w
                 px += pw + gap
 
             # ── Winner sparkle particles ──
             if is_win:
                 self._draw_sparkles(surface, px + cw // 2, cy + ch // 2, cw, ch)
 
-            # Winner outer glow
+            # Winner outer glow (Neon effect)
             if is_win:
-                ga = int(30 + 22 * math.sin(self.time_alive * 3))
-                gs = pygame.Surface((cw + 40, ch + 40), pygame.SRCALPHA)
-                pygame.draw.rect(gs, (255, 215, 0, ga), (0, 0, cw + 40, ch + 40), border_radius=24)
-                surface.blit(gs, (px - 20, cy - 20))
+                ga = int(40 + 20 * math.sin(self.time_alive * 4))
+                gs = pygame.Surface((cw + 30, ch + 30), pygame.SRCALPHA)
+                pygame.draw.rect(gs, (*Colors.TEXT_GOLD, ga), (0, 0, cw + 30, ch + 30), border_radius=24)
+                surface.blit(gs, (px - 15, cy - 15))
 
-            # Card background with gradient
+            # Card background (Glassmorphic)
             card = pygame.Surface((cw, ch), pygame.SRCALPHA)
-            for row in range(ch):
-                t = row / ch
-                if is_win:
-                    cr = int(35 + 20 * t)
-                    cg = int(40 + 15 * t)
-                    cb = int(72 + 10 * t)
-                else:
-                    cr = int(28 + 15 * t)
-                    cg = int(32 + 12 * t)
-                    cb = int(52 + 18 * t)
-                pygame.draw.line(card, (cr, cg, cb, int(min(self.alpha, 245))), (0, row), (cw, row))
-
-            # Round mask
-            mask = pygame.Surface((cw, ch), pygame.SRCALPHA)
-            pygame.draw.rect(mask, (255, 255, 255, 255), (0, 0, cw, ch), border_radius=20)
-            card.blit(mask, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)
+            bg_color = (25, 30, 50, 200) if is_win else (15, 18, 30, 180)
+            pygame.draw.rect(card, bg_color, (0, 0, cw, ch), border_radius=20)
+            
+            # 1px Border (Thicker for winner)
+            border_color = (*Colors.TEXT_GOLD, 180) if is_win else (255, 255, 255, 30)
+            border_w = 2 if is_win else 1
+            pygame.draw.rect(card, border_color, (0, 0, cw, ch), width=border_w, border_radius=20)
 
             # Top glass highlight
-            hl = pygame.Surface((cw, 50), pygame.SRCALPHA)
-            pygame.draw.rect(hl, (255, 255, 255, 15 if not is_win else 22), (0, 0, cw, 50), border_radius=20)
-            card.blit(hl, (0, 0))
-
-            # Inner shadow (bottom)
-            for sh_i in range(8):
-                sa = max(0, 20 - sh_i * 3)
-                pygame.draw.line(card, (0, 0, 0, sa), (0, ch - 1 - sh_i), (cw, ch - 1 - sh_i))
-
-            # Border
-            if is_win:
-                ba = int(180 + 40 * math.sin(self.time_alive * 4))
-                pygame.draw.rect(card, (255, 215, 0, ba), (0, 0, cw, ch), width=3, border_radius=20)
-            else:
-                pygame.draw.rect(card, (80, 85, 115, 100), (0, 0, cw, ch), width=2, border_radius=20)
+            pygame.draw.rect(card, (255, 255, 255, 20), (0, 0, cw, 40), border_radius=20)
 
             surface.blit(card, (px, cy))
 
@@ -1051,71 +1200,63 @@ class GameOverOverlay:
             av_r = 34 if is_win else 28
             av_cx = px + cw // 2
             av_cy = cy + 42 if is_win else cy + 36
-            medal_colors = {1: self.MEDAL_GOLD, 2: self.MEDAL_SILVER, 3: self.MEDAL_BRONZE}
+            medal_colors = {1: (255, 215, 0), 2: (192, 192, 210), 3: (205, 127, 50)}
             av_border = medal_colors.get(rank, (70, 75, 95))
             self._draw_avatar_circle(surface, av_cx, av_cy, av_r,
                                      self.avatars[i] if i < len(self.avatars) else None,
-                                     border_color=av_border, border_w=4 if is_win else 3)
+                                     border_color=av_border, border_w=3)
 
             # ── Rank Medal (top-right of avatar) ──
-            medal_x = av_cx + av_r - 6
-            medal_y = av_cy - av_r + 6
+            medal_x = av_cx + av_r - 4
+            medal_y = av_cy - av_r + 4
             self._draw_rank_medal(surface, medal_x, medal_y, rank, medal_colors.get(rank, (100, 100, 100)))
 
-            # ── Player Name ──
+            # ── Player Name & Rank ──
             nc = Colors.TEXT_GOLD if is_win else Colors.TEXT_WHITE
             ns = self.font_body.render(p_name.upper(), True, nc)
-            surface.blit(ns, (px + cw // 2 - ns.get_width() // 2, av_cy + av_r + 8))
+            surface.blit(ns, (px + cw // 2 - ns.get_width() // 2, av_cy + av_r + 10))
+            
+            # Show Rank Title
+            rank_title = player_rank if i == 0 else getattr(player_obj, 'rank', "PRO")
+            rs = self.font_small.render(rank_title, True, (160, 160, 180))
+            surface.blit(rs, (px + cw // 2 - rs.get_width() // 2, av_cy + av_r + 32))
 
-            # ── Points (large) ──
+            # ── Points ──
             pts_str = str(score)
-            pc = Colors.TEXT_GOLD if is_win else (200, 200, 215)
+            pc = Colors.TEXT_GOLD if is_win else (220, 220, 230)
             ps = self.font_title.render(pts_str, True, pc)
-            pl = self.font_btn.render("POINTS", True, Colors.TEXT_MUTED)
-            pts_y = av_cy + av_r + 34
+            pl = self.font_small.render("POINTS", True, (130, 130, 150))
+            pts_y = av_cy + av_r + 50
             surface.blit(ps, (px + cw // 2 - ps.get_width() // 2, pts_y))
-            surface.blit(pl, (px + cw // 2 - pl.get_width() // 2, pts_y + 42))
+            surface.blit(pl, (px + cw // 2 - pl.get_width() // 2, pts_y + 36))
 
-            # ── Separator with card count ──
-            sep_y = pts_y + 66
-            sep_s = pygame.Surface((cw - 36, 1), pygame.SRCALPHA)
-            sep_s.fill((255, 255, 255, 25))
-            surface.blit(sep_s, (px + 18, sep_y))
-
+            # ── Revealed Cards ──
             hand = player_obj.hand
-            cc = self.font_btn.render(f"{len(hand)} CARDS", True, Colors.TEXT_MUTED)
-            surface.blit(cc, (px + cw // 2 - cc.get_width() // 2, sep_y + 4))
-
-            # ── Revealed Cards (inset panel) ──
             if hand:
-                ca_y = sep_y + 24
-                ca_h = cy + ch - ca_y - 50
-
+                ca_y = pts_y + 110
+                ca_h = 70
+                
                 # Inset card panel
-                inset = pygame.Surface((cw - 20, max(ca_h, 30)), pygame.SRCALPHA)
-                pygame.draw.rect(inset, (0, 0, 0, 30), (0, 0, cw - 20, max(ca_h, 30)), border_radius=10)
-                surface.blit(inset, (px + 10, ca_y))
+                inset_w = cw - 30
+                pygame.draw.rect(surface, (10, 12, 20, 150), (px + 15, ca_y, inset_w, ca_h), border_radius=12)
+                pygame.draw.rect(surface, (255, 255, 255, 15), (px + 15, ca_y, inset_w, ca_h), width=1, border_radius=12)
 
-                ms = 0.26
-                mw = cw - 44
+                ms = 0.24
                 si = get_card_image(hand[0], ms)
                 cpw = si.get_width() if si else 30
                 cph = si.get_height() if si else 44
 
-                olap = min(16, max(5, (mw - cpw) // max(len(hand) - 1, 1))) if len(hand) > 1 else 0
+                olap = min(16, max(5, (inset_w - 20 - cpw) // max(len(hand) - 1, 1))) if len(hand) > 1 else 0
                 thw = (len(hand) - 1) * olap + cpw
                 hx = px + cw // 2 - thw // 2
-                hy = ca_y + max(2, (max(ca_h, 30) - cph) // 2)
+                hy = ca_y + (ca_h - cph) // 2
 
                 for j, card in enumerate(hand):
                     im = get_card_image(card, ms)
                     if im:
-                        sh = pygame.Surface((cpw, cph), pygame.SRCALPHA)
-                        sh.fill((0, 0, 0, 30))
-                        surface.blit(sh, (hx + j * olap + 2, hy + 2))
                         surface.blit(im, (hx + j * olap, hy))
 
-            # ── Status Badge ──
+            # ── Status Badge (Pill Style) ──
             status_text = "LOST"
             status_color = (120, 140, 180)
 
@@ -1133,31 +1274,20 @@ class GameOverOverlay:
                     "FOLDED": (140, 150, 160), "BURNED": Colors.BURN_RED
                 }
                 status_color = sc_map.get(status_text, status_color)
-            elif engine.active_fight:
-                caller = engine.active_fight.get('caller')
-                responses = engine.active_fight.get('responses', {})
-                if player_obj == caller:
-                    status_text = "CHALLENGER"
-                    status_color = (200, 100, 255)
-                elif player_obj in responses:
-                    resp = responses[player_obj]
-                    status_text = "FOUGHT" if resp == 'fight' else "FOLDED"
-                    status_color = (100, 200, 255) if resp == 'fight' else (140, 150, 160)
 
-            bw = max(100, len(status_text) * 12 + 24)
-            bh = 30
+            bw = max(90, len(status_text) * 10 + 20)
+            bh = 26
             bx = px + cw // 2 - bw // 2
-            by = cy + ch - 42
+            by = cy + ch - 35
 
-            bs = pygame.Surface((bw, bh), pygame.SRCALPHA)
-            pygame.draw.rect(bs, (*status_color, 55), (0, 0, bw, bh), border_radius=bh // 2)
-            pygame.draw.rect(bs, (*status_color, 160), (0, 0, bw, bh), width=2, border_radius=bh // 2)
-            surface.blit(bs, (bx, by))
+            # Semi-transparent fill with full-opacity border
+            pygame.draw.rect(surface, (*status_color, 30), (bx, by, bw, bh), border_radius=bh // 2)
+            pygame.draw.rect(surface, (*status_color, 180), (bx, by, bw, bh), width=1, border_radius=bh // 2)
 
-            st = self.font_btn.render(status_text, True, status_color)
+            st = self.font_small.render(status_text, True, status_color)
             surface.blit(st, (px + cw // 2 - st.get_width() // 2, by + bh // 2 - st.get_height() // 2))
 
-        # ── Premium Gradient Buttons ──
+        # ── Premium Action Buttons ──
         self._draw_gradient_btn(
             surface, self.play_again_rect, "PLAY AGAIN",
             (50, 185, 95), (30, 130, 65), self._pa_hover, "▶"

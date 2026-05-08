@@ -7,17 +7,20 @@ from game.models import TurnPhase, GamePhase, Meld as MC, RANK_ORDER
 from ui.animation import (AnimationManager, Animation, Timer, ParticleEmitter,
                            ease_out_cubic, ease_out_back, ease_in_out_quad, linear)
 from ui.ui_components import (Colors, Button, PhaseIndicator, Badge, PlayerPanel,
-                               GameOverOverlay, MeldDisplay, FightResolutionOverlay)
+                               GameOverOverlay, MeldDisplay, FightResolutionOverlay, ProfileInspectOverlay)
 from ui.lobby import Lobby
 from ui.profile import ProfileModal
 from ui.rules_modal import RulesModal
 from ui.reward_modal import DailyRewardModal
 from ui.dealer import DealerManager
 from ui.chips import ChipSystem
+from ui.progression_manager import generate_bot_profile, apply_rewards, get_match_rewards
+from ui.paths import get_resource_path
+
 
 # --- Gendered Identity Pools ---
-MALE_NAMES = ["Juan", "Rico", "Dingdong", "Vhong", "Isko", "Vico", "Bong", "Ping", "Manny", "Iloy", "Gardo", "Ador"]
-FEMALE_NAMES = ["Maria", "Liza", "Marian", "Anne", "Karylle", "Leni", "Korina", "Darna", "Narda", "Inday", "Nena"]
+MALE_NAMES = ["Juan", "Rico", "Dingdong", "Vhong", "Isko", "Vico", "Bong", "Ping", "Manny", "Kap", "Malupiton", "Ador"]
+FEMALE_NAMES = ["Maria", "Liza", "Marian", "Anne", "Karylle", "Leni", "Korina", "Darna", "Diwata", "Inday", "Nena"]
 
 def get_card_filename(card):
     suit = card.suit.lower()
@@ -84,11 +87,12 @@ def draw_hand_ribbon(surface, rects, text="", is_front=True):
         # Label
         if text:
             try:
-               
                 f = pygame.font.SysFont("Arial", 14, bold=True)
-                txt_surf = f.render(text.upper(), True, gold_trim)
-                surface.blit(txt_surf, (rx + rw//2 - txt_surf.get_width()//2, ry + rh//2 - txt_surf.get_height()//2))
-            except: pass
+            except:
+                f = pygame.font.Font(None, 14)
+            
+            txt_surf = f.render(text.upper(), True, gold_trim)
+            surface.blit(txt_surf, (rx + rw//2 - txt_surf.get_width()//2, ry + rh//2 - txt_surf.get_height()//2))
 
 # --- Profile Persistence ---
 from ui.database import init_db, load_user_profile, save_user_profile
@@ -99,7 +103,15 @@ def main():
     # Default windowed resolution (1280x720)
     WIDTH, HEIGHT = 1280, 720
     screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
-    pygame.display.set_caption("Mama's Go ΓÇö Tong-its")
+    pygame.display.set_caption("Cardflow")
+    
+    # Set window icon
+    _logo_path = get_resource_path(os.path.join("assets", "images", "cardflow_logo.png"))
+    try:
+        logo_img = pygame.image.load(_logo_path)
+        pygame.display.set_icon(logo_img)
+    except:
+        pass
 
     # Initialize variables used in on_resize closure early
     background_raw = background = None
@@ -113,7 +125,7 @@ def main():
     layout = None
     
     # Turn Timing & State Tracking
-    TURN_LIMIT = 15.0
+    TURN_LIMIT = 20.0
     turn_timer = TURN_LIMIT
     tick_played = False
     last_turn_state = (0, None)
@@ -160,14 +172,20 @@ def main():
     def refresh_background(bet_limit=100):
         nonlocal background_raw, background
         try:
-            if bet_limit == 600:
+            if bet_limit == 10000:
+                selected = "scifi_cyber_table.png"
+            elif bet_limit == 5000:
+                selected = "royal_platinum_table.png"
+            elif bet_limit == 1000:
+                selected = "premium_gold_table.png"
+            elif bet_limit == 600:
                 selected = "mahogany_ruby_table.png"
             elif bet_limit == 300:
                 selected = "mahogany_card_table.png"
             else:
                 selected = "clean_card_table.png"
             
-            bg_path = os.path.join(assets_dir, "images", selected)
+            bg_path = os.path.join(assets_dir, "images", "tables", selected)
             background_raw = pygame.image.load(bg_path).convert()
             background = pygame.transform.scale(background_raw, (WIDTH, HEIGHT))
         except Exception as e:
@@ -178,7 +196,7 @@ def main():
 
     # Lobby Background (specific)
     try:
-        lb_bkg_path = os.path.join(assets_dir, "images", "casino_lobby_bg.png")
+        lb_bkg_path = os.path.join(assets_dir, "images", "lobyy.jpg")
         lobby_bkg_raw = pygame.image.load(lb_bkg_path).convert()
         lobby_bkg = pygame.transform.scale(lobby_bkg_raw, (WIDTH, HEIGHT))
     except:
@@ -271,12 +289,16 @@ def main():
         "rank": profile_data["rank"],
         "wins": profile_data["wins"],
         "losses": profile_data["losses"],
-        "last_replenish": profile_data.get("last_replenish", 0)
+        "last_replenish": profile_data.get("last_replenish", 0),
+        "xp": profile_data.get("xp", 0),
+        "level": profile_data.get("level", 1),
+        "rp": profile_data.get("rp", 0)
     }
+
 
     # ΓöÇΓöÇ Engine ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
  
-    def generate_npc(exclude_names=None, exclude_avatars=None):
+    def generate_npc(exclude_names=None, exclude_avatars=None, bet_limit=300):
         if exclude_names is None: exclude_names = []
         if exclude_avatars is None: exclude_avatars = []
         
@@ -293,13 +315,18 @@ def main():
         if not available_avatars: available_avatars = p_avs # Fallback
         avatar = random.choice(available_avatars) if available_avatars else None
         
-        return name, avatar
+        # Generate bot stats based on room bet limit
+        bot_stats = generate_bot_profile(bet_limit)
+        
+        return name, avatar, bot_stats
+
 
     # Player / Avatar Setup
     profile_fonts = {'title': font_title, 'body': font_body, 'small': font_small, 'btn': font_btn}
     profile_modal = ProfileModal(WIDTH, HEIGHT, fonts=profile_fonts)
     profile_modal.selected_avatar_idx = p_av_idx
     current_avatar = profile_modal.avatars[p_av_idx] if p_av_idx < len(profile_modal.avatars) else None
+    profile_inspect_overlay = ProfileInspectOverlay(font_title, font_body, font_small)
     
     rules_modal = RulesModal(font_title, font_body, font_small)
     reward_modal = DailyRewardModal(font_title, font_body, font_small)
@@ -313,6 +340,32 @@ def main():
     engine = TongItsEngine([player_name, bot1_info[0], bot2_info[0]], dealer_idx=dealer_mgr.get_idx())
     engine.initialize_game()
     assigned_avatars = [current_avatar, bot1_info[1], bot2_info[1]]
+
+    # Apply player and bot stats to engine players
+    engine.players[0].rank = player_stats["rank"]
+    engine.players[0].level = player_stats.get("level", 1)
+    engine.players[0].xp = player_stats.get("xp", 0)
+    engine.players[0].rp = player_stats.get("rp", 0)
+    engine.players[0].wins = player_stats.get("wins", 0)
+    engine.players[0].losses = player_stats.get("losses", 0)
+    
+    engine.players[1].rank = bot1_info[2]['rank']
+    engine.players[1].level = bot1_info[2]['level']
+    engine.players[1].xp = bot1_info[2].get('xp', 0)
+    engine.players[1].rp = bot1_info[2].get('rp', 0)
+    engine.players[1].wins = bot1_info[2].get('wins', 0)
+    engine.players[1].losses = bot1_info[2].get('losses', 0)
+
+    engine.players[2].rank = bot2_info[2]['rank']
+    engine.players[2].level = bot2_info[2]['level']
+    engine.players[2].xp = bot2_info[2].get('xp', 0)
+    engine.players[2].rp = bot2_info[2].get('rp', 0)
+    engine.players[2].wins = bot2_info[2].get('wins', 0)
+    engine.players[2].losses = bot2_info[2].get('losses', 0)
+
+
+
+
 
     anim_mgr = AnimationManager()
     particles = ParticleEmitter()
@@ -340,7 +393,7 @@ def main():
     # Load music paths
     music_dir = os.path.join(assets_dir, "music")
     sfx_dir = os.path.join(assets_dir, "sfx")
-    MUSIC_LOBBY = os.path.join(music_dir, "Avanti - Chance Of Sunshine (background).mp3")
+    MUSIC_LOBBY = os.path.join(music_dir, "Masakit na BG.mp3")
     MUSIC_INGAME = os.path.join(music_dir, "Moavii - Downtown (ingame).mp3")
     
     # --- Sound Effects ---
@@ -511,13 +564,39 @@ def main():
 
         # Refresh Bots ONLY if starting fresh from lobby
         if not is_play_again:
-            bot1_info = generate_npc(exclude_names=[player_name], exclude_avatars=[current_avatar])
+            bot1_info = generate_npc(exclude_names=[player_name], exclude_avatars=[current_avatar], bet_limit=target_bet_limit)
             bot2_info = generate_npc(exclude_names=[player_name, bot1_info[0]], 
-                                     exclude_avatars=[current_avatar, bot1_info[1]])
+                                     exclude_avatars=[current_avatar, bot1_info[1]], bet_limit=target_bet_limit)
         
         # Initialize Engine with sync'd names and current dealer
         engine = TongItsEngine([player_name, bot1_info[0], bot2_info[0]], dealer_idx=cur_dealer_idx)
         engine.initialize_game()
+        
+        # Apply player and bot stats to engine players
+        engine.players[0].rank = player_stats["rank"]
+        engine.players[0].level = player_stats.get("level", 1)
+        engine.players[0].xp = player_stats.get("xp", 0)
+        engine.players[0].rp = player_stats.get("rp", 0)
+        engine.players[0].wins = player_stats.get("wins", 0)
+        engine.players[0].losses = player_stats.get("losses", 0)
+        
+        engine.players[1].rank = bot1_info[2]['rank']
+        engine.players[1].level = bot1_info[2]['level']
+        engine.players[1].xp = bot1_info[2].get('xp', 0)
+        engine.players[1].rp = bot1_info[2].get('rp', 0)
+        engine.players[1].wins = bot1_info[2].get('wins', 0)
+        engine.players[1].losses = bot1_info[2].get('losses', 0)
+
+        engine.players[2].rank = bot2_info[2]['rank']
+        engine.players[2].level = bot2_info[2]['level']
+        engine.players[2].xp = bot2_info[2].get('xp', 0)
+        engine.players[2].rp = bot2_info[2].get('rp', 0)
+        engine.players[2].wins = bot2_info[2].get('wins', 0)
+        engine.players[2].losses = bot2_info[2].get('losses', 0)
+
+
+
+
         
         # Sync Avatars (Player may have changed)
         assigned_avatars[0] = current_avatar
@@ -642,8 +721,10 @@ def main():
 
     clock = pygame.time.Clock()
     show_discard_modal = False
+    last_player_click_time = 0
     
     running = True
+
 
     # ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
     while running:
@@ -745,8 +826,9 @@ def main():
                     avatar_rect = pygame.Rect(25, HEIGHT - 68, 65, 65)
                     if avatar_rect.collidepoint(event.pos):
                         if SFX_CLICK: SFX_CLICK.play()
-                        profile_modal.open(player_name)
+                        profile_modal.open(player_name, player_stats)
                         continue
+
 
                 sel_mode = lobby.handle_event(event)
                 if sel_mode is not None:
@@ -754,6 +836,10 @@ def main():
                     if isinstance(sel_mode, dict) and sel_mode.get("type") == "help":
                         rules_modal.toggle()
                         continue
+                    if isinstance(sel_mode, dict) and sel_mode.get("type") == "profile":
+                        profile_modal.open(player_name, player_stats)
+                        continue
+
 
                     # Update target bet limit based on lobby selection if available
                     if isinstance(sel_mode, dict) and "bet" in sel_mode:
@@ -1384,11 +1470,11 @@ def main():
 
         btn_group.rect.topleft = (WIDTH-270, layout['hand_y']-45)
         
-        # Check if selection matches an existing manual group EXACTLY
+        # Check if selection overlaps with an existing manual group
         is_ungroup_candidate = False
         if selected_in_hand:
             for mg in player.manual_groups:
-                if len(mg) == len(selected_in_hand) and all(c in mg for c in selected_in_hand):
+                if any(c in mg for c in selected_in_hand):
                     is_ungroup_candidate = True
                     break
         
@@ -1436,7 +1522,7 @@ def main():
             dealer_has_won = (engine.winner and engine.players.index(engine.winner) == dealer_mgr.get_idx())
             dealer_streak = dealer_mgr.win_streak + (1 if dealer_has_won else 0)
 
-            game_over_overlay = GameOverOverlay(WIDTH, HEIGHT, font_game_title, font_body, font_btn)
+            game_over_overlay = GameOverOverlay(WIDTH, HEIGHT, font_game_title, font_body, font_btn, font_small)
             game_over_overlay.set_avatars(assigned_avatars)
             
             is_win = (engine.winner and engine.winner.name == player_name)
@@ -1458,14 +1544,31 @@ def main():
                     chip_system.reset_banker_pot()
             engine.payout = payout
             
+            # Calculate and apply ranking rewards
+            is_tongits = (getattr(engine, 'win_method', '') == 'tongits')
+            xp_gained, rp_gained = apply_rewards(is_win, is_tongits)
+            
+            # Reload profile to get updated level/rank calculated by database.py
+            updated_profile = load_user_profile()
+            
             if is_win:
                 player_stats["wins"] += 1
                 player_stats["coins"] += payout # Apply payout
             else:
                 player_stats["losses"] += 1
 
+            # Sync progression values to player_stats so they aren't overwritten
+            player_stats["xp"] = updated_profile.get("xp", 0)
+            player_stats["rp"] = updated_profile.get("rp", 0)
+            player_stats["level"] = updated_profile.get("level", 1)
+            player_stats["rank"] = updated_profile.get("rank", "Wood")
+
             profile_data.update(player_stats)
             save_user_profile(profile_data)
+            
+            # Show reward floating text or similar if needed (optional)
+            print(f"Match End: XP +{xp_gained}, RP {rp_gained:+}")
+
             
             # Setup floating text animations for coin changes
             if engine.winner:
@@ -1508,6 +1611,12 @@ def main():
                 on_resize(event.w, event.h)
 
             # --- Modal Override (Highest Priority) ---
+            if profile_inspect_overlay.visible:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    profile_inspect_overlay.hide()
+                if event.type != pygame.VIDEORESIZE:
+                    continue
+
             if show_discard_modal:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     show_discard_modal = False
@@ -1526,6 +1635,28 @@ def main():
                     continue
 
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if game_state in ('playing', 'dealer_discard', 'game_over'):
+                    pw, ph = 240, 80
+                    player_rect = pygame.Rect(WIDTH//2 - pw//2, HEIGHT-68, pw, ph)
+                    bot1_rect = pygame.Rect(layout['bot1_x'] - pw//2, layout['bot1_y'] - 45, pw, ph)
+                    bot2_rect = pygame.Rect(layout['bot2_x'] - pw//2, layout['bot2_y'] - 45, pw, ph)
+
+                    if player_rect.collidepoint(event.pos):
+                        current_time = pygame.time.get_ticks()
+                        if current_time - last_player_click_time < 300:
+                            profile_inspect_overlay.show(engine.players[0], assigned_avatars[0])
+                            last_player_click_time = 0
+                        else:
+                            last_player_click_time = current_time
+                        continue
+
+                    elif bot1_rect.collidepoint(event.pos):
+                        profile_inspect_overlay.show(engine.players[1], assigned_avatars[1])
+                        continue
+                    elif bot2_rect.collidepoint(event.pos):
+                        profile_inspect_overlay.show(engine.players[2], assigned_avatars[2])
+                        continue
+
                 if game_state == 'game_over' and game_over_overlay:
                     if game_over_overlay.play_again_rect.collidepoint(event.pos):
                         start_new_game(target_state='betting', is_play_again=True)
@@ -1546,10 +1677,25 @@ def main():
                 if engine.is_game_over:
                     continue
 
-                if btn_sort.is_clicked(event): player.group_hand(); selected_cards.clear(); continue
+                if btn_sort.is_clicked(event): 
+                    if not hasattr(player, '_sort_mode'): player._sort_mode = 0
+                    player._sort_mode = (player._sort_mode + 1) % 2
+                    if player._sort_mode == 0:
+                        player.group_hand()
+                    else:
+                        player.sort_by_value(descending=True)
+                    selected_cards.clear()
+                    continue
                 if btn_group.is_clicked(event):
                     if btn_group.text == "Ungroup":
-                        player.remove_manual_group(selected_in_hand)
+                        mg_to_remove = None
+                        for mg in player.manual_groups:
+                            if any(c in mg for c in selected_in_hand):
+                                mg_to_remove = mg
+                                break
+                        if mg_to_remove:
+                            player.manual_groups.remove(mg_to_remove)
+                            player.group_hand()
                     else:
                         player.add_manual_group(selected_in_hand)
                     selected_cards.clear()
@@ -2048,25 +2194,35 @@ def main():
         if active_candidate and engine.current_phase in (TurnPhase.DRAW, TurnPhase.MELD):
             for tm, mrect in meld_hit_zones:
                 if tm.can_sapaw(active_candidate):
-                    # Pulsating Glow Animation
+                    is_hover = mrect.collidepoint(mouse_pos)
+                    
+                    # Graphical Sapaw/Chow Indicator: Bouncing Chevron Arrow
                     ticks = pygame.time.get_ticks()
-                    p = math.sin(ticks * 0.007)
-                    alpha = int(100 + 60 * p)
+                    bounce = math.sin(ticks * 0.015) * 6
                     
-                    # Dynamic glow surface
-                    gl_size = (mrect.w + 16, mrect.h + 16)
-                    gl = pygame.Surface(gl_size, pygame.SRCALPHA)
+                    aw, ah = 24, 16
+                    ax = mrect.x + (mrect.w - aw) // 2
+                    ay = mrect.y - ah - 15 + bounce
                     
-                    # 1. Outer soft white/gold aura
-                    pygame.draw.rect(gl, (255, 255, 220, alpha // 3), (0, 0, gl_size[0], gl_size[1]), border_radius=12, width=6)
+                    # Chevron polygon points
+                    pts = [
+                        (ax, ay),
+                        (ax + aw//2, ay + ah),
+                        (ax + aw, ay),
+                        (ax + aw//2, ay + ah - 6)
+                    ]
                     
-                    # 2. Inner sharper highlight (Stronger when hovering)
-                    if mrect.collidepoint(mouse_pos):
-                        pygame.draw.rect(gl, (255, 215, 0, alpha), (4, 4, mrect.w + 8, mrect.h + 8), border_radius=10, width=3)
-                    else:
-                        pygame.draw.rect(gl, (255, 255, 255, alpha // 2), (4, 4, mrect.w + 8, mrect.h + 8), border_radius=10, width=2)
-                         
-                    screen.blit(gl, (mrect.x - 8, mrect.y - 8))
+                    glow_color = (255, 215, 0, 180) if is_hover else (50, 255, 150, 120)
+                    arrow_color = (255, 230, 50) if is_hover else (100, 255, 150)
+                    
+                    # Soft glow backdrop
+                    glow_surf = pygame.Surface((aw + 30, ah + 30), pygame.SRCALPHA)
+                    pygame.draw.circle(glow_surf, glow_color, (aw//2 + 15, ah//2 + 15), 18)
+                    screen.blit(glow_surf, (ax - 15, ay - 15))
+                    
+                    # Draw the chevron arrow
+                    pygame.draw.polygon(screen, arrow_color, pts)
+                    pygame.draw.polygon(screen, (255, 255, 255), pts, width=2)
 
         # ΓöÇΓöÇ Player Hand ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
         LERP_SPEED = 12.0
@@ -2351,6 +2507,7 @@ def main():
                         screen.blit(scaled, (cx, cy))
                       
 
+        profile_inspect_overlay.draw(screen)
         pygame.display.flip()
     pygame.quit()
 

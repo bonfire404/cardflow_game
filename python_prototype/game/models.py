@@ -72,9 +72,13 @@ class Deck:
 
 
 class Player:
-    def __init__(self, name, is_human=False):
+    def __init__(self, name, is_human=False, level=1, rank="Wood", rp=0, xp=0):
         self.name = name
         self.is_human = is_human
+        self.level = level
+        self.rank = rank
+        self.rp = rp
+        self.xp = xp
         self.hand = []
         self.melds = []              # List of TableMeld objects owned by this player
         self.is_burned = True        # True until they drop at least one meld
@@ -119,6 +123,16 @@ class Player:
             RANK_ORDER.index(c.rank) if c.rank in RANK_ORDER else 99
         ))
         self.hand_groups = [('all', len(self.hand))]
+
+    def sort_by_value(self, descending=True):
+        """Sort hand by card rank. A-K (ascending) or K-A (descending)."""
+        self.hand.sort(key=lambda c: (
+            RANK_ORDER.index(c.rank) if c.rank in RANK_ORDER else 99,
+            SUIT_ORDER.get(c.suit, 4)
+        ), reverse=descending)
+        self.hand_groups = [('all', len(self.hand))]
+        self.manual_groups = []
+
 
     def group_hand(self):
         """
