@@ -114,19 +114,41 @@ def load_gif(filename):
     return frames
 
 def main():
+    # --- Windows Taskbar Icon Fix (Nuclear Option) ---
+    if os.name == 'nt':
+        import ctypes
+        try:
+            # 1. Standard AppUserModelID fix
+            myappid = 'Cardflow.Production.V1' 
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+            
+            # 2. SDL Hint: Tell SDL to use the icon from the EXE resources (ID 1)
+            # This is the most reliable way to banish the snake.
+            os.environ['SDL_HINT_WINDOWS_INTRESOURCE_ICON'] = '1'
+        except:
+            pass
+
     pygame.init()
     pygame.mixer.init()
     WIDTH, HEIGHT = 1280, 720
     screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN | pygame.SCALED)
+
     pygame.display.set_caption("Cardflow")
     
-    # Set window icon
-    _logo_path = get_resource_path(os.path.join("assets", "images", "cardflow_logo.png"))
-    try:
-        logo_img = pygame.image.load(_logo_path)
-        pygame.display.set_icon(logo_img)
-    except:
-        pass
+    # Set window icon (Try ICO then PNG)
+    icon_loaded = False
+    for ext in ["ico", "png"]:
+        _logo_path = get_resource_path(os.path.join("assets", "images", f"cardflow_logo.{ext}"))
+        try:
+            logo_img = pygame.image.load(_logo_path)
+            pygame.display.set_icon(logo_img)
+            icon_loaded = True
+            break
+        except:
+            continue
+    
+    if not icon_loaded:
+        print("Warning: Could not load window icon.")
 
     # Initialize variables used in on_resize closure early
     background_raw = background = None
@@ -182,7 +204,8 @@ def main():
             fight_resolution_overlay.on_resize(WIDTH, HEIGHT)
 
     # ΓöÇΓöÇ Assets ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
-    assets_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'assets'))
+    # --- Assets Path Handling ---
+    assets_dir = get_resource_path("assets")
 
     def refresh_background(bet_limit=100):
         nonlocal background_raw, background

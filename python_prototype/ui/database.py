@@ -26,7 +26,9 @@ def init_db():
             rp INTEGER DEFAULT 0,
             xp INTEGER DEFAULT 0,
             level INTEGER DEFAULT 1,
-            last_replenish INTEGER DEFAULT 0
+            last_replenish INTEGER DEFAULT 0,
+            streak INTEGER DEFAULT 0,
+            biggest_win INTEGER DEFAULT 0
         )
     ''')
 
@@ -51,6 +53,16 @@ def init_db():
         pass
         
     try:
+        cursor.execute("ALTER TABLE user_profile ADD COLUMN streak INTEGER DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass
+        
+    try:
+        cursor.execute("ALTER TABLE user_profile ADD COLUMN biggest_win INTEGER DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass
+
+    try:
         cursor.execute("ALTER TABLE user_profile ADD COLUMN coins INTEGER DEFAULT 100000")
     except sqlite3.OperationalError:
         pass
@@ -62,8 +74,8 @@ def init_db():
     if not rows:
         # Create the single mandatory profile row
         cursor.execute('''
-            INSERT INTO user_profile (id, name, avatar_idx, wins, losses, coins, rank, rp, xp, level, last_replenish)
-            VALUES (1, 'Player', 0, 0, 0, 100000, 'Wood', 0, 0, 1, 0)
+            INSERT INTO user_profile (id, name, avatar_idx, wins, losses, coins, rank, rp, xp, level, last_replenish, streak, biggest_win)
+            VALUES (1, 'Player', 0, 0, 0, 100000, 'Wood', 0, 0, 1, 0, 0, 0)
         ''')
         conn.commit()
     elif len(rows) > 1:
@@ -81,12 +93,14 @@ def load_user_profile():
         "avatar_idx": 0,
         "wins": 0,
         "losses": 0,
-        "coins": 1000000,
+        "coins": 100000,
         "rank": "Wood",
         "rp": 0,
         "xp": 0,
         "level": 1,
-        "last_replenish": 0
+        "last_replenish": 0,
+        "streak": 0,
+        "biggest_win": 0
     }
 
     if not os.path.exists(DB_PATH):
@@ -165,7 +179,7 @@ def save_user_profile(stats_dict):
         # Update the single profile row (ID 1)
         cursor.execute('''
             UPDATE user_profile SET
-            name = ?, avatar_idx = ?, wins = ?, losses = ?, coins = ?, rank = ?, rp = ?, xp = ?, level = ?, last_replenish = ?
+            name = ?, avatar_idx = ?, wins = ?, losses = ?, coins = ?, rank = ?, rp = ?, xp = ?, level = ?, last_replenish = ?, streak = ?, biggest_win = ?
             WHERE id = 1
         ''', (
             stats_dict.get("name", "Player"),
@@ -177,7 +191,9 @@ def save_user_profile(stats_dict):
             stats_dict.get("rp", 0),
             stats_dict.get("xp", 0),
             stats_dict.get("level", 1),
-            stats_dict.get("last_replenish", 0)
+            stats_dict.get("last_replenish", 0),
+            stats_dict.get("streak", 0),
+            stats_dict.get("biggest_win", 0)
         ))
             
         conn.commit()

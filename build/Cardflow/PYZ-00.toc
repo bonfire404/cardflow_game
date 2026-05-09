@@ -1,0 +1,2371 @@
+('C:\\Users\\Project\\cardflow_game\\build\\Cardflow\\PYZ-00.pyz',
+ [('PIL',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\__init__.py',
+   'PYMODULE-1'),
+  ('PIL.AvifImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\AvifImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.BlpImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\BlpImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.BmpImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\BmpImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.BufrStubImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\BufrStubImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.CurImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\CurImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.DcxImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\DcxImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.DdsImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\DdsImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.EpsImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\EpsImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.ExifTags',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\ExifTags.py',
+   'PYMODULE-1'),
+  ('PIL.FitsImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\FitsImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.FliImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\FliImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.FpxImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\FpxImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.FtexImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\FtexImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.GbrImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\GbrImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.GifImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\GifImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.GimpGradientFile',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\GimpGradientFile.py',
+   'PYMODULE-1'),
+  ('PIL.GimpPaletteFile',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\GimpPaletteFile.py',
+   'PYMODULE-1'),
+  ('PIL.GribStubImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\GribStubImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.Hdf5StubImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\Hdf5StubImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.IcnsImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\IcnsImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.IcoImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\IcoImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.ImImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\ImImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.Image',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\Image.py',
+   'PYMODULE-1'),
+  ('PIL.ImageChops',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\ImageChops.py',
+   'PYMODULE-1'),
+  ('PIL.ImageCms',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\ImageCms.py',
+   'PYMODULE-1'),
+  ('PIL.ImageColor',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\ImageColor.py',
+   'PYMODULE-1'),
+  ('PIL.ImageFile',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\ImageFile.py',
+   'PYMODULE-1'),
+  ('PIL.ImageFilter',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\ImageFilter.py',
+   'PYMODULE-1'),
+  ('PIL.ImageMath',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\ImageMath.py',
+   'PYMODULE-1'),
+  ('PIL.ImageMode',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\ImageMode.py',
+   'PYMODULE-1'),
+  ('PIL.ImageOps',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\ImageOps.py',
+   'PYMODULE-1'),
+  ('PIL.ImagePalette',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\ImagePalette.py',
+   'PYMODULE-1'),
+  ('PIL.ImageQt',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\ImageQt.py',
+   'PYMODULE-1'),
+  ('PIL.ImageSequence',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\ImageSequence.py',
+   'PYMODULE-1'),
+  ('PIL.ImageShow',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\ImageShow.py',
+   'PYMODULE-1'),
+  ('PIL.ImageTk',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\ImageTk.py',
+   'PYMODULE-1'),
+  ('PIL.ImageWin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\ImageWin.py',
+   'PYMODULE-1'),
+  ('PIL.ImtImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\ImtImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.IptcImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\IptcImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.Jpeg2KImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\Jpeg2KImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.JpegImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\JpegImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.JpegPresets',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\JpegPresets.py',
+   'PYMODULE-1'),
+  ('PIL.McIdasImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\McIdasImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.MicImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\MicImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.MpegImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\MpegImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.MpoImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\MpoImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.MspImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\MspImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.PaletteFile',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\PaletteFile.py',
+   'PYMODULE-1'),
+  ('PIL.PalmImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\PalmImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.PcdImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\PcdImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.PcxImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\PcxImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.PdfImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\PdfImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.PdfParser',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\PdfParser.py',
+   'PYMODULE-1'),
+  ('PIL.PixarImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\PixarImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.PngImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\PngImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.PpmImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\PpmImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.PsdImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\PsdImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.QoiImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\QoiImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.SgiImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\SgiImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.SpiderImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\SpiderImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.SunImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\SunImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.TgaImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\TgaImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.TiffImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\TiffImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.TiffTags',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\TiffTags.py',
+   'PYMODULE-1'),
+  ('PIL.WebPImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\WebPImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.WmfImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\WmfImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.XVThumbImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\XVThumbImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.XbmImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\XbmImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL.XpmImagePlugin',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\XpmImagePlugin.py',
+   'PYMODULE-1'),
+  ('PIL._binary',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\_binary.py',
+   'PYMODULE-1'),
+  ('PIL._deprecate',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\_deprecate.py',
+   'PYMODULE-1'),
+  ('PIL._typing',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\_typing.py',
+   'PYMODULE-1'),
+  ('PIL._util',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\_util.py',
+   'PYMODULE-1'),
+  ('PIL._version',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\_version.py',
+   'PYMODULE-1'),
+  ('PIL.features',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PIL\\features.py',
+   'PYMODULE-1'),
+  ('__future__',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\__future__.py',
+   'PYMODULE-1'),
+  ('_aix_support',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\_aix_support.py',
+   'PYMODULE-1'),
+  ('_compat_pickle',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\_compat_pickle.py',
+   'PYMODULE-1'),
+  ('_compression',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\_compression.py',
+   'PYMODULE-1'),
+  ('_py_abc',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\_py_abc.py',
+   'PYMODULE-1'),
+  ('_pydatetime',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\_pydatetime.py',
+   'PYMODULE-1'),
+  ('_pydecimal',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\_pydecimal.py',
+   'PYMODULE-1'),
+  ('_strptime',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\_strptime.py',
+   'PYMODULE-1'),
+  ('_threading_local',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\_threading_local.py',
+   'PYMODULE-1'),
+  ('argparse',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\argparse.py',
+   'PYMODULE-1'),
+  ('ast',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ast.py',
+   'PYMODULE-1'),
+  ('asyncio',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\__init__.py',
+   'PYMODULE-1'),
+  ('asyncio.base_events',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\base_events.py',
+   'PYMODULE-1'),
+  ('asyncio.base_futures',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\base_futures.py',
+   'PYMODULE-1'),
+  ('asyncio.base_subprocess',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\base_subprocess.py',
+   'PYMODULE-1'),
+  ('asyncio.base_tasks',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\base_tasks.py',
+   'PYMODULE-1'),
+  ('asyncio.constants',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\constants.py',
+   'PYMODULE-1'),
+  ('asyncio.coroutines',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\coroutines.py',
+   'PYMODULE-1'),
+  ('asyncio.events',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\events.py',
+   'PYMODULE-1'),
+  ('asyncio.exceptions',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\exceptions.py',
+   'PYMODULE-1'),
+  ('asyncio.format_helpers',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\format_helpers.py',
+   'PYMODULE-1'),
+  ('asyncio.futures',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\futures.py',
+   'PYMODULE-1'),
+  ('asyncio.locks',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\locks.py',
+   'PYMODULE-1'),
+  ('asyncio.log',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\log.py',
+   'PYMODULE-1'),
+  ('asyncio.mixins',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\mixins.py',
+   'PYMODULE-1'),
+  ('asyncio.proactor_events',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\proactor_events.py',
+   'PYMODULE-1'),
+  ('asyncio.protocols',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\protocols.py',
+   'PYMODULE-1'),
+  ('asyncio.queues',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\queues.py',
+   'PYMODULE-1'),
+  ('asyncio.runners',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\runners.py',
+   'PYMODULE-1'),
+  ('asyncio.selector_events',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\selector_events.py',
+   'PYMODULE-1'),
+  ('asyncio.sslproto',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\sslproto.py',
+   'PYMODULE-1'),
+  ('asyncio.staggered',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\staggered.py',
+   'PYMODULE-1'),
+  ('asyncio.streams',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\streams.py',
+   'PYMODULE-1'),
+  ('asyncio.subprocess',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\subprocess.py',
+   'PYMODULE-1'),
+  ('asyncio.taskgroups',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\taskgroups.py',
+   'PYMODULE-1'),
+  ('asyncio.tasks',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\tasks.py',
+   'PYMODULE-1'),
+  ('asyncio.threads',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\threads.py',
+   'PYMODULE-1'),
+  ('asyncio.timeouts',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\timeouts.py',
+   'PYMODULE-1'),
+  ('asyncio.transports',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\transports.py',
+   'PYMODULE-1'),
+  ('asyncio.trsock',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\trsock.py',
+   'PYMODULE-1'),
+  ('asyncio.unix_events',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\unix_events.py',
+   'PYMODULE-1'),
+  ('asyncio.windows_events',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\windows_events.py',
+   'PYMODULE-1'),
+  ('asyncio.windows_utils',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\asyncio\\windows_utils.py',
+   'PYMODULE-1'),
+  ('base64',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\base64.py',
+   'PYMODULE-1'),
+  ('bdb',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\bdb.py',
+   'PYMODULE-1'),
+  ('bisect',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\bisect.py',
+   'PYMODULE-1'),
+  ('bz2',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\bz2.py',
+   'PYMODULE-1'),
+  ('calendar',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\calendar.py',
+   'PYMODULE-1'),
+  ('charset_normalizer',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\charset_normalizer\\__init__.py',
+   'PYMODULE-1'),
+  ('charset_normalizer.api',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\charset_normalizer\\api.py',
+   'PYMODULE-1'),
+  ('charset_normalizer.cd',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\charset_normalizer\\cd.py',
+   'PYMODULE-1'),
+  ('charset_normalizer.constant',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\charset_normalizer\\constant.py',
+   'PYMODULE-1'),
+  ('charset_normalizer.legacy',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\charset_normalizer\\legacy.py',
+   'PYMODULE-1'),
+  ('charset_normalizer.models',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\charset_normalizer\\models.py',
+   'PYMODULE-1'),
+  ('charset_normalizer.utils',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\charset_normalizer\\utils.py',
+   'PYMODULE-1'),
+  ('charset_normalizer.version',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\charset_normalizer\\version.py',
+   'PYMODULE-1'),
+  ('cmd',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\cmd.py',
+   'PYMODULE-1'),
+  ('code',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\code.py',
+   'PYMODULE-1'),
+  ('codeop',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\codeop.py',
+   'PYMODULE-1'),
+  ('colorsys',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\colorsys.py',
+   'PYMODULE-1'),
+  ('concurrent',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\concurrent\\__init__.py',
+   'PYMODULE-1'),
+  ('concurrent.futures',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\concurrent\\futures\\__init__.py',
+   'PYMODULE-1'),
+  ('concurrent.futures._base',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\concurrent\\futures\\_base.py',
+   'PYMODULE-1'),
+  ('concurrent.futures.process',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\concurrent\\futures\\process.py',
+   'PYMODULE-1'),
+  ('concurrent.futures.thread',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\concurrent\\futures\\thread.py',
+   'PYMODULE-1'),
+  ('configparser',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\configparser.py',
+   'PYMODULE-1'),
+  ('contextlib',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\contextlib.py',
+   'PYMODULE-1'),
+  ('contextvars',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\contextvars.py',
+   'PYMODULE-1'),
+  ('copy',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\copy.py',
+   'PYMODULE-1'),
+  ('csv',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\csv.py',
+   'PYMODULE-1'),
+  ('ctypes',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ctypes\\__init__.py',
+   'PYMODULE-1'),
+  ('ctypes._aix',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ctypes\\_aix.py',
+   'PYMODULE-1'),
+  ('ctypes._endian',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ctypes\\_endian.py',
+   'PYMODULE-1'),
+  ('ctypes.macholib',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ctypes\\macholib\\__init__.py',
+   'PYMODULE-1'),
+  ('ctypes.macholib.dyld',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ctypes\\macholib\\dyld.py',
+   'PYMODULE-1'),
+  ('ctypes.macholib.dylib',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ctypes\\macholib\\dylib.py',
+   'PYMODULE-1'),
+  ('ctypes.macholib.framework',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ctypes\\macholib\\framework.py',
+   'PYMODULE-1'),
+  ('ctypes.util',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ctypes\\util.py',
+   'PYMODULE-1'),
+  ('ctypes.wintypes',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ctypes\\wintypes.py',
+   'PYMODULE-1'),
+  ('dataclasses',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\dataclasses.py',
+   'PYMODULE-1'),
+  ('datetime',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\datetime.py',
+   'PYMODULE-1'),
+  ('decimal',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\decimal.py',
+   'PYMODULE-1'),
+  ('difflib',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\difflib.py',
+   'PYMODULE-1'),
+  ('dis',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\dis.py',
+   'PYMODULE-1'),
+  ('doctest',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\doctest.py',
+   'PYMODULE-1'),
+  ('email',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\__init__.py',
+   'PYMODULE-1'),
+  ('email._encoded_words',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\_encoded_words.py',
+   'PYMODULE-1'),
+  ('email._header_value_parser',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\_header_value_parser.py',
+   'PYMODULE-1'),
+  ('email._parseaddr',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\_parseaddr.py',
+   'PYMODULE-1'),
+  ('email._policybase',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\_policybase.py',
+   'PYMODULE-1'),
+  ('email.base64mime',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\base64mime.py',
+   'PYMODULE-1'),
+  ('email.charset',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\charset.py',
+   'PYMODULE-1'),
+  ('email.contentmanager',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\contentmanager.py',
+   'PYMODULE-1'),
+  ('email.encoders',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\encoders.py',
+   'PYMODULE-1'),
+  ('email.errors',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\errors.py',
+   'PYMODULE-1'),
+  ('email.feedparser',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\feedparser.py',
+   'PYMODULE-1'),
+  ('email.generator',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\generator.py',
+   'PYMODULE-1'),
+  ('email.header',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\header.py',
+   'PYMODULE-1'),
+  ('email.headerregistry',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\headerregistry.py',
+   'PYMODULE-1'),
+  ('email.iterators',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\iterators.py',
+   'PYMODULE-1'),
+  ('email.message',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\message.py',
+   'PYMODULE-1'),
+  ('email.parser',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\parser.py',
+   'PYMODULE-1'),
+  ('email.policy',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\policy.py',
+   'PYMODULE-1'),
+  ('email.quoprimime',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\quoprimime.py',
+   'PYMODULE-1'),
+  ('email.utils',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\email\\utils.py',
+   'PYMODULE-1'),
+  ('fileinput',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\fileinput.py',
+   'PYMODULE-1'),
+  ('fnmatch',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\fnmatch.py',
+   'PYMODULE-1'),
+  ('fractions',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\fractions.py',
+   'PYMODULE-1'),
+  ('ftplib',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ftplib.py',
+   'PYMODULE-1'),
+  ('game',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\game\\__init__.py',
+   'PYMODULE-1'),
+  ('game.ai_bot',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\game\\ai_bot.py',
+   'PYMODULE-1'),
+  ('game.betting_configs',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\game\\betting_configs.py',
+   'PYMODULE-1'),
+  ('game.engine',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\game\\engine.py',
+   'PYMODULE-1'),
+  ('game.models',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\game\\models.py',
+   'PYMODULE-1'),
+  ('getopt',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\getopt.py',
+   'PYMODULE-1'),
+  ('getpass',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\getpass.py',
+   'PYMODULE-1'),
+  ('gettext',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\gettext.py',
+   'PYMODULE-1'),
+  ('glob',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\glob.py',
+   'PYMODULE-1'),
+  ('gzip',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\gzip.py',
+   'PYMODULE-1'),
+  ('hashlib',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\hashlib.py',
+   'PYMODULE-1'),
+  ('hmac',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\hmac.py',
+   'PYMODULE-1'),
+  ('html',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\html\\__init__.py',
+   'PYMODULE-1'),
+  ('html.entities',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\html\\entities.py',
+   'PYMODULE-1'),
+  ('http',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\http\\__init__.py',
+   'PYMODULE-1'),
+  ('http.client',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\http\\client.py',
+   'PYMODULE-1'),
+  ('http.cookiejar',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\http\\cookiejar.py',
+   'PYMODULE-1'),
+  ('http.server',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\http\\server.py',
+   'PYMODULE-1'),
+  ('importlib',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\__init__.py',
+   'PYMODULE-1'),
+  ('importlib._abc',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\_abc.py',
+   'PYMODULE-1'),
+  ('importlib._bootstrap',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\_bootstrap.py',
+   'PYMODULE-1'),
+  ('importlib._bootstrap_external',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\_bootstrap_external.py',
+   'PYMODULE-1'),
+  ('importlib.abc',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\abc.py',
+   'PYMODULE-1'),
+  ('importlib.machinery',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\machinery.py',
+   'PYMODULE-1'),
+  ('importlib.metadata',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\metadata\\__init__.py',
+   'PYMODULE-1'),
+  ('importlib.metadata._adapters',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\metadata\\_adapters.py',
+   'PYMODULE-1'),
+  ('importlib.metadata._collections',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\metadata\\_collections.py',
+   'PYMODULE-1'),
+  ('importlib.metadata._functools',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\metadata\\_functools.py',
+   'PYMODULE-1'),
+  ('importlib.metadata._itertools',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\metadata\\_itertools.py',
+   'PYMODULE-1'),
+  ('importlib.metadata._meta',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\metadata\\_meta.py',
+   'PYMODULE-1'),
+  ('importlib.metadata._text',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\metadata\\_text.py',
+   'PYMODULE-1'),
+  ('importlib.readers',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\readers.py',
+   'PYMODULE-1'),
+  ('importlib.resources',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\resources\\__init__.py',
+   'PYMODULE-1'),
+  ('importlib.resources._adapters',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\resources\\_adapters.py',
+   'PYMODULE-1'),
+  ('importlib.resources._common',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\resources\\_common.py',
+   'PYMODULE-1'),
+  ('importlib.resources._itertools',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\resources\\_itertools.py',
+   'PYMODULE-1'),
+  ('importlib.resources._legacy',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\resources\\_legacy.py',
+   'PYMODULE-1'),
+  ('importlib.resources.abc',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\resources\\abc.py',
+   'PYMODULE-1'),
+  ('importlib.resources.readers',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\resources\\readers.py',
+   'PYMODULE-1'),
+  ('importlib.util',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\util.py',
+   'PYMODULE-1'),
+  ('inspect',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\inspect.py',
+   'PYMODULE-1'),
+  ('ipaddress',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ipaddress.py',
+   'PYMODULE-1'),
+  ('json',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\json\\__init__.py',
+   'PYMODULE-1'),
+  ('json.decoder',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\json\\decoder.py',
+   'PYMODULE-1'),
+  ('json.encoder',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\json\\encoder.py',
+   'PYMODULE-1'),
+  ('json.scanner',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\json\\scanner.py',
+   'PYMODULE-1'),
+  ('logging',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\logging\\__init__.py',
+   'PYMODULE-1'),
+  ('lzma',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\lzma.py',
+   'PYMODULE-1'),
+  ('mimetypes',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\mimetypes.py',
+   'PYMODULE-1'),
+  ('multiprocessing',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\__init__.py',
+   'PYMODULE-1'),
+  ('multiprocessing.connection',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\connection.py',
+   'PYMODULE-1'),
+  ('multiprocessing.context',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\context.py',
+   'PYMODULE-1'),
+  ('multiprocessing.dummy',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\dummy\\__init__.py',
+   'PYMODULE-1'),
+  ('multiprocessing.dummy.connection',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\dummy\\connection.py',
+   'PYMODULE-1'),
+  ('multiprocessing.forkserver',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\forkserver.py',
+   'PYMODULE-1'),
+  ('multiprocessing.heap',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\heap.py',
+   'PYMODULE-1'),
+  ('multiprocessing.managers',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\managers.py',
+   'PYMODULE-1'),
+  ('multiprocessing.pool',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\pool.py',
+   'PYMODULE-1'),
+  ('multiprocessing.popen_fork',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\popen_fork.py',
+   'PYMODULE-1'),
+  ('multiprocessing.popen_forkserver',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\popen_forkserver.py',
+   'PYMODULE-1'),
+  ('multiprocessing.popen_spawn_posix',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\popen_spawn_posix.py',
+   'PYMODULE-1'),
+  ('multiprocessing.popen_spawn_win32',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\popen_spawn_win32.py',
+   'PYMODULE-1'),
+  ('multiprocessing.process',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\process.py',
+   'PYMODULE-1'),
+  ('multiprocessing.queues',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\queues.py',
+   'PYMODULE-1'),
+  ('multiprocessing.reduction',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\reduction.py',
+   'PYMODULE-1'),
+  ('multiprocessing.resource_sharer',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\resource_sharer.py',
+   'PYMODULE-1'),
+  ('multiprocessing.resource_tracker',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\resource_tracker.py',
+   'PYMODULE-1'),
+  ('multiprocessing.shared_memory',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\shared_memory.py',
+   'PYMODULE-1'),
+  ('multiprocessing.sharedctypes',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\sharedctypes.py',
+   'PYMODULE-1'),
+  ('multiprocessing.spawn',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\spawn.py',
+   'PYMODULE-1'),
+  ('multiprocessing.synchronize',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\synchronize.py',
+   'PYMODULE-1'),
+  ('multiprocessing.util',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\multiprocessing\\util.py',
+   'PYMODULE-1'),
+  ('netrc',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\netrc.py',
+   'PYMODULE-1'),
+  ('nturl2path',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\nturl2path.py',
+   'PYMODULE-1'),
+  ('numbers',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\numbers.py',
+   'PYMODULE-1'),
+  ('numpy',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy.__config__',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\__config__.py',
+   'PYMODULE-1'),
+  ('numpy._core',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy._core._add_newdocs',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\_add_newdocs.py',
+   'PYMODULE-1'),
+  ('numpy._core._add_newdocs_scalars',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\_add_newdocs_scalars.py',
+   'PYMODULE-1'),
+  ('numpy._core._asarray',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\_asarray.py',
+   'PYMODULE-1'),
+  ('numpy._core._dtype',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\_dtype.py',
+   'PYMODULE-1'),
+  ('numpy._core._dtype_ctypes',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\_dtype_ctypes.py',
+   'PYMODULE-1'),
+  ('numpy._core._exceptions',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\_exceptions.py',
+   'PYMODULE-1'),
+  ('numpy._core._internal',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\_internal.py',
+   'PYMODULE-1'),
+  ('numpy._core._machar',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\_machar.py',
+   'PYMODULE-1'),
+  ('numpy._core._methods',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\_methods.py',
+   'PYMODULE-1'),
+  ('numpy._core._string_helpers',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\_string_helpers.py',
+   'PYMODULE-1'),
+  ('numpy._core._type_aliases',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\_type_aliases.py',
+   'PYMODULE-1'),
+  ('numpy._core._ufunc_config',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\_ufunc_config.py',
+   'PYMODULE-1'),
+  ('numpy._core.arrayprint',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\arrayprint.py',
+   'PYMODULE-1'),
+  ('numpy._core.defchararray',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\defchararray.py',
+   'PYMODULE-1'),
+  ('numpy._core.einsumfunc',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\einsumfunc.py',
+   'PYMODULE-1'),
+  ('numpy._core.fromnumeric',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\fromnumeric.py',
+   'PYMODULE-1'),
+  ('numpy._core.function_base',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\function_base.py',
+   'PYMODULE-1'),
+  ('numpy._core.getlimits',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\getlimits.py',
+   'PYMODULE-1'),
+  ('numpy._core.memmap',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\memmap.py',
+   'PYMODULE-1'),
+  ('numpy._core.multiarray',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\multiarray.py',
+   'PYMODULE-1'),
+  ('numpy._core.numeric',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\numeric.py',
+   'PYMODULE-1'),
+  ('numpy._core.numerictypes',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\numerictypes.py',
+   'PYMODULE-1'),
+  ('numpy._core.overrides',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\overrides.py',
+   'PYMODULE-1'),
+  ('numpy._core.records',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\records.py',
+   'PYMODULE-1'),
+  ('numpy._core.shape_base',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\shape_base.py',
+   'PYMODULE-1'),
+  ('numpy._core.strings',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\strings.py',
+   'PYMODULE-1'),
+  ('numpy._core.umath',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_core\\umath.py',
+   'PYMODULE-1'),
+  ('numpy._distributor_init',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_distributor_init.py',
+   'PYMODULE-1'),
+  ('numpy._expired_attrs_2_0',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_expired_attrs_2_0.py',
+   'PYMODULE-1'),
+  ('numpy._globals',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_globals.py',
+   'PYMODULE-1'),
+  ('numpy._pytesttester',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_pytesttester.py',
+   'PYMODULE-1'),
+  ('numpy._typing',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_typing\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy._typing._add_docstring',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_typing\\_add_docstring.py',
+   'PYMODULE-1'),
+  ('numpy._typing._array_like',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_typing\\_array_like.py',
+   'PYMODULE-1'),
+  ('numpy._typing._char_codes',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_typing\\_char_codes.py',
+   'PYMODULE-1'),
+  ('numpy._typing._dtype_like',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_typing\\_dtype_like.py',
+   'PYMODULE-1'),
+  ('numpy._typing._nbit',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_typing\\_nbit.py',
+   'PYMODULE-1'),
+  ('numpy._typing._nested_sequence',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_typing\\_nested_sequence.py',
+   'PYMODULE-1'),
+  ('numpy._typing._scalars',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_typing\\_scalars.py',
+   'PYMODULE-1'),
+  ('numpy._typing._shape',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_typing\\_shape.py',
+   'PYMODULE-1'),
+  ('numpy._utils',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_utils\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy._utils._convertions',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_utils\\_convertions.py',
+   'PYMODULE-1'),
+  ('numpy._utils._inspect',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\_utils\\_inspect.py',
+   'PYMODULE-1'),
+  ('numpy.char',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\char\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy.core',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\core\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy.core._utils',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\core\\_utils.py',
+   'PYMODULE-1'),
+  ('numpy.ctypeslib',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\ctypeslib.py',
+   'PYMODULE-1'),
+  ('numpy.dtypes',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\dtypes.py',
+   'PYMODULE-1'),
+  ('numpy.exceptions',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\exceptions.py',
+   'PYMODULE-1'),
+  ('numpy.f2py',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy.f2py.__version__',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\__version__.py',
+   'PYMODULE-1'),
+  ('numpy.f2py._backends',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\_backends\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy.f2py._backends._backend',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\_backends\\_backend.py',
+   'PYMODULE-1'),
+  ('numpy.f2py._backends._distutils',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\_backends\\_distutils.py',
+   'PYMODULE-1'),
+  ('numpy.f2py._backends._meson',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\_backends\\_meson.py',
+   'PYMODULE-1'),
+  ('numpy.f2py._isocbind',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\_isocbind.py',
+   'PYMODULE-1'),
+  ('numpy.f2py.auxfuncs',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\auxfuncs.py',
+   'PYMODULE-1'),
+  ('numpy.f2py.capi_maps',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\capi_maps.py',
+   'PYMODULE-1'),
+  ('numpy.f2py.cb_rules',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\cb_rules.py',
+   'PYMODULE-1'),
+  ('numpy.f2py.cfuncs',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\cfuncs.py',
+   'PYMODULE-1'),
+  ('numpy.f2py.common_rules',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\common_rules.py',
+   'PYMODULE-1'),
+  ('numpy.f2py.crackfortran',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\crackfortran.py',
+   'PYMODULE-1'),
+  ('numpy.f2py.diagnose',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\diagnose.py',
+   'PYMODULE-1'),
+  ('numpy.f2py.f2py2e',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\f2py2e.py',
+   'PYMODULE-1'),
+  ('numpy.f2py.f90mod_rules',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\f90mod_rules.py',
+   'PYMODULE-1'),
+  ('numpy.f2py.func2subr',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\func2subr.py',
+   'PYMODULE-1'),
+  ('numpy.f2py.rules',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\rules.py',
+   'PYMODULE-1'),
+  ('numpy.f2py.symbolic',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\symbolic.py',
+   'PYMODULE-1'),
+  ('numpy.f2py.use_rules',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\f2py\\use_rules.py',
+   'PYMODULE-1'),
+  ('numpy.fft',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\fft\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy.fft._helper',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\fft\\_helper.py',
+   'PYMODULE-1'),
+  ('numpy.fft._pocketfft',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\fft\\_pocketfft.py',
+   'PYMODULE-1'),
+  ('numpy.fft.helper',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\fft\\helper.py',
+   'PYMODULE-1'),
+  ('numpy.lib',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy.lib._array_utils_impl',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_array_utils_impl.py',
+   'PYMODULE-1'),
+  ('numpy.lib._arraypad_impl',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_arraypad_impl.py',
+   'PYMODULE-1'),
+  ('numpy.lib._arraysetops_impl',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_arraysetops_impl.py',
+   'PYMODULE-1'),
+  ('numpy.lib._arrayterator_impl',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_arrayterator_impl.py',
+   'PYMODULE-1'),
+  ('numpy.lib._datasource',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_datasource.py',
+   'PYMODULE-1'),
+  ('numpy.lib._function_base_impl',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_function_base_impl.py',
+   'PYMODULE-1'),
+  ('numpy.lib._histograms_impl',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_histograms_impl.py',
+   'PYMODULE-1'),
+  ('numpy.lib._index_tricks_impl',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_index_tricks_impl.py',
+   'PYMODULE-1'),
+  ('numpy.lib._iotools',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_iotools.py',
+   'PYMODULE-1'),
+  ('numpy.lib._nanfunctions_impl',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_nanfunctions_impl.py',
+   'PYMODULE-1'),
+  ('numpy.lib._npyio_impl',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_npyio_impl.py',
+   'PYMODULE-1'),
+  ('numpy.lib._polynomial_impl',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_polynomial_impl.py',
+   'PYMODULE-1'),
+  ('numpy.lib._scimath_impl',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_scimath_impl.py',
+   'PYMODULE-1'),
+  ('numpy.lib._shape_base_impl',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_shape_base_impl.py',
+   'PYMODULE-1'),
+  ('numpy.lib._stride_tricks_impl',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_stride_tricks_impl.py',
+   'PYMODULE-1'),
+  ('numpy.lib._twodim_base_impl',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_twodim_base_impl.py',
+   'PYMODULE-1'),
+  ('numpy.lib._type_check_impl',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_type_check_impl.py',
+   'PYMODULE-1'),
+  ('numpy.lib._ufunclike_impl',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_ufunclike_impl.py',
+   'PYMODULE-1'),
+  ('numpy.lib._utils_impl',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_utils_impl.py',
+   'PYMODULE-1'),
+  ('numpy.lib._version',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\_version.py',
+   'PYMODULE-1'),
+  ('numpy.lib.array_utils',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\array_utils.py',
+   'PYMODULE-1'),
+  ('numpy.lib.format',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\format.py',
+   'PYMODULE-1'),
+  ('numpy.lib.introspect',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\introspect.py',
+   'PYMODULE-1'),
+  ('numpy.lib.mixins',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\mixins.py',
+   'PYMODULE-1'),
+  ('numpy.lib.npyio',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\npyio.py',
+   'PYMODULE-1'),
+  ('numpy.lib.recfunctions',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\recfunctions.py',
+   'PYMODULE-1'),
+  ('numpy.lib.scimath',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\scimath.py',
+   'PYMODULE-1'),
+  ('numpy.lib.stride_tricks',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\lib\\stride_tricks.py',
+   'PYMODULE-1'),
+  ('numpy.linalg',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\linalg\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy.linalg._linalg',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\linalg\\_linalg.py',
+   'PYMODULE-1'),
+  ('numpy.linalg.linalg',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\linalg\\linalg.py',
+   'PYMODULE-1'),
+  ('numpy.ma',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\ma\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy.ma.core',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\ma\\core.py',
+   'PYMODULE-1'),
+  ('numpy.ma.extras',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\ma\\extras.py',
+   'PYMODULE-1'),
+  ('numpy.ma.mrecords',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\ma\\mrecords.py',
+   'PYMODULE-1'),
+  ('numpy.matlib',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\matlib.py',
+   'PYMODULE-1'),
+  ('numpy.matrixlib',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\matrixlib\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy.matrixlib.defmatrix',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\matrixlib\\defmatrix.py',
+   'PYMODULE-1'),
+  ('numpy.polynomial',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\polynomial\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy.polynomial._polybase',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\polynomial\\_polybase.py',
+   'PYMODULE-1'),
+  ('numpy.polynomial.chebyshev',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\polynomial\\chebyshev.py',
+   'PYMODULE-1'),
+  ('numpy.polynomial.hermite',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\polynomial\\hermite.py',
+   'PYMODULE-1'),
+  ('numpy.polynomial.hermite_e',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\polynomial\\hermite_e.py',
+   'PYMODULE-1'),
+  ('numpy.polynomial.laguerre',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\polynomial\\laguerre.py',
+   'PYMODULE-1'),
+  ('numpy.polynomial.legendre',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\polynomial\\legendre.py',
+   'PYMODULE-1'),
+  ('numpy.polynomial.polynomial',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\polynomial\\polynomial.py',
+   'PYMODULE-1'),
+  ('numpy.polynomial.polyutils',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\polynomial\\polyutils.py',
+   'PYMODULE-1'),
+  ('numpy.random',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\random\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy.random._pickle',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\random\\_pickle.py',
+   'PYMODULE-1'),
+  ('numpy.rec',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\rec\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy.strings',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\strings\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy.testing',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\testing\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy.testing._private',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\testing\\_private\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy.testing._private.extbuild',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\testing\\_private\\extbuild.py',
+   'PYMODULE-1'),
+  ('numpy.testing._private.utils',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\testing\\_private\\utils.py',
+   'PYMODULE-1'),
+  ('numpy.testing.overrides',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\testing\\overrides.py',
+   'PYMODULE-1'),
+  ('numpy.typing',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\typing\\__init__.py',
+   'PYMODULE-1'),
+  ('numpy.version',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy\\version.py',
+   'PYMODULE-1'),
+  ('opcode',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\opcode.py',
+   'PYMODULE-1'),
+  ('packaging',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\__init__.py',
+   'PYMODULE-1'),
+  ('packaging._elffile',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\_elffile.py',
+   'PYMODULE-1'),
+  ('packaging._manylinux',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\_manylinux.py',
+   'PYMODULE-1'),
+  ('packaging._musllinux',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\_musllinux.py',
+   'PYMODULE-1'),
+  ('packaging._parser',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\_parser.py',
+   'PYMODULE-1'),
+  ('packaging._structures',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\_structures.py',
+   'PYMODULE-1'),
+  ('packaging._tokenizer',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\_tokenizer.py',
+   'PYMODULE-1'),
+  ('packaging.markers',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\markers.py',
+   'PYMODULE-1'),
+  ('packaging.metadata',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\metadata.py',
+   'PYMODULE-1'),
+  ('packaging.requirements',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\requirements.py',
+   'PYMODULE-1'),
+  ('packaging.specifiers',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\specifiers.py',
+   'PYMODULE-1'),
+  ('packaging.tags',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\tags.py',
+   'PYMODULE-1'),
+  ('packaging.utils',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\utils.py',
+   'PYMODULE-1'),
+  ('packaging.version',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\packaging\\version.py',
+   'PYMODULE-1'),
+  ('pathlib',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pathlib.py',
+   'PYMODULE-1'),
+  ('pdb',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pdb.py',
+   'PYMODULE-1'),
+  ('pickle',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pickle.py',
+   'PYMODULE-1'),
+  ('pkg_resources',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\__init__.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\__init__.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.importlib_resources',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\importlib_resources\\__init__.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.importlib_resources._adapters',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\importlib_resources\\_adapters.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.importlib_resources._common',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\importlib_resources\\_common.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.importlib_resources._compat',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\importlib_resources\\_compat.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.importlib_resources._itertools',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\importlib_resources\\_itertools.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.importlib_resources._legacy',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\importlib_resources\\_legacy.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.importlib_resources.abc',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\importlib_resources\\abc.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.importlib_resources.readers',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\importlib_resources\\readers.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.importlib_resources.simple',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\importlib_resources\\simple.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.jaraco',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\jaraco\\__init__.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.jaraco.context',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\jaraco\\context.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.jaraco.functools',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\jaraco\\functools.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.jaraco.text',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\jaraco\\text\\__init__.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.more_itertools',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\more_itertools\\__init__.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.more_itertools.more',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\more_itertools\\more.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.more_itertools.recipes',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\more_itertools\\recipes.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.packaging',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\packaging\\__init__.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.packaging._elffile',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\packaging\\_elffile.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.packaging._manylinux',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\packaging\\_manylinux.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.packaging._musllinux',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\packaging\\_musllinux.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.packaging._parser',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\packaging\\_parser.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.packaging._structures',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\packaging\\_structures.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.packaging._tokenizer',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\packaging\\_tokenizer.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.packaging.markers',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\packaging\\markers.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.packaging.metadata',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\packaging\\metadata.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.packaging.requirements',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\packaging\\requirements.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.packaging.specifiers',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\packaging\\specifiers.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.packaging.tags',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\packaging\\tags.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.packaging.utils',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\packaging\\utils.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.packaging.version',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\packaging\\version.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.platformdirs',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\platformdirs\\__init__.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.platformdirs.__main__',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\platformdirs\\__main__.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.platformdirs.android',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\platformdirs\\android.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.platformdirs.api',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\platformdirs\\api.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.platformdirs.macos',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\platformdirs\\macos.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.platformdirs.unix',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\platformdirs\\unix.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.platformdirs.version',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\platformdirs\\version.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.platformdirs.windows',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\platformdirs\\windows.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.typing_extensions',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\typing_extensions.py',
+   'PYMODULE-1'),
+  ('pkg_resources._vendor.zipp',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\_vendor\\zipp.py',
+   'PYMODULE-1'),
+  ('pkg_resources.extern',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pkg_resources\\extern\\__init__.py',
+   'PYMODULE-1'),
+  ('pkgutil',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pkgutil.py',
+   'PYMODULE-1'),
+  ('platform',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\platform.py',
+   'PYMODULE-1'),
+  ('platformdirs',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\platformdirs\\__init__.py',
+   'PYMODULE-1'),
+  ('platformdirs.android',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\platformdirs\\android.py',
+   'PYMODULE-1'),
+  ('platformdirs.api',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\platformdirs\\api.py',
+   'PYMODULE-1'),
+  ('platformdirs.macos',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\platformdirs\\macos.py',
+   'PYMODULE-1'),
+  ('platformdirs.unix',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\platformdirs\\unix.py',
+   'PYMODULE-1'),
+  ('platformdirs.version',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\platformdirs\\version.py',
+   'PYMODULE-1'),
+  ('platformdirs.windows',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\platformdirs\\windows.py',
+   'PYMODULE-1'),
+  ('plistlib',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\plistlib.py',
+   'PYMODULE-1'),
+  ('pprint',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pprint.py',
+   'PYMODULE-1'),
+  ('psutil',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\psutil\\__init__.py',
+   'PYMODULE-1'),
+  ('psutil._common',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\psutil\\_common.py',
+   'PYMODULE-1'),
+  ('psutil._ntuples',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\psutil\\_ntuples.py',
+   'PYMODULE-1'),
+  ('psutil._pswindows',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\psutil\\_pswindows.py',
+   'PYMODULE-1'),
+  ('py_compile',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\py_compile.py',
+   'PYMODULE-1'),
+  ('pydoc',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pydoc.py',
+   'PYMODULE-1'),
+  ('pydoc_data',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pydoc_data\\__init__.py',
+   'PYMODULE-1'),
+  ('pydoc_data.topics',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pydoc_data\\topics.py',
+   'PYMODULE-1'),
+  ('pygame',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pygame\\__init__.py',
+   'PYMODULE-1'),
+  ('pygame.colordict',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pygame\\colordict.py',
+   'PYMODULE-1'),
+  ('pygame.cursors',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pygame\\cursors.py',
+   'PYMODULE-1'),
+  ('pygame.fastevent',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pygame\\fastevent.py',
+   'PYMODULE-1'),
+  ('pygame.ftfont',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pygame\\ftfont.py',
+   'PYMODULE-1'),
+  ('pygame.macosx',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pygame\\macosx.py',
+   'PYMODULE-1'),
+  ('pygame.pkgdata',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pygame\\pkgdata.py',
+   'PYMODULE-1'),
+  ('pygame.sndarray',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pygame\\sndarray.py',
+   'PYMODULE-1'),
+  ('pygame.sprite',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pygame\\sprite.py',
+   'PYMODULE-1'),
+  ('pygame.surfarray',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pygame\\surfarray.py',
+   'PYMODULE-1'),
+  ('pygame.sysfont',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pygame\\sysfont.py',
+   'PYMODULE-1'),
+  ('pygame.threads',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pygame\\threads\\__init__.py',
+   'PYMODULE-1'),
+  ('pygame.version',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pygame\\version.py',
+   'PYMODULE-1'),
+  ('queue',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\queue.py',
+   'PYMODULE-1'),
+  ('quopri',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\quopri.py',
+   'PYMODULE-1'),
+  ('random',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\random.py',
+   'PYMODULE-1'),
+  ('runpy',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\runpy.py',
+   'PYMODULE-1'),
+  ('secrets',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\secrets.py',
+   'PYMODULE-1'),
+  ('selectors',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\selectors.py',
+   'PYMODULE-1'),
+  ('shlex',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\shlex.py',
+   'PYMODULE-1'),
+  ('shutil',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\shutil.py',
+   'PYMODULE-1'),
+  ('signal',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\signal.py',
+   'PYMODULE-1'),
+  ('socket',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\socket.py',
+   'PYMODULE-1'),
+  ('socketserver',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\socketserver.py',
+   'PYMODULE-1'),
+  ('sqlite3',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\sqlite3\\__init__.py',
+   'PYMODULE-1'),
+  ('sqlite3.__main__',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\sqlite3\\__main__.py',
+   'PYMODULE-1'),
+  ('sqlite3.dbapi2',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\sqlite3\\dbapi2.py',
+   'PYMODULE-1'),
+  ('sqlite3.dump',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\sqlite3\\dump.py',
+   'PYMODULE-1'),
+  ('ssl',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\ssl.py',
+   'PYMODULE-1'),
+  ('statistics',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\statistics.py',
+   'PYMODULE-1'),
+  ('string',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\string.py',
+   'PYMODULE-1'),
+  ('stringprep',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\stringprep.py',
+   'PYMODULE-1'),
+  ('subprocess',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\subprocess.py',
+   'PYMODULE-1'),
+  ('sysconfig',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\sysconfig.py',
+   'PYMODULE-1'),
+  ('tarfile',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tarfile.py',
+   'PYMODULE-1'),
+  ('tempfile',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tempfile.py',
+   'PYMODULE-1'),
+  ('textwrap',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\textwrap.py',
+   'PYMODULE-1'),
+  ('threading',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\threading.py',
+   'PYMODULE-1'),
+  ('threadpoolctl',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\threadpoolctl.py',
+   'PYMODULE-1'),
+  ('tkinter',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tkinter\\__init__.py',
+   'PYMODULE-1'),
+  ('tkinter.commondialog',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tkinter\\commondialog.py',
+   'PYMODULE-1'),
+  ('tkinter.constants',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tkinter\\constants.py',
+   'PYMODULE-1'),
+  ('tkinter.dialog',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tkinter\\dialog.py',
+   'PYMODULE-1'),
+  ('tkinter.filedialog',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tkinter\\filedialog.py',
+   'PYMODULE-1'),
+  ('tkinter.messagebox',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tkinter\\messagebox.py',
+   'PYMODULE-1'),
+  ('tkinter.simpledialog',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tkinter\\simpledialog.py',
+   'PYMODULE-1'),
+  ('token',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\token.py',
+   'PYMODULE-1'),
+  ('tokenize',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tokenize.py',
+   'PYMODULE-1'),
+  ('tracemalloc',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tracemalloc.py',
+   'PYMODULE-1'),
+  ('tty',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\tty.py',
+   'PYMODULE-1'),
+  ('typing',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\typing.py',
+   'PYMODULE-1'),
+  ('typing_extensions',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\typing_extensions.py',
+   'PYMODULE-1'),
+  ('ui',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\ui\\__init__.py',
+   'PYMODULE-1'),
+  ('ui.animation',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\ui\\animation.py',
+   'PYMODULE-1'),
+  ('ui.assets_mgr',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\ui\\assets_mgr.py',
+   'PYMODULE-1'),
+  ('ui.chips',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\ui\\chips.py',
+   'PYMODULE-1'),
+  ('ui.confirmation_modal',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\ui\\confirmation_modal.py',
+   'PYMODULE-1'),
+  ('ui.database',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\ui\\database.py',
+   'PYMODULE-1'),
+  ('ui.dealer',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\ui\\dealer.py',
+   'PYMODULE-1'),
+  ('ui.ingame_menu',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\ui\\ingame_menu.py',
+   'PYMODULE-1'),
+  ('ui.lobby',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\ui\\lobby.py',
+   'PYMODULE-1'),
+  ('ui.paths',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\ui\\paths.py',
+   'PYMODULE-1'),
+  ('ui.profile',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\ui\\profile.py',
+   'PYMODULE-1'),
+  ('ui.progression_manager',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\ui\\progression_manager.py',
+   'PYMODULE-1'),
+  ('ui.quest_modal',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\ui\\quest_modal.py',
+   'PYMODULE-1'),
+  ('ui.reward_modal',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\ui\\reward_modal.py',
+   'PYMODULE-1'),
+  ('ui.rules_modal',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\ui\\rules_modal.py',
+   'PYMODULE-1'),
+  ('ui.settings_modal',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\ui\\settings_modal.py',
+   'PYMODULE-1'),
+  ('ui.ui_components',
+   'C:\\Users\\Project\\cardflow_game\\python_prototype\\ui\\ui_components.py',
+   'PYMODULE-1'),
+  ('unittest',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\__init__.py',
+   'PYMODULE-1'),
+  ('unittest._log',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\_log.py',
+   'PYMODULE-1'),
+  ('unittest.async_case',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\async_case.py',
+   'PYMODULE-1'),
+  ('unittest.case',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\case.py',
+   'PYMODULE-1'),
+  ('unittest.loader',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\loader.py',
+   'PYMODULE-1'),
+  ('unittest.main',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\main.py',
+   'PYMODULE-1'),
+  ('unittest.result',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\result.py',
+   'PYMODULE-1'),
+  ('unittest.runner',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\runner.py',
+   'PYMODULE-1'),
+  ('unittest.signals',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\signals.py',
+   'PYMODULE-1'),
+  ('unittest.suite',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\suite.py',
+   'PYMODULE-1'),
+  ('unittest.util',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\unittest\\util.py',
+   'PYMODULE-1'),
+  ('urllib',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\urllib\\__init__.py',
+   'PYMODULE-1'),
+  ('urllib.error',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\urllib\\error.py',
+   'PYMODULE-1'),
+  ('urllib.parse',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\urllib\\parse.py',
+   'PYMODULE-1'),
+  ('urllib.request',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\urllib\\request.py',
+   'PYMODULE-1'),
+  ('urllib.response',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\urllib\\response.py',
+   'PYMODULE-1'),
+  ('webbrowser',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\webbrowser.py',
+   'PYMODULE-1'),
+  ('xml',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\__init__.py',
+   'PYMODULE-1'),
+  ('xml.etree',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\etree\\__init__.py',
+   'PYMODULE-1'),
+  ('xml.etree.ElementInclude',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\etree\\ElementInclude.py',
+   'PYMODULE-1'),
+  ('xml.etree.ElementPath',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\etree\\ElementPath.py',
+   'PYMODULE-1'),
+  ('xml.etree.ElementTree',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\etree\\ElementTree.py',
+   'PYMODULE-1'),
+  ('xml.etree.cElementTree',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\etree\\cElementTree.py',
+   'PYMODULE-1'),
+  ('xml.parsers',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\parsers\\__init__.py',
+   'PYMODULE-1'),
+  ('xml.parsers.expat',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\parsers\\expat.py',
+   'PYMODULE-1'),
+  ('xml.sax',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\sax\\__init__.py',
+   'PYMODULE-1'),
+  ('xml.sax._exceptions',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\sax\\_exceptions.py',
+   'PYMODULE-1'),
+  ('xml.sax.expatreader',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\sax\\expatreader.py',
+   'PYMODULE-1'),
+  ('xml.sax.handler',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\sax\\handler.py',
+   'PYMODULE-1'),
+  ('xml.sax.saxutils',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\sax\\saxutils.py',
+   'PYMODULE-1'),
+  ('xml.sax.xmlreader',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xml\\sax\\xmlreader.py',
+   'PYMODULE-1'),
+  ('xmlrpc',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xmlrpc\\__init__.py',
+   'PYMODULE-1'),
+  ('xmlrpc.client',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\xmlrpc\\client.py',
+   'PYMODULE-1'),
+  ('yaml',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\yaml\\__init__.py',
+   'PYMODULE-1'),
+  ('yaml.composer',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\yaml\\composer.py',
+   'PYMODULE-1'),
+  ('yaml.constructor',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\yaml\\constructor.py',
+   'PYMODULE-1'),
+  ('yaml.cyaml',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\yaml\\cyaml.py',
+   'PYMODULE-1'),
+  ('yaml.dumper',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\yaml\\dumper.py',
+   'PYMODULE-1'),
+  ('yaml.emitter',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\yaml\\emitter.py',
+   'PYMODULE-1'),
+  ('yaml.error',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\yaml\\error.py',
+   'PYMODULE-1'),
+  ('yaml.events',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\yaml\\events.py',
+   'PYMODULE-1'),
+  ('yaml.loader',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\yaml\\loader.py',
+   'PYMODULE-1'),
+  ('yaml.nodes',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\yaml\\nodes.py',
+   'PYMODULE-1'),
+  ('yaml.parser',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\yaml\\parser.py',
+   'PYMODULE-1'),
+  ('yaml.reader',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\yaml\\reader.py',
+   'PYMODULE-1'),
+  ('yaml.representer',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\yaml\\representer.py',
+   'PYMODULE-1'),
+  ('yaml.resolver',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\yaml\\resolver.py',
+   'PYMODULE-1'),
+  ('yaml.scanner',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\yaml\\scanner.py',
+   'PYMODULE-1'),
+  ('yaml.serializer',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\yaml\\serializer.py',
+   'PYMODULE-1'),
+  ('yaml.tokens',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\yaml\\tokens.py',
+   'PYMODULE-1'),
+  ('zipfile',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\zipfile\\__init__.py',
+   'PYMODULE-1'),
+  ('zipfile._path',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\zipfile\\_path\\__init__.py',
+   'PYMODULE-1'),
+  ('zipfile._path.glob',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\zipfile\\_path\\glob.py',
+   'PYMODULE-1'),
+  ('zipimport',
+   'C:\\Users\\BONFIRE '
+   'BASE\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\zipimport.py',
+   'PYMODULE-1')])
