@@ -153,10 +153,6 @@ class RuleBasedAI:
                 engine.call_fight(player)
                 return
 
-        RuleBasedAI._do_sapaw(engine, player)
-        if engine.is_game_over:
-            return
-
         # Phase 1 – Draw
         RuleBasedAI._do_draw(engine, player)
         if engine.is_game_over:

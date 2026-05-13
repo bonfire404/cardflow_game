@@ -42,32 +42,33 @@ def generate_bot_profile(bet_limit):
         diff = bet_limit.upper()
         if diff == "EASY":
             pool = ["Wood", "Iron"]
-            lvl_range = (1, 5)
+            lvl_range = (1, 50)
         elif diff == "MEDIUM":
             pool = ["Iron", "Bronze"]
-            lvl_range = (5, 10)
+            lvl_range = (50, 100)
         elif diff == "HARD":
             pool = ["Bronze", "Silver"]
-            lvl_range = (10, 20)
+            lvl_range = (100, 150)
         else:
-            pool = ["Gold", "Immortal"]
-            lvl_range = (40, 100)
+            pool = ["Immortal"]
+            lvl_range = (180, 200)
     else:
         if bet_limit <= 300:
             pool = ["Wood", "Iron"]
-            lvl_range = (1, 5)
-        elif bet_limit <= 600:
-            pool = ["Iron", "Bronze"]
-            lvl_range = (5, 10)
+            lvl_range = (1, 40)
         elif bet_limit <= 1000:
+            pool = ["Iron", "Bronze"]
+            lvl_range = (40, 80)
+        elif bet_limit <= 3000:
             pool = ["Bronze", "Silver"]
-            lvl_range = (10, 20)
+            lvl_range = (80, 120)
         elif bet_limit <= 5000:
             pool = ["Silver", "Gold"]
-            lvl_range = (20, 40)
+            lvl_range = (120, 170)
         else:
-            pool = ["Gold", "Immortal"]
-            lvl_range = (40, 100)
+            # 10k+ Stakes: Strictly the Elite
+            pool = ["Immortal"]
+            lvl_range = (180, 200)
 
     rank = random.choice(pool)
     level = random.randint(*lvl_range)

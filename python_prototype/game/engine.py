@@ -328,7 +328,9 @@ class TongItsEngine:
         Add a card to an existing table meld (sapaw / laying off).
         RULE: If you sapaw on an opponent, that opponent cannot fight you this round.
         """
-        if self.current_phase not in (TurnPhase.DRAW, TurnPhase.MELD):
+        if self.current_phase != TurnPhase.MELD:
+            return False
+        if not player.has_drawn:
             return False
         if card not in player.hand:
             return False
@@ -398,6 +400,9 @@ class TongItsEngine:
         - Must NOT be burned
         - No one has sapawed on your melds this round
         """
+        if self.game_phase == GamePhase.RESOLVING_FIGHT or self.active_fight:
+            return False
+            
         if caller.is_burned:
             return False
         if caller.has_been_sapawed:
@@ -431,6 +436,7 @@ class TongItsEngine:
         Respond to a called fight with 'fight' (challenge) or 'fold'.
         """
         if self.game_phase != GamePhase.RESOLVING_FIGHT or not self.active_fight:
+            print(f"DEBUG: respond_to_fight failed - phase: {self.game_phase}")
             return False
             
         if player == self.active_fight['caller']:
@@ -550,6 +556,8 @@ class TongItsEngine:
 
     def can_player_fight(self, player):
         """Check if a player is eligible to call fight."""
+        if self.game_phase == GamePhase.RESOLVING_FIGHT or self.is_game_over:
+            return False
         if self.current_phase not in (TurnPhase.DRAW, TurnPhase.MELD, TurnPhase.ACTION):
             return False
         if self.deck.remaining() == 0:

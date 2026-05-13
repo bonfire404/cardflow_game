@@ -78,6 +78,57 @@ class Colors:
     OVERLAY_BG = (10, 10, 20, 180)
 
 
+# ─── Toast / Notification Component ──────────────────────────────────
+
+class ToastNotification:
+    """Temporary fading message for hints and feedback."""
+    def __init__(self, text, duration=2.5, color=Colors.TEXT_WHITE):
+        self.text = text
+        self.duration = duration
+        self.max_duration = duration
+        self.color = color
+        self.alpha = 0
+        self.target_alpha = 255
+        self.y_offset = 20 # Animation start
+        
+    def update(self, dt):
+        self.duration -= dt
+        
+        # Fade in / out logic
+        if self.duration > self.max_duration - 0.5:
+            # Fade in
+            self.alpha = min(255, self.alpha + int(510 * dt))
+            self.y_offset = max(0, self.y_offset - 40 * dt)
+        elif self.duration < 0.5:
+            # Fade out
+            self.alpha = max(0, self.alpha - int(510 * dt))
+            self.y_offset -= 10 * dt
+        else:
+            self.alpha = 255
+            self.y_offset = 0
+            
+        return self.duration > 0
+
+    def draw(self, surface, font, x, y):
+        if self.alpha <= 0: return
+        
+        # Draw background shadow/pill
+        lbl = font.render(self.text, True, self.color)
+        padding_x, padding_y = 20, 10
+        bg_rect = pygame.Rect(0, 0, lbl.get_width() + padding_x*2, lbl.get_height() + padding_y*2)
+        bg_rect.center = (x, y + self.y_offset)
+        
+        # Semi-transparent dark background
+        bg_surf = pygame.Surface(bg_rect.size, pygame.SRCALPHA)
+        pygame.draw.rect(bg_surf, (20, 20, 30, self.alpha // 1.5), (0, 0, *bg_rect.size), border_radius=bg_rect.height//2)
+        pygame.draw.rect(bg_surf, (80, 80, 100, self.alpha // 2), (0, 0, *bg_rect.size), width=1, border_radius=bg_rect.height//2)
+        surface.blit(bg_surf, bg_rect.topleft)
+        
+        # Text
+        lbl.set_alpha(self.alpha)
+        surface.blit(lbl, (bg_rect.centerx - lbl.get_width()//2, bg_rect.centery - lbl.get_height()//2))
+
+
 # ─── Button Component ────────────────────────────────────────────────
 
 class Button:
@@ -101,6 +152,13 @@ class Button:
     def update(self, mouse_pos, dt=0):
         self.is_hovered = self.rect.collidepoint(mouse_pos) and self.enabled
         self._pulse_time += dt
+
+    def is_clicked(self, event):
+        if not self.enabled:
+            return False
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            return self.rect.collidepoint(event.pos)
+        return False
 
     def draw(self, surface):
         # Background
@@ -128,13 +186,6 @@ class Button:
         text_surf = self.font.render(self.text, True, txt_color)
         text_rect = text_surf.get_rect(center=self.rect.center)
         surface.blit(text_surf, text_rect)
-
-    def is_clicked(self, event):
-        if not self.enabled:
-            return False
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            return self.rect.collidepoint(event.pos)
-        return False
 
 
 # ─── Phase Indicator ─────────────────────────────────────────────────
@@ -228,7 +279,12 @@ class LevelProgressBar:
             else:
                 break
         
-        progress = min(1.0, xp_remaining / max(1, req))
+        # Cap at level 200
+        if level >= 200:
+            xp_remaining = req
+            progress = 1.0
+        else:
+            progress = min(1.0, xp_remaining / max(1, req))
 
         # Background
         pygame.draw.rect(surface, (30, 35, 45), (x, y, self.w, self.h), border_radius=self.h//2)
@@ -242,7 +298,12 @@ class LevelProgressBar:
         pygame.draw.rect(surface, (100, 110, 130), (x, y, self.w, self.h), width=1, border_radius=self.h//2)
         
         # Text
-        text_surf = self.font_small.render(f"Lvl {level}  ({int(xp_remaining)}/{req})", True, (200, 210, 220))
+        if level >= 200:
+            text_str = f"Lvl {level}  (MAX LEVEL)"
+        else:
+            text_str = f"Lvl {level}  ({int(xp_remaining)}/{req})"
+            
+        text_surf = self.font_small.render(text_str, True, (220, 230, 240))
         surface.blit(text_surf, (x + self.w//2 - text_surf.get_width()//2, y - 18))
 
 class ProfileInspectOverlay:
@@ -283,18 +344,23 @@ class ProfileInspectOverlay:
         for row in range(ph):
             rt = row / ph
             # Dark blue to very dark blue/purple gradient
-            rc = int(25 + 10 * (1 - rt))
-            gc = int(30 + 15 * (1 - rt))
-            bc = int(55 + 20 * (1 - rt))
-            pygame.draw.line(panel_surf, (rc, gc, bc, 245), (0, row), (pw, row))
+            rc = int(18 + 8 * (1 - rt))
+            gc = int(22 + 10 * (1 - rt))
+            bc = int(45 + 15 * (1 - rt))
+            pygame.draw.line(panel_surf, (rc, gc, bc, 250), (0, row), (pw, row))
+            
+        # Add a subtle interior highlight line at the top
+        pygame.draw.line(panel_surf, (255, 255, 255, 40), (24, 2), (pw-24, 2), width=1)
             
         # Rounded corners mask
         mask = pygame.Surface((pw, ph), pygame.SRCALPHA)
-        pygame.draw.rect(mask, (255, 255, 255, 255), (0, 0, pw, ph), border_radius=24)
+        pygame.draw.rect(mask, (255, 255, 255, 255), (0, 0, pw, ph), border_radius=32)
         panel_surf.blit(mask, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)
         
         # Border
-        pygame.draw.rect(panel_surf, (255, 215, 100, 60), (0, 0, pw, ph), width=2, border_radius=24)
+        rank_str = getattr(self.target_player, 'rank', "Wood")
+        border_color = (255, 215, 100, 120) if rank_str in ("Gold", "Immortal") else (150, 160, 180, 80)
+        pygame.draw.rect(panel_surf, border_color, (0, 0, pw, ph), width=2, border_radius=32)
         surface.blit(panel_surf, (px, py))
         
         # --- 2. Title ---
@@ -375,7 +441,7 @@ class PlayerPanel:
 
     def draw(self, surface, x, y, player, is_active=False, show_points=False, align='center', avatar_surf=None, show_burned=False, timer_progress=0.0, is_dealer=False, dealer_img=None, show_cards=True):
         # Modern Layout Dimensions
-        pw, ph = 240, 80
+        pw, ph = 260, 84
         if align == 'center': px = x - pw // 2
         elif align == 'left': px = x
         else: px = x - pw
@@ -383,9 +449,25 @@ class PlayerPanel:
 
         # --- 1. Panel Background (Modern Glassmorphism) ---
         panel_surf = pygame.Surface((pw, ph), pygame.SRCALPHA)
-        bg_alpha = 240 if is_active else 180
-        pygame.draw.rect(panel_surf, (18, 22, 36, bg_alpha), (0, 0, pw, ph), border_radius=18)
-        pygame.draw.rect(panel_surf, (255, 255, 255, 30), (0, 0, pw, ph), width=1, border_radius=18)
+        bg_alpha = 250 if is_active else 200
+        
+        # Draw background with a subtle vertical gradient
+        for row in range(ph):
+            rt = row / ph
+            alpha = bg_alpha - int(20 * rt)
+            pygame.draw.line(panel_surf, (20, 24, 38, alpha), (0, row), (pw, row))
+            
+        # Interior highlight line
+        pygame.draw.line(panel_surf, (255, 255, 255, 30), (15, 2), (pw-15, 2), width=1)
+        
+        # Rounded corners mask
+        mask = pygame.Surface((pw, ph), pygame.SRCALPHA)
+        pygame.draw.rect(mask, (255, 255, 255, 255), (0, 0, pw, ph), border_radius=22)
+        panel_surf.blit(mask, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)
+        
+        # Border
+        border_color = (255, 215, 100, 100) if is_active else (255, 255, 255, 25)
+        pygame.draw.rect(panel_surf, border_color, (0, 0, pw, ph), width=1, border_radius=22)
         
         # Active turn glow
         if is_active:
@@ -432,11 +514,24 @@ class PlayerPanel:
         from ui.assets_mgr import get_rank_badge
         
         # --- 3. Text & Stats ---
-        text_off_x = av_x + target_size + 14
+        text_off_x = av_x + target_size + 16
         
-        name_color = Colors.TEXT_GOLD if is_active else Colors.TEXT_WHITE
+        # Mini Rank Badge
+        rank_name = getattr(player, 'rank', "Wood")
+        m_badge = get_rank_badge(rank_name, "small")
+        if m_badge:
+            m_badge = pygame.transform.smoothscale(m_badge, (24, 24))
+            surface.blit(m_badge, (text_off_x, py + 14))
+            name_x_offset = 30
+        else:
+            name_x_offset = 0
+
+        name_color = (255, 215, 100) if is_active else Colors.TEXT_WHITE
         name_surf = self.font_name.render(player.name, True, name_color)
-        surface.blit(name_surf, (text_off_x, py + 12))
+        surface.blit(name_surf, (text_off_x + name_x_offset, py + 12))
+        
+        # Level display removed from in-game panel (visible only in Profile Stalk)
+
 
         # Rank badge removed from in-game panel (visible only in Profile Stalk)
 
@@ -471,12 +566,13 @@ class FightResolutionOverlay:
     COLOR_WAITING = (50, 55, 70)
     COLOR_RING_BG = (35, 40, 55)
 
-    def __init__(self, width, height, font_title, font_body, font_btn):
+    def __init__(self, width, height, font_title, font_body, font_btn, font_small):
         self.width = width
         self.height = height
         self.font_title = font_title
         self.font_body = font_body
         self.font_btn = font_btn
+        self.font_small = font_small
 
         # Animation state
         self.alpha = 0
@@ -516,10 +612,10 @@ class FightResolutionOverlay:
             border_radius=14
         )
 
-        # Avatars (set externally)
         self.avatars = [None, None, None]
         
         self._choice_made = False
+        self.fight_resolved_timer = None # For resolution progress bar
 
     def set_avatars(self, avatar_list):
         """Set the player avatar surfaces for rendering inside pie rings."""
@@ -543,10 +639,9 @@ class FightResolutionOverlay:
         if not active_fight:
             self._choice_made = False
 
-        # Animate pie fills toward targets
+        # Set pie fills instantly to remove confusing "loading" animation
         for i in range(3):
-            if self.pie_fills[i] < self.pie_targets[i]:
-                self.pie_fills[i] = min(self.pie_fills[i] + self.pie_fill_speed * dt, self.pie_targets[i])
+            self.pie_fills[i] = self.pie_targets[i]
 
         self.btn_fight.update(mouse_pos, dt)
         self.btn_fold.update(mouse_pos, dt)
@@ -633,7 +728,7 @@ class FightResolutionOverlay:
         surface.blit(vs_shadow, (cx - vs_surf.get_width() // 2 + 2, cy - vs_surf.get_height() // 2 + 2))
         surface.blit(vs_surf, (cx - vs_surf.get_width() // 2, cy - vs_surf.get_height() // 2))
 
-    def draw(self, surface, active_fight, points, players):
+    def draw(self, surface, active_fight, points, players, resolution_time_left=None):
         if not active_fight:
             return
 
@@ -856,6 +951,26 @@ class FightResolutionOverlay:
             wait_surf.set_alpha(wait_a)
             wait_y = self.btn_fight.rect.y + 10
             surface.blit(wait_surf, (center_x - wait_surf.get_width() // 2, wait_y))
+
+        # ── Resolution Progress Bar ──
+        if resolution_time_left is not None and resolution_time_left > 0:
+            total_res_time = 3.5 # Sync with main.py
+            prog = max(0.0, min(1.0, resolution_time_left / total_res_time))
+            
+            bar_w = 400
+            bar_h = 8
+            bx = center_x - bar_w // 2
+            by = self.height - 100
+            
+            # Label
+            lbl = self.font_small.render("FINALIZING MATCH RESULTS...", True, Colors.TEXT_MUTED)
+            surface.blit(lbl, (center_x - lbl.get_width()//2, by - 25))
+            
+            # BG
+            pygame.draw.rect(surface, (40, 40, 60), (bx, by, bar_w, bar_h), border_radius=4)
+            # Fill
+            if prog > 0:
+                pygame.draw.rect(surface, (255, 215, 0), (bx, by, int(bar_w * (1.0 - prog)), bar_h), border_radius=4)
 
 
 class GameOverOverlay:

@@ -8,7 +8,7 @@ from game.models import TurnPhase, GamePhase, Meld as MC, RANK_ORDER
 from ui.animation import (AnimationManager, Animation, Timer, ParticleEmitter,
                            ease_out_cubic, ease_out_back, ease_in_out_quad, linear)
 from ui.ui_components import (Colors, Button, PhaseIndicator, Badge, PlayerPanel,
-                               GameOverOverlay, MeldDisplay, FightResolutionOverlay, ProfileInspectOverlay)
+                               GameOverOverlay, MeldDisplay, FightResolutionOverlay, ProfileInspectOverlay, ToastNotification)
 from ui.lobby import Lobby
 from ui.settings_modal import SettingsModal
 from ui.profile import ProfileModal
@@ -193,7 +193,7 @@ def main():
         if lobby_bkg_raw:
             lobby_bkg = pygame.transform.scale(lobby_bkg_raw, (WIDTH, HEIGHT))  
 
-        # Update managers and UI
+        # --- Update Managers and UI
         layout = calc_layout()
         if chip_system: chip_system.update_layout(layout)
         lobby.w, lobby.h = WIDTH, HEIGHT
@@ -434,9 +434,6 @@ def main():
     lobby_particles = ParticleEmitter() # Dedicated for lobby
     ai_timer = None
     AI_THINK_DELAY = 0.7
-
-    # ΓöÇΓöÇ State ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
-    # Load splash screen GIF
     splash_frames = []
     splash_frame_idx = 0
     splash_timer = 0.0
@@ -708,15 +705,18 @@ def main():
     mouse_down_card = None
     is_dragging = False
     DRAG_THRESHOLD = 8
+    fight_delay_timer = None
     # --- Unified Game Start/Restart Helper ---
     def start_new_game(target_state='shuffling', is_play_again=False):
         nonlocal engine, bot1_info, bot2_info, assigned_avatars, game_state, shuffle_timer, deal_order
         nonlocal dealt_count, dealt_per_player, deal_timer, flying_cards, ai_timer, selected_cards
         nonlocal game_over_overlay, fight_resolution_overlay, turn_timer, last_turn_state, meld_hit_zones
+        nonlocal fight_delay_timer
         nonlocal current_bet_amount, post_game_floats, current_bet_chips, bot_bet_timer, bot_bet_chips, bet_outro_timer, target_bet_limit
         nonlocal current_music, play_music, MUSIC_INGAME, MUSIC_LOBBY, tick_played, all_bets_announced
         nonlocal coins_before_match, lobby_coin_notif
         
+        fight_delay_timer = None
         tick_played = False
         all_bets_announced = False
         if SFX_TICK: SFX_TICK.stop()
@@ -815,12 +815,13 @@ def main():
             
         # We don't deduct coins or add bets yet if target_state is 'betting'
         # That will happen in the betting state.
-        if target_state != 'betting' and not isinstance(target_bet_limit, str):
-            deduct_amt = target_bet_limit * 2 if engine.dealer_idx == 0 else target_bet_limit
+        if target_state not in ('betting', 'lobby') and not isinstance(target_bet_limit, str):
+           
+            deduct_amt = target_bet_limit * 3 if engine.dealer_idx == 0 else target_bet_limit
             player_stats['coins'] -= deduct_amt
             profile_data['coins'] = player_stats['coins']
             save_user_profile(profile_data)
-            chip_system.add_bets(target_bet_limit, layout, banker_bet_amount=target_bet_limit)
+            chip_system.add_bets(target_bet_limit, layout, banker_bet_amount=target_bet_limit, dealer_idx=engine.dealer_idx)
         
         # Reset State Variables
         game_state = target_state
@@ -930,12 +931,16 @@ def main():
 
 
     # ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+    active_toasts = []
+    
     while running:
+        show_get_card_hint = False
         dt = clock.tick(60) / 1000.0
         if ingame_menu.is_open:
             dt = 0.0
             
         mouse_pos = pygame.mouse.get_pos()
+        chip_system.update(dt, mouse_pos)
 
         # ΓöÇΓöÇ SPLASH SCREEN ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
         if game_state == 'splashscreen':
@@ -1108,7 +1113,7 @@ def main():
                     def confirm_quit_window():
                         nonlocal running
                         if game_state != 'lobby' and game_state != 'game_over':
-                            is_ranked = (target_bet_limit >= 1000)
+                            is_ranked = isinstance(target_bet_limit, int) and target_bet_limit >= 1000
                             apply_leaver_penalty(is_ranked)
                         running = False
                         pygame.quit()
@@ -1132,7 +1137,7 @@ def main():
                 if ingame_menu.is_open:
                     res = ingame_menu.handle_event(event)
                     if res == "leave":
-                        is_ranked = (target_bet_limit >= 1000)
+                        is_ranked = isinstance(target_bet_limit, int) and target_bet_limit >= 1000
                         if is_ranked:
                             def confirm_leave():
                                 apply_leaver_penalty(True)
@@ -1144,10 +1149,8 @@ def main():
                             )
                         else:
                             start_new_game(target_state='lobby')
-                    elif res == "toggle_sound":
-                        set_sfx_volume(settings_modal.sfx_volume if ingame_menu.sound_on else 0.0)
-                    elif res == "toggle_bgm":
-                        set_bgm_volume(settings_modal.bgm_volume if ingame_menu.bgm_on else 0.0)
+                    elif res == "open_settings":
+                        settings_modal.open()
                     continue
 
                 if reward_modal.active:
@@ -1164,6 +1167,18 @@ def main():
                                 player_stats["coins"] += amt
                                 profile_data["coins"] = player_stats["coins"]
                                 save_user_profile(profile_data)
+                                
+                                # trigger lobby coin visual text for quest rewards
+                                lobby_coin_notif = {
+                                    'amount': amt,
+                                    'timer': 2.5,
+                                    'x': WIDTH // 2,
+                                    'y': HEIGHT // 2,
+                                    'target_x': 140,
+                                    'target_y': 60,
+                                    'alpha': 255
+                                }
+                                
                                 print(f"[QUEST CLAIM] +{amt} coins | New balance: {player_stats['coins']}")
                                 if SFX_TURN_END: SFX_TURN_END.play()
                     continue
@@ -1321,7 +1336,7 @@ def main():
             center_y = HEIGHT // 2 - 30
             
             for pi in [1, 2]:
-                target_bot_bet = (target_bet_limit * 2) if engine.dealer_idx == pi else target_bet_limit
+                target_bot_bet = (target_bet_limit * 3) if engine.dealer_idx == pi else target_bet_limit
                 if sum(bot_bet_chips[pi]) < target_bot_bet:
                     # Every ~0.3s to 0.5s, the bot "clicks" a chip
                     if bot_bet_timer > (pi * 0.3 + len(bot_bet_chips[pi]) * 0.4):
@@ -1388,7 +1403,7 @@ def main():
             pygame.draw.rect(screen, (30, 30, 45, 230), (WIDTH//2 - 400, panel_y, 800, panel_h), border_radius=15)
             pygame.draw.rect(screen, Colors.TEXT_GOLD, (WIDTH//2 - 400, panel_y, 800, panel_h), width=2, border_radius=15)
             
-            title_txt = font_body.render(f"PLACE YOUR BET: {current_bet_amount} / {target_bet_limit} (Banker puts 2x)" if engine.dealer_idx==0 else f"PLACE YOUR BET: {current_bet_amount} / {target_bet_limit}", True, Colors.TEXT_GOLD)
+            title_txt = font_body.render(f"PLACE YOUR BET: {current_bet_amount} / {target_bet_limit} (Banker puts 3x)" if engine.dealer_idx==0 else f"PLACE YOUR BET: {current_bet_amount} / {target_bet_limit}", True, Colors.TEXT_GOLD)
             screen.blit(title_txt, (WIDTH // 2 - title_txt.get_width() // 2, panel_y + 10))
             
             from ui.chips import CHIP_FILE_NAMES
@@ -1453,7 +1468,7 @@ def main():
 
             # Auto Transition logic
             player_done = current_bet_amount >= target_bet_limit
-            bots_done = all(sum(bot_bet_chips[pi]) >= ((target_bet_limit * 2) if engine.dealer_idx == pi else target_bet_limit) for pi in [1, 2])
+            bots_done = all(sum(bot_bet_chips[pi]) >= ((target_bet_limit * 3) if engine.dealer_idx == pi else target_bet_limit) for pi in [1, 2])
             
             if player_done and bots_done and not flying_chips:
                 game_state = 'betting_outro'
@@ -1461,10 +1476,11 @@ def main():
                 if SFX_CHIPS: SFX_CHIPS.stop()
                 
                 # Deduct coins and create initial main pots
-                player_stats['coins'] -= (current_bet_amount * 2 if engine.dealer_idx == 0 else current_bet_amount)
+                # Banker pays 3x the stake (1x for match, 2x for banker pot)
+                player_stats['coins'] -= (current_bet_amount * 3 if engine.dealer_idx == 0 else current_bet_amount)
                 profile_data['coins'] = player_stats['coins']
                 save_user_profile(profile_data)
-                chip_system.add_bets(current_bet_amount, layout, banker_bet_amount=current_bet_amount, custom_chips=current_bet_chips)
+                chip_system.add_bets(current_bet_amount, layout, banker_bet_amount=current_bet_amount, custom_chips=current_bet_chips, dealer_idx=engine.dealer_idx)
 
             pygame.display.flip()
             continue
@@ -1932,7 +1948,17 @@ def main():
         btn_call_fight.rect.topleft = (WIDTH-150, layout['hand_y']+45)
         if show_fight: btn_call_fight.update(mouse_pos, dt)
 
-        if engine.is_game_over and game_state != 'game_over':
+        is_game_over_transition = engine.is_game_over and game_state != 'game_over'
+        if is_game_over_transition and hasattr(engine, 'active_fight') and engine.active_fight:
+            if fight_delay_timer is None:
+                fight_delay_timer = 3.5  # Give 3.5 seconds to see the fight resolution
+            fight_delay_timer -= dt
+            if fight_delay_timer > 0:
+                is_game_over_transition = False
+            else:
+                fight_delay_timer = None
+                
+        if is_game_over_transition:
             game_state = 'game_over'
             
             # Record Win Streak BEFORE making overlay so it matches reality
@@ -2003,7 +2029,8 @@ def main():
                     py = layout['hand_y'] if pid == 0 else layout[f'bot{pid}_y']
                     
                     if pid != win_idx:
-                        amt = current_bet_amount * 2 if engine.dealer_idx == pid else current_bet_amount
+                        # Banker loss visual matches their 3x buy-in
+                        amt = current_bet_amount * 3 if engine.dealer_idx == pid else current_bet_amount
                         post_game_floats.append({
                             'text': f"-{amt}", 'color': (255, 80, 80),
                             'x': px, 'y': py, 'life': 3.0, 'dy': -20
@@ -2022,9 +2049,9 @@ def main():
                              
         if show_fight_overlay:
             if not fight_resolution_overlay:
-                fight_resolution_overlay = FightResolutionOverlay(WIDTH, HEIGHT, font_game_title, font_body, font_btn)
+                fight_resolution_overlay = FightResolutionOverlay(WIDTH, HEIGHT, font_game_title, font_body, font_btn, font_small)
                 fight_resolution_overlay.set_avatars(assigned_avatars)
-            fight_resolution_overlay.update(dt, mouse_pos)
+            fight_resolution_overlay.update(dt, mouse_pos, getattr(engine, 'active_fight', None))
 
         # ΓöÇΓöÇ Events ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
         for event in pygame.event.get():
@@ -2033,6 +2060,27 @@ def main():
             if event.type == pygame.QUIT: running = False
             elif event.type == pygame.VIDEORESIZE:
                 on_resize(event.w, event.h)
+
+            # --- ESC Key: Global Pause/Close logic ---
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                if confirmation_modal.is_open:
+                    confirmation_modal.close()
+                    continue
+                if settings_modal.is_open:
+                    settings_modal.close()
+                    continue
+                if show_discard_modal:
+                    show_discard_modal = False
+                    continue
+                
+                # If no modals open, toggle main menu
+                if game_state != 'lobby' and game_state != 'game_over':
+                    ingame_menu.toggle()
+                    if ingame_menu.is_open:
+                        pygame.mixer.music.pause()
+                    else:
+                        pygame.mixer.music.unpause()
+                    continue
 
             # --- Modal Override (Highest Priority) ---
             if profile_inspect_overlay.visible:
@@ -2047,14 +2095,20 @@ def main():
                     pass
                 continue
 
+            # --- Settings Modal Interception ---
+            if settings_modal.is_open:
+                settings_modal.handle_event(event)
+                continue
+
             # --- In-Game Menu Interception ---
             if ingame_menu.is_open:
                 res = ingame_menu.handle_event(event)
                 if res == "leave":
-                    is_ranked = (target_bet_limit >= 1000)
+                    is_ranked = isinstance(target_bet_limit, int) and target_bet_limit >= 1000
                     if is_ranked:
                         def confirm_leave():
                             apply_leaver_penalty(True)
+                            ingame_menu.is_open = False # Close menu on confirmed leave
                             start_new_game(target_state='lobby')
                         
                         confirmation_modal.open(
@@ -2062,21 +2116,15 @@ def main():
                             confirm_leave
                         )
                     else:
+                        ingame_menu.is_open = False # Close menu on leave
                         start_new_game(target_state='lobby')
-                elif res == "toggle_sound":
-                    set_sfx_volume(settings_modal.sfx_volume if ingame_menu.sound_on else 0.0)
-                elif res == "toggle_bgm":
-                    set_bgm_volume(settings_modal.bgm_volume if ingame_menu.bgm_on else 0.0)
+                elif res == "open_settings":
+                    settings_modal.open()
+                elif res == "resume":
+                    pygame.mixer.music.unpause()
                 continue
 
-            # Toggle In-Game Menu with ESC
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                if show_discard_modal:
-                    show_discard_modal = False
-                    continue
-                if game_state != 'lobby' and game_state != 'game_over':
-                    ingame_menu.toggle()
-                    continue
+
 
             if show_discard_modal:
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -2093,12 +2141,23 @@ def main():
                     continue
 
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if game_state == 'game_over' and game_over_overlay:
+                    if game_over_overlay.play_again_rect.collidepoint(event.pos):
+                        # AI Arena uses string bet limits — skip betting, go straight to shuffling
+                        if isinstance(target_bet_limit, str):
+                            start_new_game(target_state='shuffling', is_play_again=True)
+                        else:
+                            start_new_game(target_state='betting', is_play_again=True)
+                        continue
+                    elif game_over_overlay.lobby_rect.collidepoint(event.pos):
+                        start_new_game(target_state='lobby')
+                        continue
+
                 if game_state in ('playing', 'dealer_discard', 'game_over'):
                     pw, ph = 240, 80
                     player_rect = pygame.Rect(WIDTH//2 - pw//2, HEIGHT-68, pw, ph)
                     bot1_rect = pygame.Rect(layout['bot1_x'] - pw//2, layout['bot1_y'] - 45, pw, ph)
                     bot2_rect = pygame.Rect(layout['bot2_x'] - pw//2, layout['bot2_y'] - 45, pw, ph)
-
 
                     if player_rect.collidepoint(event.pos):
                         current_time = pygame.time.get_ticks()
@@ -2116,21 +2175,22 @@ def main():
                         profile_inspect_overlay.show(engine.players[2], assigned_avatars[2])
                         continue
 
-                if game_state == 'game_over' and game_over_overlay:
-                    if game_over_overlay.play_again_rect.collidepoint(event.pos):
-                        start_new_game(target_state='betting', is_play_again=True)
-                        continue
-                    elif game_over_overlay.lobby_rect.collidepoint(event.pos):
-                        start_new_game(target_state='lobby')
-                        continue
-
                 if engine.game_phase == GamePhase.RESOLVING_FIGHT and fight_resolution_overlay:
-                    if player not in engine.active_fight['responses']:
+                    if player not in engine.active_fight['responses'] and player != engine.active_fight['caller'] and not fight_resolution_overlay._choice_made:
                         # The user needs to respond
                         if fight_resolution_overlay.btn_fight.is_clicked(event):
-                            engine.respond_to_fight(player, 'fight')
+                            if engine.respond_to_fight(player, 'fight'):
+                                fight_resolution_overlay._choice_made = True
+                                if SFX_DRAW: SFX_DRAW.play()
                         elif fight_resolution_overlay.btn_fold.is_clicked(event):
-                            engine.respond_to_fight(player, 'fold')
+                            if engine.respond_to_fight(player, 'fold'):
+                                fight_resolution_overlay._choice_made = True
+                                if SFX_DRAW: SFX_DRAW.play()
+                    continue
+
+                # NEW: Click to skip fight resolution delay
+                if engine.is_game_over and fight_delay_timer is not None and fight_delay_timer > 0.5:
+                    fight_delay_timer = 0.2 # Skip to end
                     continue
 
                 if engine.is_game_over:
@@ -2290,13 +2350,21 @@ def main():
 
                     if is_player_turn and not is_blocking:
                         
-                        if engine.current_phase in (TurnPhase.DRAW, TurnPhase.MELD):
+                        if engine.current_phase == TurnPhase.MELD:
                             for tm, mrect in meld_hit_zones:
                                 expanded_rect = pygame.Rect(mrect.x - 20, mrect.y - 20, mrect.w + 40, mrect.h + 40)
                                 if expanded_rect.collidepoint(mx,my) and tm.can_sapaw(dragging_card):
                                     if engine.sapaw(player, dragging_card, tm):     
                                         if SFX_SAPAW: SFX_SAPAW.play()
                                         dropped = True
+                                    break
+                                    
+                        elif engine.current_phase == TurnPhase.DRAW:
+                            for tm, mrect in meld_hit_zones:
+                                expanded_rect = pygame.Rect(mrect.x - 20, mrect.y - 20, mrect.w + 40, mrect.h + 40)
+                                if expanded_rect.collidepoint(mx,my):
+                                    # Visual hint: Show arrow pointing to deck
+                                    show_get_card_hint = True
                                     break
 
                         discard_rect = pygame.Rect(layout['discard_x'] - 40, layout['discard_y'] - 40, CW + 80, CH + 80)
@@ -2367,7 +2435,10 @@ def main():
                 bot_player = engine.players[bot_idx]
                 if bot_player not in engine.active_fight['responses'] and bot_player != engine.active_fight['caller']:
                     if ai_timer is None: 
-                        ai_timer = Timer(0.5 + bot_idx * 0.3)
+                        # Faster response if human has already decided
+                        human_done = (player in engine.active_fight['responses'])
+                        delay = (0.2 + bot_idx * 0.15) if human_done else (0.5 + bot_idx * 0.3)
+                        ai_timer = Timer(delay)
                     if ai_timer.update(dt):
                         response = RuleBasedAI._should_respond_fight(engine, bot_player, engine.active_fight)
                         engine.respond_to_fight(bot_player, response)
@@ -2382,7 +2453,7 @@ def main():
                 pi = engine.current_turn_index
 
                 # Step 0: Check for Fight (Pre-draw)
-                if engine.current_phase == TurnPhase.DRAW:
+                if engine.current_phase == TurnPhase.DRAW and engine.game_phase != GamePhase.RESOLVING_FIGHT:
                     if RuleBasedAI._should_call_fight(engine, bot):
                         engine.call_fight(bot)
                         if SFX_FIGHT: SFX_FIGHT.play()
@@ -2496,8 +2567,8 @@ def main():
                         dropped_any = True
 
                     if not dropped_any:
-                        # Try to call a fight if AI thinks it's a good idea and can
-                        if RuleBasedAI._should_call_fight(engine, bot):     
+                        # Try to call a fight if AI thinks it's a good idea and can (and not already resolving)
+                        if engine.game_phase != GamePhase.RESOLVING_FIGHT and RuleBasedAI._should_call_fight(engine, bot):     
                             engine.call_fight(bot)
                             if SFX_FIGHT: SFX_FIGHT.play()
 
@@ -2567,6 +2638,26 @@ def main():
         lbl = font_small.render("Closed",True,Colors.TEXT_MUTED)
         screen.blit(lbl,(layout['deck_x']+(sw-lbl.get_width())//2, layout['deck_y']+sh+4))
 
+        # --- GET CARD Arrow Hint ---
+        if is_player_turn and engine.current_phase == TurnPhase.DRAW and (hover_closed_pile or (locals().get('show_get_card_hint', False))):
+             ticks = pygame.time.get_ticks()
+             bounce = math.sin(ticks * 0.015) * 8
+             aw, ah = 28, 20
+             ax = layout['deck_x'] + (sw - aw) // 2
+             ay = layout['deck_y'] - ah - 25 + bounce
+             pts = [(ax, ay), (ax + aw//2, ay + ah), (ax + aw, ay), (ax + aw//2, ay + ah - 6)]
+             
+             # Glow
+             glow_surf = pygame.Surface((aw + 40, ah + 40), pygame.SRCALPHA)
+             pygame.draw.circle(glow_surf, (100, 255, 100, 150), (aw//2 + 20, ah//2 + 20), 22)
+             screen.blit(glow_surf, (ax - 20, ay - 20))
+             
+             pygame.draw.polygon(screen, (100, 255, 150), pts)
+             pygame.draw.polygon(screen, (255, 255, 255), pts, width=2)
+             
+             hint_txt = font_small.render("GET CARD", True, (100, 255, 150))
+             screen.blit(hint_txt, (ax + aw//2 - hint_txt.get_width()//2, ay - 20))
+
         # ΓöÇΓöÇ Discard Pile ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
         dx2,dy2 = layout['discard_x'], layout['discard_y']
         if engine.discard_pile:
@@ -2587,6 +2678,22 @@ def main():
                 p2 = int(40 + 30 * math.sin(pygame.time.get_ticks() * 0.008))  
                 pygame.draw.rect(gl,(100,255,100,p2),(0,0,sw+12,sh+12),width=3,border_radius=8)
                 screen.blit(gl,(dx2_top-6,dy2_top-6))
+
+                # Bouncing Chevron for Eat/Kain
+                ticks = pygame.time.get_ticks()
+                bounce = math.sin(ticks * 0.015) * 6
+                aw, ah = 24, 16
+                ax = dx2_top + (sw - aw) // 2
+                ay = dy2_top - ah - 15 + bounce
+                pts = [(ax, ay), (ax + aw//2, ay + ah), (ax + aw, ay), (ax + aw//2, ay + ah - 6)]
+                glow_surf = pygame.Surface((aw + 30, ah + 30), pygame.SRCALPHA)
+                pygame.draw.circle(glow_surf, (50, 255, 150, 120), (aw//2 + 15, ah//2 + 15), 18)
+                screen.blit(glow_surf, (ax - 15, ay - 15))
+                pygame.draw.polygon(screen, (100, 255, 150), pts)
+                pygame.draw.polygon(screen, (255, 255, 255), pts, width=2)
+                
+                eat_txt = font_small.render("KAIN", True, (100, 255, 150))
+                screen.blit(eat_txt, (ax + aw//2 - eat_txt.get_width()//2, ay - 18))
         else:
             if small_cb:
                 em = pygame.Surface((sw, sh),pygame.SRCALPHA)
@@ -2777,6 +2884,16 @@ def main():
                     pygame.draw.rect(gl,(100,255,100,p2),(0,0,rect.w+8,rect.h+8),border_radius=6,width=3)
                     screen.blit(gl,(draw_x-4,draw_y-4))
 
+                    # Chevron Arrow for Kain Hand cards
+                    ticks = pygame.time.get_ticks()
+                    bounce = math.sin(ticks * 0.015 + c_id) * 6
+                    aw, ah = 20, 12
+                    ax = draw_x + (rect.w - aw) // 2
+                    ay = draw_y - ah - 10 + bounce
+                    pts = [(ax, ay), (ax + aw//2, ay + ah), (ax + aw, ay), (ax + aw//2, ay + ah - 4)]
+                    pygame.draw.polygon(screen, (100, 255, 150), pts)
+                    pygame.draw.polygon(screen, (255, 255, 255), pts, width=2)
+
                 if card == player.forced_meld_card:
                     gl = pygame.Surface((rect.w+10,rect.h+10),pygame.SRCALPHA)
                     p2 = int(60+40*math.sin(pygame.time.get_ticks()*0.005))
@@ -2858,7 +2975,7 @@ def main():
                              (engine.is_game_over and game_state != 'game_over' and hasattr(engine, 'active_fight') and engine.active_fight)
         
         if show_fight_overlay and fight_resolution_overlay:
-            fight_resolution_overlay.draw(screen, engine.active_fight, player.calculate_points(), engine.players)
+            fight_resolution_overlay.draw(screen, engine.active_fight, player.calculate_points(), engine.players, resolution_time_left=fight_delay_timer)
 
         if game_state=='game_over' and game_over_overlay:
             # Pull statuses from the fight event if applicable
@@ -2979,6 +3096,13 @@ def main():
         # Draw Settings Modal
         if settings_modal.is_open:
             settings_modal.draw(screen, WIDTH, HEIGHT)
+
+        # --- Toasts ---
+        for toast in active_toasts[:]:
+            if not toast.update(dt):
+                active_toasts.remove(toast)
+            else:
+                toast.draw(screen, font_btn, WIDTH // 2, HEIGHT - 250)
 
         pygame.display.flip()
     pygame.quit()

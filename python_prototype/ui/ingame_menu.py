@@ -37,21 +37,9 @@ class InGameMenu:
                     self.is_open = False
                     return "resume"
                 elif self.btn2_rect.collidepoint(event.pos):
-                    self.state = "settings"
                     return "open_settings"
                 elif self.btn3_rect.collidepoint(event.pos):
-                    self.is_open = False
                     return "leave"
-            elif self.state == "settings":
-                if self.btn1_rect.collidepoint(event.pos):
-                    self.sound_on = not self.sound_on
-                    return "toggle_sound"
-                elif self.btn2_rect.collidepoint(event.pos):
-                    self.bgm_on = not self.bgm_on
-                    return "toggle_bgm"
-                elif self.btn3_rect.collidepoint(event.pos):
-                    self.state = "main"
-                    return "back"
                     
         return "intercept" # Intercept clicks when open
         
@@ -103,13 +91,6 @@ class InGameMenu:
             self._draw_btn(surface, self.btn1_rect, "Resume", (50, 120, 220), mouse_pos)
             self._draw_btn(surface, self.btn2_rect, "Settings", (40, 45, 60), mouse_pos)
             self._draw_btn(surface, self.btn3_rect, "Back to Lobby", (200, 50, 50), mouse_pos)
-        elif self.state == "settings":
-            snd_str = f"Sound: {'ON' if self.sound_on else 'OFF'}"
-            bgm_str = f"BGM: {'ON' if self.bgm_on else 'OFF'}"
-            
-            self._draw_btn(surface, self.btn1_rect, snd_str, (50, 120, 220) if self.sound_on else (100, 100, 100), mouse_pos)
-            self._draw_btn(surface, self.btn2_rect, bgm_str, (50, 120, 220) if self.bgm_on else (100, 100, 100), mouse_pos)
-            self._draw_btn(surface, self.btn3_rect, "Back", (40, 45, 60), mouse_pos)
 
     def _draw_btn(self, surface, rect, text, color, mouse_pos):
         # Hover effect

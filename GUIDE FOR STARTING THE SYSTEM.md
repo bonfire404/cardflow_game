@@ -41,7 +41,6 @@ Successfully installed pygame-ce-2.5.7
 ---
 
 ## 🎮 Step 2: Run the Game (Development Mode)
-
 This is how you play the game while you're still developing it. No building needed — it runs directly from your source code.
 
 ```bash
