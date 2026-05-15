@@ -26,13 +26,16 @@ def get_match_rewards(is_win, is_tongits=False, bet_limit=100):
             # For custom high stakes tables
             mult = 2.0 + (bet_limit - 600) / 2000.0
 
+    is_ranked = isinstance(bet_limit, int) and bet_limit >= 1000
+
     if is_win:
         if is_tongits:
-            return 200, int(35 * mult)
-        return 150, int(25 * mult)
+            return 600, int(45 * mult)
+        return 400, int(30 * mult)
     
-    # Losses also lose more RP in high stakes!
-    return 30, int(-10 * mult)
+   
+    rp_loss = int(-30 * mult) if is_ranked else 0
+    return 150, rp_loss
 
 
 def generate_bot_profile(bet_limit):
@@ -109,11 +112,15 @@ def generate_bot_profile(bet_limit):
     if isinstance(bet_limit, str):
         difficulty = bet_limit.upper()
     elif bet_limit <= 300:
-        difficulty = "EASY"    # Hitter's Bounty / Aggressive Casino
+        difficulty = "EASY"    # Rookie Tables
     elif bet_limit <= 600:
-        difficulty = "MEDIUM"  # Sustained Economy
+        difficulty = "MEDIUM"  # Amateur Tables
+    elif bet_limit <= 3000:
+        difficulty = "HARD"    # Pro / Ranked Tables (1k - 3k)
+    elif bet_limit <= 5000:
+        difficulty = "ELITE"   # VIP Tables (5k - The "Trappers")
     else:
-        difficulty = "HARD"    # High Stakes, VIP, Legendary (1000+)
+        difficulty = "LEGENDARY" # Legendary Tables (10k+ - The "Hunters")
 
     profile = {
         "rank": rank,
@@ -136,11 +143,13 @@ def apply_rewards(is_win, is_tongits=False, bet_limit=100):
     return xp, rp
 
 def apply_leaver_penalty(is_ranked):
-    """Applies penalties for leaving a game."""
+    """Applies penalties for leaving a game.
+    Harsher penalties to discourage quitting in Ranked matches.
+    """
     if not is_ranked:
         return 0, 0
         
-    xp = -500
-    rp = -100
+    xp = -1000
+    rp = -250
     update_progression(xp, rp)
     return xp, rp

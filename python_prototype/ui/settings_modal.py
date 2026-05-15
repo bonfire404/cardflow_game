@@ -256,5 +256,9 @@ class SettingsModal:
         modal_surf.blit(brand_txt2, (cx + brand_txt1.get_width(), by_pos))
         modal_surf.blit(brand_txt3, (cx + brand_txt1.get_width() + brand_txt2.get_width(), by_pos))
 
+        # Version - lowkey in bottom right
+        version_surf = self.font_small.render("v1.0.1", True, (100, 105, 120))
+        modal_surf.blit(version_surf, (self.rect.w - version_surf.get_width() - 30, self.rect.h - version_surf.get_height() - 25))
+
         # Blit modal to screen
         screen.blit(modal_surf, (self.rect.x, screen_y))

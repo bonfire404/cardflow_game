@@ -1,13 +1,13 @@
 {
   "files": {
-    "python_prototype\\game\\engine.py": "081172ed358ca9999903a92ae79d78dcae16092392f05ef446240ac2a785325e",
-    "python_prototype\\game\\ai_bot.py": "763875bc7f9298f1f08307dd684b3d271f273b0a40e055c82ef83752c7c91530",
+    "python_prototype\\game\\engine.py": "c5c684dd299611527f24dbbed4e4f9bc22bf7dfce1caba510146d34ad439abf0",
+    "python_prototype\\game\\ai_bot.py": "aba719dec01f10f7e47cfa40fd38fc868e5caab07065116ba27065d3373dedae",
     "python_prototype\\game\\economy.py": "388bd4fb49de808b809eaffae2f1b0f0eab53993d1a78536d97217638b62f2d8",
     "python_prototype\\game\\betting_configs.py": "1bf9add387efd01a4840091c5cef046d350f49fe250b014105ee2fa2faeb6f8f",
     "python_prototype\\ui\\database.py": "48cafc64e8534da1fb56e2e5d0d380c5957239422d5eae9ff487de735d8d5895",
-    "python_prototype\\ui\\progression_manager.py": "fb7687f3aa0ffe32534278a24be6f7eea13f8b9612c9cab0c754a6662ae19cd8",
-    "python_prototype\\ui\\chips.py": "e4e105eda40cb726e66b8f2e37b90d4a38f14558f8577d6c97667fa09ab70944"
+    "python_prototype\\ui\\progression_manager.py": "d80e9c6de32b167457a7d72ecc6916051de7b6828fa22a88072e755560abca02",
+    "python_prototype\\ui\\chips.py": "e41cfba5d2949abdd5aabbdc04875aa92098a5f94139c8fc6c7564203ce70e26"
   },
-  "manifest_signature": "8ff20a652fbd3f1ce0a13f8dfc4eabfb26a34f5fb089824e769f61e04fed3762",
-  "generated_at": 1778377343
+  "manifest_signature": "cdfa19186df334cdbd07714875ca28227f15d250542844a0ced1c2854a320b67",
+  "generated_at": 1778836348
 }

@@ -1336,14 +1336,26 @@ class GameOverOverlay:
             rs = self.font_small.render(rank_title, True, (160, 160, 180))
             surface.blit(rs, (px + cw // 2 - rs.get_width() // 2, av_cy + av_r + 32))
 
-            # ── Points ──
+            # ── Points (Modernized) ──
             pts_str = str(score)
-            pc = Colors.TEXT_GOLD if is_win else (220, 220, 230)
+            pc = Colors.TEXT_GOLD if is_win else (255, 255, 255)
             ps = self.font_title.render(pts_str, True, pc)
-            pl = self.font_small.render("POINTS", True, (130, 130, 150))
-            pts_y = av_cy + av_r + 50
-            surface.blit(ps, (px + cw // 2 - ps.get_width() // 2, pts_y))
-            surface.blit(pl, (px + cw // 2 - pl.get_width() // 2, pts_y + 36))
+            pl = self.font_btn.render("PTS", True, (160, 160, 180))
+            
+            pts_y = av_cy + av_r + 48
+            
+            # Side-by-side layout to prevent overlap and look sleek
+            total_w = ps.get_width() + 8 + pl.get_width()
+            start_x = px + cw // 2 - total_w // 2
+            
+            # Subtle glow behind the number
+            glow = self.font_title.render(pts_str, True, (*pc[:3], 40))
+            surface.blit(glow, (start_x + 2, pts_y + 2))
+            surface.blit(ps, (start_x, pts_y))
+            
+            # Align "PTS" near the baseline of the large number
+            pts_label_y = pts_y + ps.get_height() - pl.get_height() - 8
+            surface.blit(pl, (start_x + ps.get_width() + 8, pts_label_y))
 
             # ── Revealed Cards ──
             hand = player_obj.hand

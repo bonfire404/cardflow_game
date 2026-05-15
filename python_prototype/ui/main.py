@@ -332,7 +332,9 @@ def main():
         "last_replenish": profile_data.get("last_replenish", 0),
         "xp": profile_data.get("xp", 0),
         "level": profile_data.get("level", 1),
-        "rp": profile_data.get("rp", 0)
+        "rp": profile_data.get("rp", 0),
+        "streak": profile_data.get("streak", 0),
+        "biggest_win": profile_data.get("biggest_win", 0)
     }
 
     # ── SECURITY: Run startup checks ──────────────────────────────────
@@ -348,6 +350,8 @@ def main():
         player_stats["rank"] = profile_data["rank"]
         player_stats["wins"] = profile_data["wins"]
         player_stats["losses"] = profile_data["losses"]
+        player_stats["streak"] = profile_data.get("streak", 0)
+        player_stats["biggest_win"] = profile_data.get("biggest_win", 0)
         print("[Security] Profile has been reset due to data tampering.")
 
     # --- Lobby Coin Notification System ---
@@ -1155,7 +1159,17 @@ def main():
 
                 if reward_modal.active:
                     if reward_modal.handle_click(event):
-                        pass
+                        lobby_coin_notif = {
+                            'amount': reward_modal.amount,
+                            'timer': 0.0,
+                            'duration': 3.5,
+                            'x': WIDTH // 2,
+                            'y': HEIGHT // 2,
+                            'target_x': 140,
+                            'target_y': 40,
+                            'alpha': 255,
+                            'scale': 1.5
+                        }
                     continue
 
                 if quest_modal.active:
@@ -1171,12 +1185,14 @@ def main():
                                 # trigger lobby coin visual text for quest rewards
                                 lobby_coin_notif = {
                                     'amount': amt,
-                                    'timer': 2.5,
+                                    'timer': 0.0,
+                                    'duration': 3.5,
                                     'x': WIDTH // 2,
                                     'y': HEIGHT // 2,
                                     'target_x': 140,
-                                    'target_y': 60,
-                                    'alpha': 255
+                                    'target_y': 40,
+                                    'alpha': 255,
+                                    'scale': 1.5
                                 }
                                 
                                 print(f"[QUEST CLAIM] +{amt} coins | New balance: {player_stats['coins']}")
@@ -1531,7 +1547,7 @@ def main():
                 particles.emit(center_x, center_y, count=120, speed=450, colors=[(255, 215, 0), (255, 200, 100), (255, 100, 50), (255, 255, 255)])
                 sys._bet_outro_exploded = True
             
-            if bet_outro_timer > 1.5:  # Reset flag for next game
+            if bet_outro_timer > 1.5:  
                 sys._bet_outro_exploded = False
 
             # Cool Shockwave Ring Effect immediately after crash
@@ -1543,7 +1559,6 @@ def main():
                 pygame.draw.circle(sw_surf, (255, 230, 100, sw_alpha), (center_x, center_y), sw_radius, max(1, 15 - int(sw_t * 10)))
                 screen.blit(sw_surf, (0, 0))
 
-            # Slide chips to center with a dramatic swirling curve
             e = ease_in_out_quad(t_slide)
             
             if t_slide < 1.0:
@@ -1824,7 +1839,7 @@ def main():
         is_dealer_phase = (game_state == 'dealer_discard')
         hand = player.hand
         groups = player.hand_groups if player.hand_groups else [('all', len(hand))]
-        GROUP_GAP = 18
+        GROUP_GAP = 35
         num_gaps = max(len(groups) - 1, 0)
         card_overlap = min(60, (WIDTH - 200 - GROUP_GAP * num_gaps) // max(len(hand), 1))
         hand_total_w = card_overlap * max(len(hand) - 1, 0) + CW + GROUP_GAP * num_gaps
@@ -1877,14 +1892,27 @@ def main():
         hover_discard_pile = pile_discard_rect.collidepoint(mouse_pos) and can_draw_discard
 
         eatable_hand_cards = set()
+        kain_is_ambiguous = False
+        valid_kain_pre_selection = False
         if can_draw_discard and engine.discard_pile:
             import itertools
             target_card = engine.discard_pile[-1]
+            possible_melds_with_target = []
             # Fast check combinations up to 4 cards that can meld with the discarded card
             for i in range(2, min(5, len(player.hand) + 1)):
                 for combo in itertools.combinations(player.hand, i):
                     if MC.is_valid_meld(list(combo) + [target_card]):
                         eatable_hand_cards.update(combo)
+                        sorted_combo = sorted(list(combo), key=lambda c: (c.suit, RANK_ORDER.index(c.rank)))
+                        if sorted_combo not in possible_melds_with_target:
+                            possible_melds_with_target.append(sorted_combo)
+                            
+            kain_is_ambiguous = len(possible_melds_with_target) > 1
+            if selected_cards:
+                if MC.is_valid_meld(selected_cards + [target_card]):
+                    valid_kain_pre_selection = True
+                    # If valid pre-selection is made, ONLY highlight the chosen cards
+                    eatable_hand_cards = set(selected_cards)
 
         # Phase indicator
         if is_dealer_phase: 
@@ -1996,11 +2024,14 @@ def main():
             
             if is_win:
                 player_stats["wins"] += 1
+                player_stats["streak"] += 1
+                player_stats["biggest_win"] = max(player_stats.get("biggest_win", 0), payout)
                 player_stats["coins"] += payout # Apply payout
                 quest_modal.update_quest("win", 1)
                 quest_modal.update_quest("streak", 1)
             else:
                 player_stats["losses"] += 1
+                player_stats["streak"] = 0
                 quest_modal.update_quest("streak_reset", 0)
                 
             quest_modal.update_quest("play", 1)
@@ -2264,6 +2295,39 @@ def main():
                                 continue
                         if can_draw_discard and pile_discard_rect.collidepoint(event.pos):
                             target_card = engine.discard_pile[-1]
+                            
+                            # Check for ambiguity BEFORE drawing
+                            test_hand = player.hand + [target_card]
+                            possible_melds_with_target = []
+                            from itertools import combinations
+                            for size in range(3, len(test_hand) + 1):
+                                for combo in combinations(test_hand, size):
+                                    if target_card in combo and MC.is_valid_meld(list(combo)):
+                                        sorted_combo = sorted(list(combo), key=lambda c: (c.suit, RANK_ORDER.index(c.rank)))
+                                        if sorted_combo not in possible_melds_with_target:
+                                            possible_melds_with_target.append(sorted_combo)
+                            
+                            # Sort by length descending to pick the best auto-meld
+                            possible_melds_with_target.sort(key=lambda x: len(x), reverse=True)
+
+                            is_ambiguous = len(possible_melds_with_target) > 1
+                            valid_pre_selection = False
+                            if selected_cards:
+                                test_combo = selected_cards + [target_card]
+                                if MC.is_valid_meld(test_combo):
+                                    valid_pre_selection = True
+                                    
+                            if is_ambiguous and not valid_pre_selection:
+                                if not selected_cards and possible_melds_with_target:
+                                    # Auto-resolve: select the cards for the first (best) option
+                                    selected_cards[:] = [c for c in possible_melds_with_target[0] if c != target_card]
+                                    valid_pre_selection = True
+                                else:
+                                    active_toasts.append(ToastNotification("Ambiguous Meld! Please select the specific cards from your hand.", color=Colors.BURN_RED))
+                                    if SFX_TICK: SFX_TICK.play()
+                                    # Don't clear selected_cards, let the user fix their selection
+                                    continue
+                                
                             if engine.draw_from_discard(player):
                                 if SFX_DRAW: SFX_DRAW.play()
                                 if not player.hand: # Auto-tongit triggered
@@ -2673,26 +2737,36 @@ def main():
                 pygame.draw.rect(gl,(100,255,100,p2+40),(0,0,sw+12,sh+12),width=4,border_radius=8)
                 screen.blit(gl,(dx2_top-6,dy2_top-6))
             elif can_draw_discard:
+                needs_selection = kain_is_ambiguous and not valid_kain_pre_selection
+                
                 # Glowing animation to indicate eatable
                 gl = pygame.Surface((sw+12,sh+12),pygame.SRCALPHA)
-                p2 = int(40 + 30 * math.sin(pygame.time.get_ticks() * 0.008))  
-                pygame.draw.rect(gl,(100,255,100,p2),(0,0,sw+12,sh+12),width=3,border_radius=8)
+                p2 = int(40 + 30 * math.sin(pygame.time.get_ticks() * 0.008))
+                
+                rect_color = (150, 150, 150, p2) if needs_selection else (100, 255, 100, p2)
+                pygame.draw.rect(gl, rect_color, (0,0,sw+12,sh+12), width=3, border_radius=8)
                 screen.blit(gl,(dx2_top-6,dy2_top-6))
 
-                # Bouncing Chevron for Eat/Kain
+                # Chevron for Eat/Kain
                 ticks = pygame.time.get_ticks()
-                bounce = math.sin(ticks * 0.015) * 6
+                bounce = 0 if needs_selection else math.sin(ticks * 0.015) * 6
                 aw, ah = 24, 16
                 ax = dx2_top + (sw - aw) // 2
                 ay = dy2_top - ah - 15 + bounce
                 pts = [(ax, ay), (ax + aw//2, ay + ah), (ax + aw, ay), (ax + aw//2, ay + ah - 6)]
-                glow_surf = pygame.Surface((aw + 30, ah + 30), pygame.SRCALPHA)
-                pygame.draw.circle(glow_surf, (50, 255, 150, 120), (aw//2 + 15, ah//2 + 15), 18)
-                screen.blit(glow_surf, (ax - 15, ay - 15))
-                pygame.draw.polygon(screen, (100, 255, 150), pts)
-                pygame.draw.polygon(screen, (255, 255, 255), pts, width=2)
                 
-                eat_txt = font_small.render("KAIN", True, (100, 255, 150))
+                if not needs_selection:
+                    glow_surf = pygame.Surface((aw + 30, ah + 30), pygame.SRCALPHA)
+                    pygame.draw.circle(glow_surf, (50, 255, 150, 120), (aw//2 + 15, ah//2 + 15), 18)
+                    screen.blit(glow_surf, (ax - 15, ay - 15))
+                
+                poly_color = (150, 150, 150) if needs_selection else (100, 255, 150)
+                outline_color = (200, 200, 200) if needs_selection else (255, 255, 255)
+                pygame.draw.polygon(screen, poly_color, pts)
+                pygame.draw.polygon(screen, outline_color, pts, width=2)
+                
+                hint_text = "SELECT MELD" if needs_selection else "KAIN"
+                eat_txt = font_small.render(hint_text, True, poly_color)
                 screen.blit(eat_txt, (ax + aw//2 - eat_txt.get_width()//2, ay - 18))
         else:
             if small_cb:
@@ -2957,7 +3031,7 @@ def main():
 
         particles.draw(screen)
         
-        # ΓöÇΓöÇ Dealer Chip (Drawn late to be on top of cards) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+        
         d_idx = dealer_mgr.get_idx()
         if d_idx < len(layout['dealer_anchors']):
             dx, dy = layout['dealer_anchors'][d_idx]
@@ -2970,7 +3044,7 @@ def main():
                 
             dealer_mgr.draw(screen, dx, dy)
         
-        # Ensure we keep showing the fight resolution overlay until game_over_overlay is ready to draw
+        
         show_fight_overlay = (engine.game_phase == GamePhase.RESOLVING_FIGHT) or \
                              (engine.is_game_over and game_state != 'game_over' and hasattr(engine, 'active_fight') and engine.active_fight)
         
@@ -2983,7 +3057,7 @@ def main():
             if engine.last_event and engine.last_event['type'] == 'fight':
                 fight_statuses = engine.last_event['data'].get('statuses')
                 
-            game_over_overlay.draw(screen, engine.winner, engine.win_method, engine.get_scores(), engine, get_card_image, statuses=fight_statuses)
+            game_over_overlay.draw(screen, engine.winner, engine.win_method, engine.get_scores(), engine, get_card_image, player_rank=player_stats.get("rank", "BEGINNER").upper(), statuses=fight_statuses)
             
             # Animate the floating numbers
             surviving_floats = []

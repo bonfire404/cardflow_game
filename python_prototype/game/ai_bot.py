@@ -122,7 +122,12 @@ class RuleBasedAI:
     @staticmethod
     def _factor(player) -> float:
         d = RuleBasedAI._diff(player)
-        return 1.5 if d == 'EASY' else (0.7 if d == 'HARD' else 1.0)
+        if d == 'EASY': return 1.5
+        if d == 'MEDIUM': return 1.0
+        if d == 'HARD': return 0.75
+        if d == 'ELITE': return 0.65
+        if d == 'LEGENDARY': return 0.55
+        return 1.0
 
     @staticmethod
     def _human_players(engine, bot):
@@ -147,7 +152,12 @@ class RuleBasedAI:
         # Phase 0 – Fight or pre-draw sapaw
         if RuleBasedAI._should_call_fight(engine, player):
             diff = RuleBasedAI._diff(player)
-            hesitate = 0.05 if diff == 'HARD' else 0.15
+            if diff == 'LEGENDARY': hesitate = 0.02
+            elif diff == 'ELITE': hesitate = 0.04
+            elif diff == 'HARD': hesitate = 0.08
+            elif diff == 'MEDIUM': hesitate = 0.15
+            else: hesitate = 0.30 # EASY
+            
             if random.random() > hesitate:
                 mem.record_fight_call(player.name)
                 engine.call_fight(player)
@@ -269,13 +279,14 @@ class RuleBasedAI:
         if deck_rem > 25:
             if diff == 'EASY':
                 hold_chance, wait_chance = 0.30, 0.10
+            elif diff == 'MEDIUM':
+                hold_chance, wait_chance = 0.60, 0.20
             elif diff == 'HARD':
+                hold_chance, wait_chance = 0.80, 0.40
+            elif diff == 'ELITE':
                 hold_chance, wait_chance = 0.90, 0.50
-                # Adaptive: raise hold if human is aggressive
-                mem = RuleBasedAI.get_memory(player.name)
-                for hp in RuleBasedAI._human_players(engine, player):
-                    aggression = mem.get_aggression(hp.name)
-                    hold_chance = min(0.98, hold_chance + aggression * 0.08)
+            elif diff == 'LEGENDARY':
+                hold_chance, wait_chance = 0.98, 0.70
             else:
                 hold_chance, wait_chance = 0.75, 0.30
 
@@ -364,14 +375,16 @@ class RuleBasedAI:
         if burned >= 1 and points <= 12 * factor:
             return True
 
-        # HARD-only: pressure bluff on passive human
-        if diff == 'HARD':
+        # Bluffing & Pressure logic for high-tier bots
+        if diff in ('HARD', 'ELITE', 'LEGENDARY'):
             mem = RuleBasedAI.get_memory(player.name)
             for hp in RuleBasedAI._human_players(engine, player):
-                if mem.get_aggression(hp.name) < 0.2 and deck_rem < 20:
-                    if points <= 10 * factor and random.random() < 0.20:
+                aggression = mem.get_aggression(hp.name)
+                # Pressure bluff on passive humans if deck is low
+                if aggression < 0.2 and deck_rem < 20:
+                    bluff_chance = 0.25 if diff == 'LEGENDARY' else 0.15
+                    if points <= 15 * factor and random.random() < bluff_chance:
                         return True
-
         return False
 
     @staticmethod
@@ -390,7 +403,7 @@ class RuleBasedAI:
         diff = RuleBasedAI._diff(player)
 
         # Point estimate for caller
-        if diff == 'HARD':
+        if diff in ('HARD', 'ELITE', 'LEGENDARY'):
             mem = RuleBasedAI.get_memory(player.name)
             est_caller = mem.estimate_hand_strength(caller, engine)
         else:
@@ -454,7 +467,7 @@ class RuleBasedAI:
         if diff == 'EASY' and random.random() < 0.40:
             return random.choice(hand)
 
-        mem = RuleBasedAI.get_memory(player.name) if diff == 'HARD' else None
+        mem = RuleBasedAI.get_memory(player.name) if diff in ('HARD', 'ELITE', 'LEGENDARY') else None
         scores = {}
 
         for card in hand:
