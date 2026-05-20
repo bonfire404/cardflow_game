@@ -223,13 +223,6 @@ class ChipSystem:
         new_banker_chips = self._generate_realistic_chips(banker_contribution, custom_source=source)
         self.banker_pot_display['amount'].extend(new_banker_chips)
 
-        # 3. DYNAMIC COMPRESSION: Scales with stakes
-        # Threshold: > 24 chips (3 full stacks) or amount > (20x the base bet)
-        # In higher stakes, we allow the pot to be visually richer before compressing
-        compression_threshold_val = max(2500, banker_bet_amount * 20)
-        if len(self.banker_pot_display['amount']) > 24 or self.banker_pot > compression_threshold_val:
-            self.banker_pot_display['amount'] = self._generate_minimalist_chips(self.banker_pot)
-
         
     def reset_main_pot(self):
         self.main_pot = 0

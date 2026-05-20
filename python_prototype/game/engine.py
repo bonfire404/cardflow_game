@@ -74,8 +74,9 @@ class TongItsEngine:
                 p.hand_groups = [('all', len(p.hand))]
 
         # Check for Spread (extremely rare: all cards form melds after deal)
-        if self._check_spread(self.players[0]):
-            return
+        for p in self.players:
+            if self._check_spread(p):
+                return
 
         # Dealer starts: can meld or sapaw before first discard
         self.is_dealer_initial_discard = True
@@ -114,23 +115,40 @@ class TongItsEngine:
             return True
         return False
 
-    def _find_covering_melds(self, hand):
-        """Try to find non-overlapping melds that cover ALL cards in hand."""
+    def _find_covering_melds(self, hand, _memo=None):
+        """Try to find non-overlapping melds that cover ALL cards in hand.
+        Uses memoization on card identity tuples to avoid redundant recursion."""
         from itertools import combinations
 
         if not hand:
             return []
+        
+        # Early termination: fewer than 3 cards can't form a meld
+        if len(hand) < 3:
+            return None
 
-        # Try all possible first melds
+        if _memo is None:
+            _memo = {}
+        
+        # Create a hashable key from the current hand
+        key = tuple(sorted(id(c) for c in hand))
+        if key in _memo:
+            return _memo[key]
+
+        # Try all possible first melds (smallest first for speed)
         for size in range(3, min(len(hand) + 1, 5)):
             for combo in combinations(range(len(hand)), size):
                 cards = [hand[i] for i in combo]
                 mtype = Meld.get_meld_type(cards)
                 if mtype:
                     remaining = [hand[i] for i in range(len(hand)) if i not in combo]
-                    sub_result = self._find_covering_melds(remaining)
+                    sub_result = self._find_covering_melds(remaining, _memo)
                     if sub_result is not None:
-                        return [(cards, mtype)] + sub_result
+                        result = [(cards, mtype)] + sub_result
+                        _memo[key] = result
+                        return result
+        
+        _memo[key] = None
         return None
 
     # ─── Turn Flow ───────────────────────────────────────────────────
@@ -162,7 +180,7 @@ class TongItsEngine:
         Dealer's very first action: discard one card to start the Discard Pile.
         No draw phase. Dealer goes from 13 cards to 12 cards.
         """
-        player = self.players[0]
+        player = self.players[self.dealer_idx]
         if card not in player.hand:
             return False
 
@@ -380,7 +398,19 @@ class TongItsEngine:
 
         # If hand is completely empty, or all remaining cards form valid melds (0 points),
         # the player has no unmatched cards and therefore wins by Tong-its!
-        if not player.hand or player.calculate_points() == 0:
+        if not player.hand:
+            self._declare_tongits(player)
+            return True
+        elif player.calculate_points() == 0:
+            # Auto-lay all remaining melds onto the table before declaring
+            covering_melds = self._find_covering_melds(player.hand)
+            if covering_melds:
+                for meld_cards, mtype in covering_melds:
+                    table_meld = TableMeld(meld_cards, player, mtype)
+                    self.table_melds.append(table_meld)
+                    player.melds.append(table_meld)
+                    player.is_burned = False
+                player.hand.clear()
             self._declare_tongits(player)
             return True
 

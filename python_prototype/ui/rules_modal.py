@@ -142,7 +142,7 @@ class RulesModal:
         pygame.draw.rect(modal_surf, (218, 175, 50, 40), content_rect, width=1, border_radius=15)
         
         # Virtual Content Surface for Scrolling
-        view_surf = pygame.Surface((content_rect.width - 20, 1000), pygame.SRCALPHA)
+        view_surf = pygame.Surface((content_rect.width - 20, 1200), pygame.SRCALPHA)
         
         # Handle integer mode mapping
         if isinstance(current_mode, int):
@@ -179,71 +179,121 @@ class RulesModal:
             lines = [
                 ("THE BASICS", Colors.TEXT_GOLD),
                 ("• Everyone starts with 12 cards (Dealer gets 13).", (255, 255, 255)),
+                ("• The Dealer (Banker) takes the first turn.", (255, 255, 255)),
                 ("• Create MELDS to reduce your hand points.", (255, 255, 255)),
                 ("• The goal is to have the lowest points or empty your hand.", (220, 220, 220)),
                 ("", (0,0,0)),
                 ("MELD TYPES", Colors.TEXT_GOLD),
-                ("• THREE-OF-A-KIND: 3 cards of the same rank (e.g. 7-7-7).", (220, 220, 220)),
-                ("• FOUR-OF-A-KIND: 4 cards of the same rank.", (220, 220, 220)),
-                ("• STRAIGHT FLUSH: 3+ cards of same suit in sequence (e.g. 4-5-6 of Hearts).", (220, 220, 220)),
-                ("• SAPAW (SAGASA): Add your cards to existing melds on the table.", (0, 255, 150)),
+                ("• SET: 3 or 4 cards of the same rank (e.g. 7♥ 7♦ 7♣).", (220, 220, 220)),
+                ("• RUN (Straight): 3+ cards of same suit in sequence", (220, 220, 220)),
+                ("  (e.g. 4♥ 5♥ 6♥). Ace is LOW only (A-2-3, not Q-K-A).", (220, 220, 220)),
+                ("• SAPAW: Add your card to an existing meld on the table.", (0, 255, 150)),
                 ("", (0,0,0)),
                 ("TURNS & ACTIONS", Colors.TEXT_GOLD),
-                ("• DRAW: Take the top card from the DECK.", (255, 255, 255)),
-                ("• CHOW: Take the DISCARDED card if it forms a meld with your hand.", (255, 255, 255)),
-                ("• DROP: Lay down a meld on the table to reduce your points.", (220, 220, 220)),
-                ("• DUMP: Throw 1 card away to end your turn.", (255, 255, 255)),
+                ("• DRAW: Take the top card from the DECK (closed pile).", (255, 255, 255)),
+                ("• CHOW: Take the top DISCARD pile card. You MUST", (255, 255, 255)),
+                ("  immediately meld it before you can discard.", (255, 200, 100)),
+                ("• DROP: Lay down a valid meld from your hand.", (220, 220, 220)),
+                ("• DISCARD: Throw 1 card to end your turn.", (255, 255, 255)),
                 ("", (0,0,0)),
-                ("SPECIAL RULES", Colors.TEXT_GOLD),
-                ("• BURN: If you have ZERO melds exposed when a fight is called", (255, 100, 100)),
-                ("  or the deck runs out, you are BURNED and lose automatically!", (255, 100, 100)),
+                ("IMPORTANT RULES", Colors.TEXT_GOLD),
+                ("• BURN: If you have ZERO melds exposed when a FIGHT", (255, 100, 100)),
+                ("  is called or the deck runs out, you are BURNED and", (255, 100, 100)),
+                ("  lose automatically!", (255, 100, 100)),
+                ("• SAPAW BLOCK: If someone sapaws on YOUR meld,", (255, 200, 100)),
+                ("  you CANNOT call a fight until your next turn.", (255, 200, 100)),
+                ("• FIGHT TIMING: You can only call a fight BEFORE", (255, 200, 100)),
+                ("  drawing a card on your turn.", (255, 200, 100)),
+                ("• Dropping a new meld clears the sapaw restriction.", (200, 200, 220)),
             ]
         elif self.active_tab == "ECONOMY MODES":
             lines = [
-                ("TABLE RULES: " + mode.value.upper(), Colors.TEXT_GOLD),
+                ("CURRENT TABLE: " + mode.value.upper(), Colors.TEXT_GOLD),
                 ("", (0,0,0)),
             ]
             if mode == EconomyMode.HITTER:
                 lines += [
-                    ("• ENTRY FEE: 100 coins ante + 200 for the Dealer.", (255, 255, 255)),
-                    ("• THE BANKER POT: Everyone's extra bets go here.", (255, 255, 255)),
-                    ("• WIN THE BOUNTY: You MUST win twice in a row as Dealer (Hitter).", (255, 215, 0)),
-                    ("• BURN PENALTY: 100 coins lost if you have ZERO melds at end.", (255, 100, 100)),
-                    ("• PROFIT: Main Pot is won by any regular winner.", (220, 220, 220)),
+                    ("HITTER'S BOUNTY (100 Table)", (255, 215, 0)),
+                    ("• ENTRY: 100 coins each. Dealer adds 200 bounty.", (255, 255, 255)),
+                    ("• MAIN POT: All entry fees (300 total). Winner takes all.", (255, 255, 255)),
+                    ("• BANKER POT: Dealer's 200 bounty accumulates here.", (220, 220, 220)),
+                    ("• HITTER BONUS: Win 2x in a row as Dealer to claim", (255, 215, 0)),
+                    ("  the entire Banker Pot!", (255, 215, 0)),
+                    ("• BURN PENALTY: 100 coins deducted if burned.", (255, 100, 100)),
+                    ("• TIES: Challenger wins over the caller in a tie.", (200, 200, 220)),
                 ]
             elif mode == EconomyMode.AGGRESSIVE:
                 lines += [
-                    ("• ENTRY FEE: 300 coins for all + 300 for the Dealer.", (255, 255, 255)),
-                    ("• TONG-ITS JACKPOT: Takes 100% of the Pot + 100 extra from all.", (0, 255, 150)),
-                    ("• BANKER ADVANTAGE: Dealer wins all ties in Fights or Draws.", (255, 215, 0)),
-                    ("• PENALTIES: Burn: 300 / Failed Fight Challenge: 600.", (255, 100, 100)),
-                    ("• AGGRESSIVE: Stakes double every few rounds.", (220, 220, 240)),
+                    ("AGGRESSIVE CASINO (300 Table)", (255, 215, 0)),
+                    ("• ENTRY: 300 coins each. Dealer adds 600 bounty.", (255, 255, 255)),
+                    ("• MAIN POT: All entry fees (900 total). Winner takes all.", (255, 255, 255)),
+                    ("• TONG-ITS JACKPOT: Winner takes full Banker Pot", (0, 255, 150)),
+                    ("  + 100 coin jackpot fee from each loser.", (0, 255, 150)),
+                    ("• HOUSE EDGE: Dealer wins ALL ties in Fights or Draws.", (255, 215, 0)),
+                    ("• BURN PENALTY: 300 coins if burned.", (255, 100, 100)),
+                    ("• FAILED FIGHT: Caller loses 600 coins if they lose.", (255, 100, 100)),
                 ]
-            else: # SUSTAINED
+            elif mode == EconomyMode.SUSTAINED:
                 lines += [
-                    ("• ENTRY FEE: 600 coins. Dealer adds 200 fee.", (255, 255, 255)),
-                    ("• SUSTAINED STAKES: Winner takes 80% of pot, 20% stays for next round.", (255, 255, 255)),
-                    ("• ACCUMULATION: The retained pot grows until a Tong-its is hit.", (255, 215, 0)),
-                    ("• STRICT WINNING: Fights only allowed if you melded this turn.", (255, 100, 100)),
-                    ("• ENDURANCE: High risk, massive long-term payouts.", (220, 220, 220)),
+                    ("SUSTAINED ECONOMY (600 Table)", (255, 215, 0)),
+                    ("• ENTRY: 600 coins each. Dealer adds 200 fee.", (255, 255, 255)),
+                    ("• MAIN POT: All entry fees (1800 total).", (255, 255, 255)),
+                    ("• FIGHT WIN: Winner takes 80% of pot. 20% stays", (255, 255, 255)),
+                    ("  in the Banker Pot for next round.", (220, 220, 220)),
+                    ("• TONG-ITS: Winner takes 100% of pot + full Banker Pot.", (255, 215, 0)),
+                    ("• ACCUMULATION: Banker Pot grows each round until", (0, 255, 150)),
+                    ("  someone hits a Tong-its and claims it all!", (0, 255, 150)),
+                    ("• NO BURN PENALTY: Burns don't cost extra coins.", (200, 200, 220)),
+                    ("• BOUNTY BAN: Burned players can't win the Banker", (255, 100, 100)),
+                    ("  Pot for the next 2 rounds.", (255, 100, 100)),
+                ]
+            else:
+                # HIGH STAKES / VIP / LEGENDARY (Rank modes)
+                mode_name = mode.value.upper()
+                lines += [
+                    (f"{mode_name} (Ranked)", (255, 215, 0)),
+                    ("• Same rules as Sustained Economy.", (255, 255, 255)),
+                    ("• ENTRY: Varies by table (1k / 5k / 10k).", (255, 255, 255)),
+                    ("• FIGHT WIN: 80% pot to winner, 20% stays.", (220, 220, 220)),
+                    ("• TONG-ITS: Full pot + full Banker Pot to winner.", (255, 215, 0)),
+                    ("• BOUNTY BAN: Burned = banned from Banker Pot 2 rounds.", (255, 100, 100)),
+                    ("• LEAVER PENALTY: Quitting mid-match costs XP and RP.", (255, 100, 100)),
+                    ("", (0,0,0)),
+                    ("RANKED REQUIREMENTS", Colors.TEXT_GOLD),
+                    ("• 1,000 Table: Level 10+", (200, 200, 220)),
+                    ("• 5,000 Table: Level 30+", (200, 200, 220)),
+                    ("• 10,000 Table: Level 50+", (200, 200, 220)),
                 ]
         else: # SCORING & FIGHTING
             lines = [
-                ("CARD VALUES", Colors.TEXT_GOLD),
-                ("• Aces: 1 point", (255, 255, 255)),
-                ("• Numbered Cards (2-10): Face value", (255, 255, 255)),
-                ("• Jacks, Queens, Kings: 10 points each", (255, 255, 255)),
-                ("• Melded cards count as ZERO points.", (0, 255, 150)),
+                ("CARD VALUES (Points)", Colors.TEXT_GOLD),
+                ("• Ace: 1 point", (255, 255, 255)),
+                ("• 2 through 9: Face value (2-9 points)", (255, 255, 255)),
+                ("• 10, Jack, Queen, King: 10 points each", (255, 255, 255)),
+                ("• Cards in exposed melds count as 0 points.", (0, 255, 150)),
+                ("• Cards in your HAND that form valid melds are also", (0, 255, 150)),
+                ("  counted as 0 points when calculating your score.", (0, 255, 150)),
                 ("", (0,0,0)),
-                ("CHALLENGING (FIGHT)", Colors.TEXT_GOLD),
-                ("• Click FIGHT on your turn if you have low points.", (255, 255, 255)),
-                ("• You can only fight if you have exposed at least one meld.", (220, 220, 220)),
-                ("• If someone challenges and has LOWER points, you lose double!", (255, 100, 100)),
+                ("CALLING A FIGHT", Colors.TEXT_GOLD),
+                ("• You can call FIGHT at the start of your turn,", (255, 255, 255)),
+                ("  BEFORE drawing a card.", (255, 200, 100)),
+                ("• You MUST have at least 1 exposed meld on the table.", (255, 255, 255)),
+                ("• You CANNOT fight if someone sapawed on your melds", (220, 220, 220)),
+                ("  this round (until you drop a new meld).", (220, 220, 220)),
+                ("• Other players choose to FIGHT (challenge) or FOLD.", (220, 220, 220)),
+                ("• Players with NO melds are automatically BURNED.", (255, 100, 100)),
+                ("", (0,0,0)),
+                ("FIGHT RESOLUTION", Colors.TEXT_GOLD),
+                ("• Lowest hand points wins among eligible players.", (255, 255, 255)),
+                ("• TIE-BREAKER: Challenger wins over the caller.", (255, 200, 100)),
+                ("• HOUSE EDGE (Aggressive mode only): Dealer wins ties.", (255, 200, 100)),
                 ("", (0,0,0)),
                 ("WINNING CONDITIONS", Colors.TEXT_GOLD),
-                ("• TONG-ITS: Empty all cards in your hand. Instant win!", (0, 255, 150)),
+                ("• TONG-ITS: Empty your entire hand. Instant win!", (0, 255, 150)),
                 ("• FIGHT: Lowest points when someone calls a fight.", (255, 255, 255)),
-                ("• DRAW: Deck runs out; player with lowest points wins.", (220, 220, 220)),
+                ("• DRAW: Deck runs out — lowest points wins.", (220, 220, 220)),
+                ("• SPREAD: All dealt cards form valid melds. Instant win!", (0, 255, 150)),
+                ("  (Extremely rare)", (150, 150, 170)),
             ]
 
         self.max_scroll = max(0, len(lines) * line_h - 380)

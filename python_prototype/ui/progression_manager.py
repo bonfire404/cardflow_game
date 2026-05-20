@@ -29,9 +29,9 @@ def get_match_rewards(is_win, is_tongits=False, bet_limit=100):
     is_ranked = isinstance(bet_limit, int) and bet_limit >= 1000
 
     if is_win:
-        if is_tongits:
-            return 600, int(45 * mult)
-        return 400, int(30 * mult)
+        rp_gain = int((45 if is_tongits else 30) * mult) if is_ranked else 0
+        xp_gain = 600 if is_tongits else 400
+        return xp_gain, rp_gain
     
    
     rp_loss = int(-30 * mult) if is_ranked else 0

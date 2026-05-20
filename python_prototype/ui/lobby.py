@@ -4,6 +4,17 @@ import math
 import os
 from ui.paths import get_resource_path
 from .ui_components import Colors
+from ui.assets_mgr import get_rank_badge
+
+# Rank color map for badge text rendering
+RANK_COLORS = {
+    "Wood": (139, 90, 43),
+    "Iron": (169, 169, 180),
+    "Bronze": (205, 140, 60),
+    "Silver": (200, 200, 210),
+    "Gold": (255, 215, 50),
+    "Immortal": (180, 80, 255),
+}
 
 class Lobby:
     """Ultra-premium cinematic lobby with animated particles, Sekuya font, and modern glassmorphism banners."""
@@ -142,6 +153,19 @@ class Lobby:
             self.icon_quest_black = None
             self.icon_gear_black = None
             
+        # Load History Icons
+        try:
+            history_white_path = get_resource_path(os.path.join("assets", "game_icons", "PNG", "White", "2x", "leaderboardsSimple.png"))
+            self.icon_history_white = pygame.image.load(history_white_path).convert_alpha()
+            self.icon_history_white = pygame.transform.smoothscale(self.icon_history_white, (24, 24))
+            
+            history_black_path = get_resource_path(os.path.join("assets", "game_icons", "PNG", "Black", "2x", "leaderboardsSimple.png"))
+            self.icon_history_black = pygame.image.load(history_black_path).convert_alpha()
+            self.icon_history_black = pygame.transform.smoothscale(self.icon_history_black, (24, 24))
+        except:
+            self.icon_history_white = None
+            self.icon_history_black = None
+            
         # Load Center Icons
         self.center_icons = []
         icons_dir = get_resource_path(os.path.join("assets", "game_icons", "PNG", "White", "2x"))
@@ -167,6 +191,15 @@ class Lobby:
         self.bet_rects_map = {} # Map mode_idx -> list of button rects
         
         self.help_btn_rect = pygame.Rect(0,0,0,0)
+        self.settings_btn_rect = pygame.Rect(0,0,0,0)
+        self.quit_btn_rect = pygame.Rect(0,0,0,0)
+        self.quest_btn_rect = pygame.Rect(0,0,0,0)
+        self.history_btn_rect = pygame.Rect(0,0,0,0)
+        self.recalc_banners()
+
+    def on_resize(self, w, h):
+        """Handle screen resize events."""
+        self.w, self.h = w, h
         self.recalc_banners()
 
     def recalc_banners(self):
@@ -197,9 +230,10 @@ class Lobby:
         self.help_btn_rect = pygame.Rect(self.w - bw_h - 20, 18, bw_h, bw_h)
         self.settings_btn_rect = pygame.Rect(self.w - (bw_h * 2) - 30, 18, bw_h, bw_h)
         
-        # Quit & Quest Buttons (Bottom Right)
+        # Quit, Quest & History Buttons (Bottom Right)
         self.quit_btn_rect = pygame.Rect(self.w - bw_h - 20, self.h - 65, bw_h, bw_h)
         self.quest_btn_rect = pygame.Rect(self.w - (bw_h * 2) - 30, self.h - 65, bw_h, bw_h)
+        self.history_btn_rect = pygame.Rect(self.w - (bw_h * 3) - 40, self.h - 65, bw_h, bw_h)
         
         start_y = self.h // 2 - self.banner_h // 2 + 20
         for i in range(len(self.modes)):
@@ -243,6 +277,10 @@ class Lobby:
             # Check Quest Button
             if self.quest_btn_rect.collidepoint(event.pos):
                 return {"type": "quest"}
+
+            # Check History Button
+            if self.history_btn_rect.collidepoint(event.pos):
+                return {"type": "history"}
 
 
             # Check bet selection for modes that support it
@@ -301,7 +339,7 @@ class Lobby:
         self.cached_avatar_surf = av_scaled
         return self.cached_avatar_surf
 
-    def draw(self, surface, name, avatar, stats, lb_bg):
+    def draw(self, surface, name, avatar, stats, lb_bg, quest_data=None):
         # 1. Background
         if lb_bg: 
             surface.blit(lb_bg, (0, 0))
@@ -680,12 +718,25 @@ class Lobby:
         # Player name
         text_x = ax + 65
         p_txt = self.font_body.render(name.upper(), True, (255, 255, 255))
-        surface.blit(p_txt, (text_x, ay + 10))
+        surface.blit(p_txt, (text_x, ay + 5))
         
         # Level beside name
         level = stats.get('level', 1)
         lvl_txt = self.font_small.render(f"LVL {level}", True, (150, 160, 180))
-        surface.blit(lvl_txt, (text_x + p_txt.get_width() + 10, ay + 14))
+        surface.blit(lvl_txt, (text_x + p_txt.get_width() + 10, ay + 9))
+
+        # Rank badge below name
+        rank_str = stats.get('rank', 'Wood')
+        rank_color = RANK_COLORS.get(rank_str, (150, 150, 160))
+        try:
+            badge_img = get_rank_badge(rank_str, "mini")
+            badge_small = pygame.transform.smoothscale(badge_img, (22, 22))
+            surface.blit(badge_small, (text_x, ay + 30))
+            rank_txt = self.font_micro.render(rank_str.upper(), True, rank_color)
+            surface.blit(rank_txt, (text_x + 26, ay + 34))
+        except Exception:
+            rank_txt = self.font_micro.render(rank_str.upper(), True, rank_color)
+            surface.blit(rank_txt, (text_x, ay + 30))
 
 
         # 4. Draw Help Button ('?')
@@ -760,3 +811,40 @@ class Lobby:
         else:
             txt = self.font_small.render("!", True, (255, 255, 255))
             surface.blit(txt, (qsb.centerx - txt.get_width()//2, qsb.centery - txt.get_height()//2))
+
+        # Quest Notification Badge (red dot with count)
+        if quest_data:
+            unclaimed = sum(1 for q in quest_data if q.get('curr', 0) >= q.get('goal', 1) and not q.get('claimed', False))
+            if unclaimed > 0:
+                # Pulsing red dot
+                pulse = 1.0 + 0.15 * math.sin(self.time_acc * 4)
+                dot_r = int(9 * pulse)
+                dot_x = qsb.right - 6
+                dot_y = qsb.top + 6
+                # Glow
+                glow_surf = pygame.Surface((dot_r * 4, dot_r * 4), pygame.SRCALPHA)
+                pygame.draw.circle(glow_surf, (255, 50, 50, 60), (dot_r * 2, dot_r * 2), dot_r * 2)
+                surface.blit(glow_surf, (dot_x - dot_r * 2, dot_y - dot_r * 2))
+                # Dot
+                pygame.draw.circle(surface, (220, 40, 40), (dot_x, dot_y), dot_r)
+                pygame.draw.circle(surface, (255, 255, 255), (dot_x, dot_y), dot_r, 1)
+                # Number
+                n_txt = self.font_micro.render(str(unclaimed), True, (255, 255, 255))
+                surface.blit(n_txt, (dot_x - n_txt.get_width() // 2, dot_y - n_txt.get_height() // 2))
+
+        # 9. Draw History Button
+        hsb = self.history_btn_rect
+        hsb_hover = hsb.collidepoint(m_pos)
+        bc = (255, 215, 50) if hsb_hover else (40, 45, 60, 180)
+        pygame.draw.circle(surface, bc, hsb.center, hsb.w // 2)
+        pygame.draw.circle(surface, (255, 255, 255, 200), hsb.center, hsb.w // 2, width=2)
+        
+        if hsb_hover and self.icon_history_black:
+            surface.blit(self.icon_history_black, (hsb.centerx - 12, hsb.centery - 12))
+        elif not hsb_hover and self.icon_history_white:
+            surface.blit(self.icon_history_white, (hsb.centerx - 12, hsb.centery - 12))
+        else:
+            txt = self.font_small.render("H", True, (255, 255, 255))
+            surface.blit(txt, (hsb.centerx - txt.get_width()//2, hsb.centery - txt.get_height()//2))
+
+

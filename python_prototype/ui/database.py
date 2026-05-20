@@ -33,6 +33,19 @@ def init_db():
         )
     ''')
 
+    # Create the match_history table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS match_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            mode TEXT,
+            result TEXT,
+            coins_change INTEGER,
+            rp_change INTEGER,
+            xp_change INTEGER
+        )
+    ''')
+
     try:
         cursor.execute("ALTER TABLE user_profile ADD COLUMN last_replenish INTEGER DEFAULT 0")
     except sqlite3.OperationalError:
@@ -212,3 +225,40 @@ def save_user_profile(stats_dict):
 
     except Exception as e:
         print(f"Database save error: {e}")
+
+def add_match_history_record(mode, result, coins_change, rp_change, xp_change):
+    """Inserts a record of a completed match into match_history."""
+    if not os.path.exists(DB_PATH):
+        init_db()
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO match_history (timestamp, mode, result, coins_change, rp_change, xp_change)
+            VALUES (datetime('now', 'localtime'), ?, ?, ?, ?, ?)
+        ''', (mode, result, coins_change, rp_change, xp_change))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Error adding match history: {e}")
+
+def get_match_history(limit=10):
+    """Retrieves the recent match history records."""
+    if not os.path.exists(DB_PATH):
+        init_db()
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT timestamp, mode, result, coins_change, rp_change, xp_change 
+            FROM match_history 
+            ORDER BY id DESC 
+            LIMIT ?
+        ''', (limit,))
+        rows = cursor.fetchall()
+        conn.close()
+        return [dict(row) for row in rows]
+    except Exception as e:
+        print(f"Error getting match history: {e}")
+        return []

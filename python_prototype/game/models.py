@@ -91,26 +91,49 @@ class Player:
         self.manual_groups = []      # List of lists of cards manually grouped by the user
 
     def calculate_points(self):
-        """Sum of values of cards remaining in hand, aggressively discounting any held valid melds (0 pts)."""
-        from itertools import combinations
+        """Sum of values of cards remaining in hand, discounting any held valid melds (0 pts).
+        Uses a greedy two-pass approach (sets then runs) instead of brute-force combinations.
+        """
+        if not self.hand:
+            return 0
+
         hand = self.hand[:]
-        used = set()
-        
-        # Build list of all valid complete melds in hand
-        all_melds = []
-        for size in range(min(14, len(hand)), 2, -1):
-            for combo in combinations(range(len(hand)), size):
-                cards = [hand[i] for i in combo]
-                if Meld.is_valid_meld(cards):
-                    points = sum(c.value for c in cards)
-                    all_melds.append((points, combo, cards))
-                    
-        # Greedily use the highest point-saving melds
-        all_melds.sort(key=lambda m: (-len(m[1]), -m[0]))  # longest first, then highest points
-        for points, combo, cards in all_melds:
-            if not any(idx in used for idx in combo):
-                used.update(combo)
-                
+        used = set()  # indices of cards counted as part of melds
+
+        # Pass 1: Find sets (3-4 cards of the same rank)
+        from collections import defaultdict
+        rank_groups = defaultdict(list)
+        for i, c in enumerate(hand):
+            rank_groups[c.rank].append(i)
+
+        for rank, indices in rank_groups.items():
+            if len(indices) >= 3:
+                # Use all cards of this rank as a set (3 or 4)
+                for idx in indices:
+                    used.add(idx)
+
+        # Pass 2: Find runs (3+ consecutive same-suit cards) from remaining
+        suit_cards = defaultdict(list)
+        for i, c in enumerate(hand):
+            if i not in used:
+                suit_cards[c.suit].append((RANK_ORDER.index(c.rank), i))
+
+        for suit, cards_with_idx in suit_cards.items():
+            cards_with_idx.sort(key=lambda x: x[0])
+            # Find consecutive sequences
+            run = [cards_with_idx[0]]
+            for j in range(1, len(cards_with_idx)):
+                if cards_with_idx[j][0] == run[-1][0] + 1:
+                    run.append(cards_with_idx[j])
+                else:
+                    if len(run) >= 3:
+                        for _, idx in run:
+                            used.add(idx)
+                    run = [cards_with_idx[j]]
+            if len(run) >= 3:
+                for _, idx in run:
+                    used.add(idx)
+
         remaining_cards = [hand[i] for i in range(len(hand)) if i not in used]
         return sum(card.value for card in remaining_cards)
 

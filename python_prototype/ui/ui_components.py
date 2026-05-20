@@ -287,15 +287,15 @@ class LevelProgressBar:
             progress = min(1.0, xp_remaining / max(1, req))
 
         # Background
-        pygame.draw.rect(surface, (30, 35, 45), (x, y, self.w, self.h), border_radius=self.h//2)
+        pygame.draw.rect(surface, (40, 15, 20), (x, y, self.w, self.h), border_radius=self.h//2)
         # Fill
         fill_w = int(self.w * progress)
         if fill_w > 0:
             fill_rect = pygame.Rect(x, y, fill_w, self.h)
-            # Use a nice blue-to-cyan gradient or just a vibrant color
-            pygame.draw.rect(surface, (80, 200, 255), fill_rect, border_radius=self.h//2)
+            # Use a vibrant gold gradient or just a solid color for red theme
+            pygame.draw.rect(surface, (255, 215, 50), fill_rect, border_radius=self.h//2)
         # Border
-        pygame.draw.rect(surface, (100, 110, 130), (x, y, self.w, self.h), width=1, border_radius=self.h//2)
+        pygame.draw.rect(surface, (180, 60, 60), (x, y, self.w, self.h), width=1, border_radius=self.h//2)
         
         # Text
         if level >= 200:
@@ -339,18 +339,18 @@ class ProfileInspectOverlay:
         px, py = sw//2 - pw//2, sh//2 - ph//2
         
         # --- 1. Premium Glassmorphism Panel ---
-        # Main background with vertical gradient
+        # Main background with vertical gradient (Crimson theme)
         panel_surf = pygame.Surface((pw, ph), pygame.SRCALPHA)
         for row in range(ph):
             rt = row / ph
-            # Dark blue to very dark blue/purple gradient
-            rc = int(18 + 8 * (1 - rt))
-            gc = int(22 + 10 * (1 - rt))
-            bc = int(45 + 15 * (1 - rt))
+            # Dark crimson to deep black-red gradient
+            rc = int(45 - 20 * rt)
+            gc = int(12 - 4 * rt)
+            bc = int(18 - 6 * rt)
             pygame.draw.line(panel_surf, (rc, gc, bc, 250), (0, row), (pw, row))
             
         # Add a subtle interior highlight line at the top
-        pygame.draw.line(panel_surf, (255, 255, 255, 40), (24, 2), (pw-24, 2), width=1)
+        pygame.draw.line(panel_surf, (255, 100, 100, 40), (24, 2), (pw-24, 2), width=1)
             
         # Rounded corners mask
         mask = pygame.Surface((pw, ph), pygame.SRCALPHA)
@@ -359,7 +359,7 @@ class ProfileInspectOverlay:
         
         # Border
         rank_str = getattr(self.target_player, 'rank', "Wood")
-        border_color = (255, 215, 100, 120) if rank_str in ("Gold", "Immortal") else (150, 160, 180, 80)
+        border_color = (255, 215, 100, 120) if rank_str in ("Gold", "Immortal") else (180, 40, 45, 140)
         pygame.draw.rect(panel_surf, border_color, (0, 0, pw, ph), width=2, border_radius=32)
         surface.blit(panel_surf, (px, py))
         
