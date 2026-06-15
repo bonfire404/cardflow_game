@@ -1,4 +1,4 @@
-# Mama's Go (Tong-its) | UNDERDEVELOPMENT
+# Mama's Go (Tong-its) | PRODUCTION
 
 ![Mama's Go Banner](https://img.shields.io/badge/Status-Prototype-orange?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.12+-blue?style=for-the-badge&logo=python)
@@ -35,7 +35,7 @@ python ui/main.py
 
 ## ⚖️ License & Consent
 
-This project is the property of **BONFIRE BASE**. 
+This project is the property of **BONFIRE BASE Studio**. 
 
 - **Viewing**: Public access is granted for review and educational purposes.
 - **Usage**: Free to use for personal, non-commercial purposes **only with explicit written consent from BONFIRE BASE**.
