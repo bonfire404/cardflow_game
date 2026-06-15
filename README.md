@@ -1,10 +1,10 @@
-# Mama's Go (Tong-its) | UNDERDEVELOPMENT
+CARDFLOW (Tong-its) | PRODUCTION
 
 ![Mama's Go Banner](https://img.shields.io/badge/Status-Prototype-orange?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.12+-blue?style=for-the-badge&logo=python)
 ![Pygame](https://img.shields.io/badge/Library-Pygame-green?style=for-the-badge)
 
-**Mama's Go** is a high-fidelity Tong-its card game implementation. Originally developed as a pure Python prototype, it serves as the logic foundation for an upcoming mobile release.
+**CardFlow** is a high-fidelity Tong-its card game implementation. Originally developed as a pure Python prototype, it serves as the logic foundation for an upcoming mobile release.
 
 ## 🃏 Features
 
@@ -16,11 +16,14 @@
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Python 3.12 or higher
 - Pygame `pip install pygame`
 
 ### Running the Prototype
+
 Navigate to the `python_prototype` directory and run:
+
 ```bash
 python ui/main.py
 ```
@@ -29,13 +32,13 @@ python ui/main.py
 
 - `assets/`: Global game assets (cards, backgrounds, fonts).
 - `python_prototype/`:
-    - `game/`: Core logic (Engine, Models, AI).
-    - `ui/`: Rendering and event loop handling.
+  - `game/`: Core logic (Engine, Models, AI).
+  - `ui/`: Rendering and event loop handling.
 - `implementation_plan.md`: Technical roadmap and goal descriptions.
 
 ## ⚖️ License & Consent
 
-This project is the property of **BONFIRE BASE**. 
+This project is the property of **BONFIRE BASE Studio**.
 
 - **Viewing**: Public access is granted for review and educational purposes.
 - **Usage**: Free to use for personal, non-commercial purposes **only with explicit written consent from BONFIRE BASE**.
