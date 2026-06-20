@@ -1,30 +1,24 @@
 ================================================================================
-         TONG-ITS GAME PROJECT (BACKEND - For Academic Purposes Only)
+                           CARDFLOW  (BACKEND)
 ================================================================================
 
 
-PROJECT INFORMATION
+PRODUCT INFORMATION
 -------------------
-  Project Title:    CardFlow
-  Course:           CPROG 2
-  Group:            3
-  Lead Developer:   Bon Jury Pecaoco
-  Project Members:  Louise Jan Carlo Tabaldo
-                    Chona Mae Gregorio
-                    Cristina Gertos
-                    Jamica Nazareno
+  Title:        CardFlow
+  Developer:    BONFIRE BASE Studio
+  Publisher:    BONFIRE BASE Studio
 
 
 ================================================================================
 
 OVERVIEW
 --------
-This project is a digital implementation of the traditional Filipino card game
-Tong-its developed as part of the course requirements for CPROG 2.
+CardFlow is a digital implementation of the traditional Filipino card game
+Tong-its, produced by BONFIRE BASE Studio.
 
-The submitted source code contains the backend components required for academic
-evaluation, including the core game engine, AI logic, economy system, data
-persistence, and security modules relevant to the course objectives.
+This backend package contains the core game engine, AI logic, economy system,
+data persistence, and security modules.
 
 
 BACKEND ARCHITECTURE
@@ -93,8 +87,8 @@ DATA STACK USED:
 
 ABOUT THE "db" FOLDER (python_prototype/db/)
 ---------------------------------------------
-The "db" folder is the only data folder included in this submission. It contains
-the application's local save data and configuration files.
+The "db" folder contains the application's local save data and configuration
+files.
 
 You may notice that some files in this folder appear as unreadable binary data
 rather than plain text. This is intentional and expected behavior.
@@ -137,52 +131,47 @@ FILES IN THIS FOLDER:
   quests.json        Quest definitions and completion status
   settings.json      User preferences (audio volume, display options)
 
-NOTE FOR EVALUATORS:
+NOTE:
   The game automatically decrypts these files at runtime when it needs to
-  read or write data, and re-encrypts them immediately after. You do not
-  need to decrypt them manually. To evaluate the data structure, please
-  refer to the database.py and security.py source files, which document
-  the full schema and security logic in code comments.
+  read or write data, and re-encrypts them immediately after. They do not
+  need to be decrypted manually. The data structure and security logic are
+  documented in the database.py and security.py source files.
 
-  If you run the game at least once, the save files will be generated fresh
-  on your machine in a readable-then-encrypted cycle.
+  Running the game at least once will generate the save files fresh on the
+  local machine in a readable-then-encrypted cycle.
 
 
 ================================================================================
 
-TESTING THE APPLICATION
------------------------
-A live build of the project is available for testing and demonstration:
+PLAYING THE GAME
+----------------
+A live build of the game is available for play and demonstration:
 
   Project Link:  https://bonfire69.itch.io/cardflow
 
-The live version represents the most recent stable release and may include
-additional improvements beyond the academic submission.
+The live version represents the most recent stable release.
 
 
 
 INTELLECTUAL PROPERTY NOTICE
 -----------------------------
-This project was developed by Bon Jury Pecaoco under BONFIRE BASE Studio.
+CardFlow is the property of BONFIRE BASE Studio.
 
-While the project is submitted for academic evaluation, certain proprietary
-assets, tools, infrastructure, and supporting systems remain the intellectual
-property of Bonfire Base Studio and are not included in this submission.
-
-The submitted materials are intended solely for educational review, testing,
-and grading purposes.
+Certain proprietary assets, tools, infrastructure, and supporting systems remain
+the intellectual property of BONFIRE BASE Studio and are not included in this
+package.
 
 
 ================================================================================
 
-EVALUATION NOTES
-----------------
-For full code request you can request to BONFIRE BASE Studio directly:
+CONTACT
+-------
+For full code requests you can contact BONFIRE BASE Studio directly:
 https://bonfire.base69.studio
 
 
 ================================================================================
 
-                  (c) 2026 Bonfire Base Studio. All Rights Reserved.
+                  (c) 2026 BONFIRE BASE Studio. All Rights Reserved.
 
 ================================================================================

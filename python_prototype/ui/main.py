@@ -326,12 +326,23 @@ def main():
     splash_frames = []
     splash_frame_idx = 0
     splash_timer = 0.0
+    splash_total_timer = 0.0
+    SPLASH_DURATION = 4.0
     
     splash_gif_path = os.path.join(assets_dir, "splashscreen.gif")
     if os.path.exists(splash_gif_path):
         try:
             splash_frames = load_gif(splash_gif_path)
             game_state = 'splashscreen'
+            # Paint the first splash frame instantly at launch so it appears
+            # immediately, before the heavier audio/asset init runs below.
+            if splash_frames:
+                screen.fill((0, 0, 0))
+                _f0 = splash_frames[0]
+                screen.blit(_f0, ((WIDTH - _f0.get_width()) // 2,
+                                  (HEIGHT - _f0.get_height()) // 2))
+                pygame.draw.rect(screen, (0, 0, 0), (0, HEIGHT - 60, WIDTH, 60))
+                pygame.display.flip()
         except Exception as e:
             print(f"Failed to load splash screen GIF: {e}")
             game_state = 'lobby'
@@ -704,12 +715,18 @@ def main():
             screen.fill((0, 0, 0)) 
             
             if splash_frames:
+                splash_total_timer += dt
                 splash_timer += dt
                 if splash_timer >= 0.05: 
                     splash_timer = 0.0
                     splash_frame_idx += 1
                     if splash_frame_idx >= len(splash_frames):
-                        game_state = 'lobby' 
+                        splash_frame_idx = 0  # Loop the GIF for the full duration
+
+                # Hard 3.5s cap: leave the splash once the duration elapses
+                if splash_total_timer >= SPLASH_DURATION:
+                    game_state = 'lobby'
+
                 if game_state == 'splashscreen':
                     current_frame = splash_frames[splash_frame_idx]
                     fx = (WIDTH - current_frame.get_width()) // 2

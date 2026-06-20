@@ -6,13 +6,12 @@ from ui.ui_components import Colors, blur_surface
 
 
 class SettingsModal:
-    """Premium tabbed settings modal with Audio, About, and Legal sections."""
+    """Premium tabbed settings modal with Audio and Legal sections."""
 
     # ── Tab Constants ──
     TAB_AUDIO = 0
-    TAB_ABOUT = 1
-    TAB_LEGAL = 2
-    TAB_NAMES = ["Audio", "About", "Legal"]
+    TAB_LEGAL = 1
+    TAB_NAMES = ["Audio", "Legal"]
 
     # ── TOS / Privacy Text ──
     TOS_TEXT = [
@@ -22,14 +21,11 @@ class SettingsModal:
         "",
         "1. ACCEPTANCE OF TERMS",
         "By accessing and playing CardFlow, you acknowledge",
-        "that this game is an academic project developed for",
-        "CPROG 2 (Computer Programming 2) and agree to",
-        "these terms.",
+        "and agree to these terms.",
         "",
-        "2. ACADEMIC PURPOSE",
-        "CardFlow is a non-commercial, educational project",
-        "created as a course requirement. It is not intended",
-        "for commercial distribution or monetary gain.",
+        "2. PURPOSE",
+        "CardFlow is a digital card game produced by",
+        "BONFIRE BASE Studio for entertainment purposes.",
         "",
         "3. GAME CURRENCY",
         "All in-game currency (coins, chips) is virtual and",
@@ -43,12 +39,12 @@ class SettingsModal:
         "",
         "5. INTELLECTUAL PROPERTY",
         "All original code, assets, and design elements are",
-        "the property of the development team. Third-party",
+        "the property of BONFIRE BASE Studio. Third-party",
         "assets are used under their respective licenses.",
         "",
-        "6. FAIR USE",
-        "This project incorporates educational fair-use",
-        "principles for any referenced materials.",
+        "6. THIRD-PARTY ASSETS",
+        "All referenced third-party materials are used in",
+        "accordance with their respective licenses.",
     ]
 
     PRIVACY_TEXT = [
@@ -445,8 +441,6 @@ class SettingsModal:
 
         if self.active_tab == self.TAB_AUDIO:
             self._draw_audio_tab(modal_surf, screen, cx, content_y, screen_y)
-        elif self.active_tab == self.TAB_ABOUT:
-            self._draw_about_tab(modal_surf, cx, content_y)
         elif self.active_tab == self.TAB_LEGAL:
             self._draw_legal_tab(modal_surf, cx, content_y)
 
@@ -669,52 +663,6 @@ class SettingsModal:
         modal_surf.blit(sub_surf, (cx, row_y + row_h + 6))
 
         # ── Branding at bottom of audio tab ──
-        brand_y = self.rect.h - 60
-        brand_txt1 = self.font_small.render("A ", True, (255, 255, 255))
-        brand_txt2 = self.font_small.render("BONFIRE BASE", True, (255, 128, 0))
-        brand_txt3 = self.font_small.render(" Studios Production", True, (255, 255, 255))
-        modal_surf.blit(brand_txt1, (cx, brand_y))
-        modal_surf.blit(brand_txt2, (cx + brand_txt1.get_width(), brand_y))
-        modal_surf.blit(brand_txt3, (cx + brand_txt1.get_width() + brand_txt2.get_width(), brand_y))
-
-    def _draw_about_tab(self, modal_surf, cx, content_y):
-        """Draw About tab: Credits, branding, version."""
-        # Credits Title
-        credits_title = self.font_body.render("Development Team", True, Colors.TEXT_GOLD)
-        modal_surf.blit(credits_title, (cx, content_y + 5))
-
-        # Separator
-        pygame.draw.line(modal_surf, (255, 215, 50, 40), (cx, content_y + 35), (cx + 300, content_y + 35), 1)
-
-        credits_data = [
-            ("PROJECT MANAGER", "LOUISE JAN CARLO TABALDO"),
-            ("LEAD DEVELOPER", "BON JURY PECAOCO"),
-            ("GAME DESIGNER", "CHONA MAE GREGORIO"),
-            ("GAME DESIGNER", "CRISTINA GERTOS"),
-            ("TECHNICAL WRITER", "JAMAICA NAZARENO"),
-        ]
-
-        y_off = content_y + 50
-        for role, name in credits_data:
-            # Role (small gold)
-            role_surf = self.font_small.render(role, True, (180, 160, 80))
-            modal_surf.blit(role_surf, (cx + 10, y_off))
-            # Name (white)
-            name_surf = self.font_body.render(name, True, (230, 230, 240))
-            modal_surf.blit(name_surf, (cx + 10, y_off + 18))
-            y_off += 50
-
-        # Separator
-        pygame.draw.line(modal_surf, (255, 255, 255, 15), (cx, y_off + 5), (self.rect.w - cx, y_off + 5), 1)
-
-        # Project Info
-        y_off += 20
-        proj_label = self.font_small.render("PROJECT", True, (180, 160, 80))
-        modal_surf.blit(proj_label, (cx + 10, y_off))
-        proj_val = self.font_body.render("CPROG 2 — Computer Programming 2", True, (230, 230, 240))
-        modal_surf.blit(proj_val, (cx + 10, y_off + 18))
-
-        # Branding
         brand_y = self.rect.h - 60
         brand_txt1 = self.font_small.render("A ", True, (255, 255, 255))
         brand_txt2 = self.font_small.render("BONFIRE BASE", True, (255, 128, 0))
